@@ -10,4 +10,6 @@ Installation:
 make
 sudo make install
 
+The binary is called bgpparser and placed under the bin/ dir
+
 Please report bugs to rveloso@cs.ucla.edu
