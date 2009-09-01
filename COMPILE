@@ -1,0 +1,13 @@
+The BGP parser needs the following libraries to compile:
+---------------------------------------------------------
+
++ libxml2
+download from http://xmlsoft.org/ or use a package management util to install libxml2-2.x
+
+Installation:
+---------------------------------------------------------
+./configure
+make
+sudo make install
+
+Please report bugs to rveloso@cs.ucla.edu

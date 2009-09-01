@@ -1,0 +1,25 @@
+================
+RIB parsing test
+================
+comp-rib.sh
+
+* comp-rib.sh needs:
+	- cvRib2Bgpdump.pl and cmp.pl (in cvs) 
+	- data input in ribs-rv or ribs-v1 or ribs-v2 (not in cvs)
+	- binaries:
+		- /amnt/nuggets/homedirs/rveloso/libbgpdump-1.4.99.8/bgpdump
+		- ../parser/testr
+
+================
+Update parsing test
+================
+comp-up.sh
+
+* comp-up.sh needs:
+	- cvUp2Bgpdump.pl and cmp.pl 
+	- data input in updates-rrc00 (not in cvs)
+	- binaries:
+		- /amnt/nuggets/homedirs/rveloso/libbgpdump-1.4.99.8/bgpdump
+		- ../parser/testr
+
+
