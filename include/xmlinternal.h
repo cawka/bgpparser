@@ -36,6 +36,9 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+/* rveloso: need this for u_char, was creating some trouble in mac os x */
+#include <sys/types.h>
+
 /* constants */
 #define XML_BUFFER_LEN      10240000  /* 10M  Bytes - max size of XML buffer, for the whole XML message */
 #define XML_TEMP_BUFFER_LEN 512       /* 512 Bytes  - max size of XML temporary buffer, for a single ascii word, like '128.110.1.1' or '7013' */
