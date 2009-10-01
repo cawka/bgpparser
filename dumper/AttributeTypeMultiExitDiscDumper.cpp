@@ -49,4 +49,15 @@ xmlNodePtr AttributeTypeMultiExitDiscDumper::genXml()
     return node;
 }
 
+string AttributeTypeMultiExitDiscDumper::genAscii()
+{
+    AttributeTypeMultiExitDisc *attr = (AttributeTypeMultiExitDisc *)attr_type;
+    string node = "";
+    char buffer[32];
+    buffer[0] = '\0';
+    sprintf(buffer, "%d", attr->getMultiExitDiscValue());
+    node += buffer;
+    return node;
+}
+
 // vim: sw=4 ts=4 sts=4 expandtab

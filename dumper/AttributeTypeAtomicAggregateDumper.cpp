@@ -51,4 +51,11 @@ xmlNodePtr AttributeTypeAtomicAggregateDumper::genXml()
     return node;
 }
 
+string AttributeTypeAtomicAggregateDumper::genAscii()
+{
+    string node = "AG";
+    return node;
+}
+
+
 // vim: sw=4 ts=4 sts=4 expandtab

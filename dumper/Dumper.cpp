@@ -45,6 +45,11 @@ Dumper::printXmlNode(xmlNodePtr node, int format, int newline)
     return len;
 }
 
-
+int
+Dumper::printAsciiNode(string node, int format, int newline)
+{
+    printf("%s", (char *) node.c_str());
+    return node.length();
+}
 
 // vim: sw=4 ts=4 sts=4 expandtab

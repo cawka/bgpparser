@@ -78,4 +78,17 @@ xmlNodePtr BGPAttributeDumper::genXml()
     return node;
 }
 
+string BGPAttributeDumper::genAscii()
+{
+    string node = "";
+
+    /* Attribute xml node */
+    AttributeTypeDumper *attr_dumper = AttributeTypeDumper::newDumper(bgp_attr->getAttributeTypeCode(), bgp_attr->getAttributeTypeStr(), bgp_attr->getAttributeValue());
+    node += attr_dumper->genAscii();
+    delete attr_dumper;
+
+    return node;
+}
+
+
 // vim: sw=4 ts=4 sts=4 expandtab

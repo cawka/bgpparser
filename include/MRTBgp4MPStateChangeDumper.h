@@ -46,6 +46,7 @@ public:
 	static class MRTBgp4MPStateChangeDumper* newDumper(MRTBgp4MPStateChange*);
 
 	xmlNodePtr genXml();
+	string     genAscii();
 
     void setMRTBgp4MPStateChange(MRTBgp4MPStateChange* bgp4mp_sc)
     {

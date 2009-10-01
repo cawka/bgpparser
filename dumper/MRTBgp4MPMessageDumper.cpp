@@ -66,4 +66,26 @@ xmlNodePtr MRTBgp4MPMessageDumper::genXml()
     return node;
 }
 
+string MRTBgp4MPMessageDumper::genAscii()
+{
+    string node = "";
+
+    BGPMessageDumper *bgpmsg_dumper = new BGPMessageDumper();
+    /* Collect infomation */
+    bgpmsg_dumper->setTimestamp(bgp4mp_msg->getTimestamp());
+    bgpmsg_dumper->setBGPMessage((BGPMessage*)bgp4mp_msg->getPayload());
+    bgpmsg_dumper->setPeering(
+                                bgp4mp_msg->getPeerIP(),
+                                bgp4mp_msg->getLocalIP(),
+                                bgp4mp_msg->getPeerAS(),
+                                bgp4mp_msg->getLocalAS(),
+                                bgp4mp_msg->getInterfaceIndex(),
+                                bgp4mp_msg->getAddressFamily()
+                             );
+    node = bgpmsg_dumper->genAscii();
+    delete bgpmsg_dumper;
+
+    return node;
+}
+
 // vim: sw=4 ts=4 sts=4 expandtab

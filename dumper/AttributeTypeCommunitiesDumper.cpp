@@ -89,4 +89,33 @@ xmlNodePtr AttributeTypeCommunitiesDumper::genXml()
     return node;
 }
 
+string AttributeTypeCommunitiesDumper::genAscii()
+{
+    AttributeTypeCommunities *attr = (AttributeTypeCommunities *)attr_type;
+    string node = "";
+    string sep  = "";
+
+	list<CommunityValue>::iterator iter;
+	list<CommunityValue>* communityValues = attr->getCommunityValue();
+	for(iter = communityValues->begin(); iter != communityValues->end(); iter++)
+    {
+        int as  = (*iter).ASnum;
+        int val = (*iter).info;
+
+        if ( as == 0xFFFF && val ==  0xFF01 )
+        {
+            node += sep + "no-export";
+        }
+        else
+        {
+            char buffer[32];
+            buffer[0] = '\0';
+            sprintf(buffer, "%d:%d", as, val); 
+            node += sep + buffer;
+        }
+        sep = " ";
+    }
+    return node;
+}
+
 // vim: sw=4 ts=4 sts=4 expandtab

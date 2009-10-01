@@ -65,4 +65,26 @@ xmlNodePtr AttributeTypeNextHopDumper::genXml()
     return node;
 }
 
+string AttributeTypeNextHopDumper::genAscii()
+{
+    string nh_str = "";
+    static char str[INET6_ADDRSTRLEN];
+
+    AttributeTypeNextHop *attr = (AttributeTypeNextHop *)attr_type;
+
+	IPAddress addr = attr->getNextHopIPAddress();
+	switch(attr->getNextHopAFI())
+	{
+		case AFI_IPv4: 
+			inet_ntop(AF_INET, &(addr.ipv4), str, INET_ADDRSTRLEN);
+			break;
+		case AFI_IPv6: 
+			inet_ntop(AF_INET6, &(addr.ipv6), str, INET6_ADDRSTRLEN);
+			break;
+	}
+
+    nh_str += str;
+    return nh_str;
+}
+
 // vim: sw=4 ts=4 sts=4 expandtab

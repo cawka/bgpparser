@@ -81,7 +81,8 @@ BGPDumper* BGPDumper::newDumper(BGPMessage* msg)
 
 xmlNodePtr BGPDumper::genXml()
 {
-    return genXmlAsciiMsg();
+    return genXmlAsciiMsg();  // Default: XML ascii message
+    //return genXmlOctetMsg();
 }
 
 xmlNodePtr BGPDumper::genXmlAsciiMsg()
@@ -101,7 +102,7 @@ xmlNodePtr BGPDumper::genXmlAsciiMsg()
     marker_node = xmlAddChild(node, static_marker_node);
     len_node    = xmlAddChild(node, xmlNewNodeInt("LENGTH" , bgp_msg->getLength()));
     type_node   = xmlAddChild(node, xmlNewNodeString("TYPE", (char *)type.c_str()));
-    ascii_node  = xmlAddChild(node, genXmlAscii());
+    ascii_node  = xmlAddChild(node, genXmlAsciiNode());
 
     //printNode(node);
     return node;
@@ -124,7 +125,7 @@ xmlNodePtr BGPDumper::genXmlOctetMsg()
     return node;
 }
 
-xmlNodePtr BGPDumper::genXmlAscii()
+xmlNodePtr BGPDumper::genXmlAsciiNode()
 {
     // Virtual function, should be overriwritten by derived classes.
     xmlNodePtr node, octets_node;
@@ -134,5 +135,29 @@ xmlNodePtr BGPDumper::genXmlAscii()
     octets_node = xmlAddChild(node, xmlNewNodeOctets("OCTETS", bgp_msg->getOctets(), len));
     return node;
 }
+
+string BGPDumper::genAscii()
+{
+    // Virtual function, should be overriwritten by derived classes.
+    string ascii_msg = "";
+    return ascii_msg;
+}
+
+/*
+list<string> BGPDumper::genAsciiMsg()
+{
+    // Virtual function, should be overriwritten by derived classes.
+    list<string> bgp_msg_list;
+    return bgp_msg_list;
+}
+*/
+
+list<string> BGPDumper::genAsciiMsg(string peer_addr, uint32_t peer_as)
+{
+    // Virtual function, should be overriwritten by derived classes.
+    list<string> bgp_msg_list;
+    return bgp_msg_list;
+}
+
 
 // vim: sw=4 ts=4 sts=4 expandtab

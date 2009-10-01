@@ -49,4 +49,15 @@ xmlNodePtr AttributeTypeLocalPrefDumper::genXml()
     return node;
 }
 
+string AttributeTypeLocalPrefDumper::genAscii()
+{
+    AttributeTypeLocalPref *attr = (AttributeTypeLocalPref *)attr_type;
+    string node = "";
+    char buffer[32];
+    buffer[0] = '\0';
+    sprintf(buffer, "%d", attr->getLocalPrefValue());
+    node += buffer;
+    return node;
+}
+
 // vim: sw=4 ts=4 sts=4 expandtab

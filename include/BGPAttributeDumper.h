@@ -45,6 +45,7 @@ public:
 	static class BGPAttributeDumper* newDumper(BGPAttribute*);
 
 	xmlNodePtr genXml();
+	string     genAscii();
 
 protected:
     BGPAttribute* bgp_attr;

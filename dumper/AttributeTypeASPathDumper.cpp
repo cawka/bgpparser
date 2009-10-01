@@ -100,4 +100,86 @@ xmlNodePtr AttributeTypeASPathDumper::genXml()
     return node;
 }
 
+string AttributeTypeASPathDumper::genAscii()
+{
+    string node = "";
+
+    list<AttributeTypeASPathSegment>* pathSegments = NULL;
+	switch(type_code)
+	{
+		case AttributeType::AS_PATH:
+		{
+            pathSegments = ((AttributeTypeASPath *)attr_type)->getPathSegmentsComplete();
+			break;
+		}
+		case AttributeType::NEW_AS_PATH:
+		{
+            pathSegments = ((AttributeTypeASPath *)attr_type)->getPathSegments();
+			break;
+		}
+    }
+
+	if (pathSegments != NULL)
+	{	
+        static string head = "";
+        static string tail = "";
+        static string sep  = " ";
+        static char buffer[16];
+
+		list<AttributeTypeASPathSegment>::iterator it;
+        bool first_seg = true;
+		for (it = pathSegments->begin(); it != pathSegments->end(); it++)
+		{
+            if (first_seg)
+            {
+                first_seg = false;
+            }
+            else
+            {
+                node += " ";
+            }
+
+            AttributeTypeASPathSegment* as_seg = &(*it);
+
+            char *type = NULL;
+            uint8_t pathSegmentType = as_seg->getPathSegmentType();
+            switch (pathSegmentType)
+            {
+                case AttributeTypeASPathSegment::AS_SEQUENCE:          head = "";  tail="";  sep=" ";  break;
+                case AttributeTypeASPathSegment::AS_SET:               head = "{"; tail="}", sep=",";  break;
+                //[TO_DO] conf_set / conf_sequence
+                case AttributeTypeASPathSegment::AS_CONFED_SEQUENCE:   head = "";  tail="";  sep=" ";  break; //[TODO]
+                case AttributeTypeASPathSegment::AS_CONFED_SET:        head = "";  tail="";  sep=",";  break; //[TODO]
+                default:                                               head = "";  tail="";  sep="";   break;
+            }
+
+            node += head;
+            list<uint32_t> *pathSegmentValue =  as_seg->getPathSegmentValue();
+            bool first = true;
+            if (pathSegmentValue != NULL)
+            {
+                list<uint32_t>::iterator it;
+                for (it = pathSegmentValue->begin(); it != pathSegmentValue->end(); it++)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        node += sep;
+                    }
+
+                    buffer[0] = '\0';
+                    sprintf(buffer, "%u", *it);
+                    node += buffer;
+                }
+            }
+            node += tail;
+		}
+	}
+
+    return node;
+}
+
 // vim: sw=4 ts=4 sts=4 expandtab

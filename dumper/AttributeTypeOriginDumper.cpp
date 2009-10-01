@@ -62,4 +62,22 @@ xmlNodePtr AttributeTypeOriginDumper::genXml()
     return node;
 }
 
+string AttributeTypeOriginDumper::genAscii()
+{
+    AttributeTypeOrigin *attr_origin = (AttributeTypeOrigin *)attr_type;
+
+    string node = "";
+    string origin_str = "";
+	switch(attr_origin->getOrigin())
+	{
+		case AttributeTypeOrigin::IGP: origin_str = "IGP"; break;
+		case AttributeTypeOrigin::EGP: origin_str = "EGP"; break;
+		default:  origin_str = "INCOMPLETE"; break;
+	}
+    node += origin_str;
+
+    return node;
+}
+
+
 // vim: sw=4 ts=4 sts=4 expandtab

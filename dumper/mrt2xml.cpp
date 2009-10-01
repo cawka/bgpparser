@@ -84,17 +84,23 @@ int procBgpMessages(xmlNodePtr node, int flag_format, int flag_newline, int flag
     return 1;
 }
 
-int procXml(Dumper *dumper, int flag_format, int flag_newline, int flag_bgpdump)
+int procMsg(Dumper *dumper, int flag_format, int flag_newline, int flag_bgpdump)
 {
-    xmlNodePtr root_node = dumper->genXml();
+    if (flag_bgpdump)
+    {
+        dumper->printAscii(flag_format, flag_newline);
+    }
+    else
+    {
+        xmlNodePtr root_node = dumper->genXml();
 
-    if (!root_node->name) return 0;
+        if (!root_node->name) return 0;
+        if      ((strcmp((char*)root_node->name, "BGP_MESSAGES") == 0)) procBgpMessages(root_node, flag_format, flag_newline, flag_bgpdump);
+        else if ((strcmp((char*)root_node->name, "BGP_MESSAGE" ) == 0)) procBgpMessage(root_node,  flag_format, flag_newline, flag_bgpdump);
 
-    if      ((strcmp((char*)root_node->name, "BGP_MESSAGES") == 0)) procBgpMessages(root_node, flag_format, flag_newline, flag_bgpdump);
-    else if ((strcmp((char*)root_node->name, "BGP_MESSAGE" ) == 0)) procBgpMessage(root_node,  flag_format, flag_newline, flag_bgpdump);
-
-    xmlUnlinkNode(root_node);
-    xmlFreeNode(root_node);
+        xmlUnlinkNode(root_node);
+        xmlFreeNode(root_node);
+    }
     return 0;
 }
 
@@ -231,7 +237,7 @@ int main(int argc, char** argv)
                             // Dumper for BGP Message ./
                             MRTTblDumpV1Dumper *mrt_tblv1_dumper = new MRTTblDumpV1Dumper();
                             mrt_tblv1_dumper->setTblDumpMsg(tblDump);
-                            procXml((Dumper *)mrt_tblv1_dumper, flag_format, flag_newline, flag_bgpdump);
+                            procMsg((Dumper *)mrt_tblv1_dumper, flag_format, flag_newline, flag_bgpdump);
                             delete mrt_tblv1_dumper;
                         }
                         break;
@@ -258,7 +264,7 @@ int main(int argc, char** argv)
                         case RIB_IPV6_MULTICAST:
                         {
                             mrt_tblv2_dumper->setTblDumpMsg((MRTTblDumpV2RibHeader*)msg);
-                            procXml((Dumper *)mrt_tblv2_dumper, flag_format, flag_newline, flag_bgpdump);
+                            procMsg((Dumper *)mrt_tblv2_dumper, flag_format, flag_newline, flag_bgpdump);
                         }
                         break;
 
@@ -294,7 +300,7 @@ int main(int argc, char** argv)
 
                             // Dumper for BGP Message ./
                             MRTBgp4MPMessageDumper *mrt_bgp4mp_msg_dumper = MRTBgp4MPMessageDumper::newDumper(bgp4MPmsg);
-                            procXml((Dumper *)mrt_bgp4mp_msg_dumper, flag_format, flag_newline, flag_bgpdump);
+                            procMsg((Dumper *)mrt_bgp4mp_msg_dumper, flag_format, flag_newline, flag_bgpdump);
                             delete mrt_bgp4mp_msg_dumper;
                         }
                         break;
@@ -307,7 +313,7 @@ int main(int argc, char** argv)
 
                             // Dumper for BGP State Change //
                             MRTBgp4MPStateChangeDumper *mrt_bgp4mp_sc_dumper = MRTBgp4MPStateChangeDumper::newDumper(bgp4MPmsg);
-                            procXml((Dumper *)mrt_bgp4mp_sc_dumper, flag_format, flag_newline, flag_bgpdump);
+                            procMsg((Dumper *)mrt_bgp4mp_sc_dumper, flag_format, flag_newline, flag_bgpdump);
                             delete mrt_bgp4mp_sc_dumper;
                         }
                         break;

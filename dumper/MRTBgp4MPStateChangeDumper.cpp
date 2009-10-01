@@ -66,4 +66,27 @@ xmlNodePtr MRTBgp4MPStateChangeDumper::genXml()
     return node;
 }
 
+string MRTBgp4MPStateChangeDumper::genAscii()
+{
+    string node = "";
+
+    BGPStateChangeDumper *bgpsc_dumper = new BGPStateChangeDumper();
+    bgpsc_dumper->setTimestamp(bgp4mp_state_change->getTimestamp());
+    bgpsc_dumper->setPeering(
+                                bgp4mp_state_change->getPeerIP(),
+                                bgp4mp_state_change->getLocalIP(),
+                                bgp4mp_state_change->getPeerAS(),
+                                bgp4mp_state_change->getLocalAS(),
+                                bgp4mp_state_change->getInterfaceIndex(),
+                                bgp4mp_state_change->getAddressFamily()
+                             );
+    bgpsc_dumper->setState(bgp4mp_state_change->getOldState(), bgp4mp_state_change->getNewState());
+    bgpsc_dumper->setAFI(bgp4mp_state_change->getAddressFamily());
+    node = bgpsc_dumper->genAscii();
+    delete bgpsc_dumper;
+
+    return node;
+}
+
+
 // vim: sw=4 ts=4 sts=4 expandtab

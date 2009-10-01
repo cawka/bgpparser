@@ -33,6 +33,7 @@
 #include "Dumper.h"
 #include "BGPCommonHeader.h"
 #include "BGPAttribute.h"
+#include <list>
 
 using namespace std;
 
@@ -46,11 +47,16 @@ public:
 	// Factory method for creating a BGP dumper
 	static class BGPDumper* newDumper(BGPMessage*);
 
-	xmlNodePtr genXml();
+    // XML output
+	virtual xmlNodePtr genXml();
 	xmlNodePtr genXmlAsciiMsg();
 	xmlNodePtr genXmlOctetMsg();
+	virtual xmlNodePtr genXmlAsciiNode();
 
-	virtual xmlNodePtr genXmlAscii();
+    // Ascii output
+	virtual string genAscii();
+    //virtual list<string> genAsciiMsg(); 
+    virtual list<string> genAsciiMsg(string peer_addr, string peer_as); 
 
 protected:
     BGPMessage* bgp_msg;
@@ -72,12 +78,16 @@ public:
 	BGPUpdateDumper(BGPMessage*);
 	virtual ~BGPUpdateDumper();
 
+    // XML output
 	xmlNodePtr genUpdateWithdrawnNode(list<Route>* Routes);
 	xmlNodePtr genUpdateNlriNode(list<Route>* Routes);
 	xmlNodePtr genPrefixNode(Route, uint32_t afi, uint32_t safi);
 	xmlNodePtr genUpdateAttributesNode(list<BGPAttribute>* pathAttributes);
+	virtual xmlNodePtr genXmlAsciiNode();
 
-	virtual xmlNodePtr genXmlAscii();
+    // Ascii output
+    //virtual list<string> genAsciiMsg(); 
+    virtual list<string> genAsciiMsg(string peer_addr, string peer_as); 
 protected:
 };
 

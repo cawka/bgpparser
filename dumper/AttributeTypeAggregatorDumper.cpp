@@ -57,4 +57,21 @@ xmlNodePtr AttributeTypeAggregatorDumper::genXml()
     return node;
 }
 
+string AttributeTypeAggregatorDumper::genAscii()
+{
+    AttributeTypeAggregator *attr = (AttributeTypeAggregator *)attr_type;
+    //xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "AGGREGATOR");
+    string node = "";
+
+	IPAddress addr = attr->getAggregatorBGPSpeakerIPAddress();
+    static char str[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &(addr.ipv4), str, INET_ADDRSTRLEN);
+
+    char buffer[64];
+    buffer[0] = '\0';
+    sprintf(buffer, "%d %s", attr->getAggregatorLastAS(), str);
+    node += buffer;
+    return node;
+}
+
 // vim: sw=4 ts=4 sts=4 expandtab

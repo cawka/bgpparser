@@ -45,6 +45,7 @@ public:
 	// Factory method for creating a attribute dumper instance.
 	static class AttributeTypeDumper* newDumper(uint8_t attrType, string attrTypeStr, AttributeType*);
 	virtual xmlNodePtr genXml();
+	virtual string     genAscii();
 
     string  getTypeStr(void)        {return type_str;      };
 	void    setTypeStr(string ts)   {this->type_str = ts;  };
@@ -62,6 +63,7 @@ public:
 	AttributeTypeOriginDumper(AttributeType*);
 	virtual ~AttributeTypeOriginDumper();
 	virtual xmlNodePtr genXml();
+	virtual string     genAscii();
 };
 
 class AttributeTypeNextHopDumper : public AttributeTypeDumper
@@ -70,6 +72,7 @@ public:
 	AttributeTypeNextHopDumper(AttributeType*);
 	virtual ~AttributeTypeNextHopDumper();
 	virtual xmlNodePtr genXml();
+	virtual string     genAscii();
 };
 
 class AttributeTypeLocalPrefDumper : public AttributeTypeDumper
@@ -78,6 +81,7 @@ public:
 	AttributeTypeLocalPrefDumper(AttributeType*);
 	virtual ~AttributeTypeLocalPrefDumper();
 	virtual xmlNodePtr genXml();
+	virtual string     genAscii();
 };
 
 class AttributeTypeMultiExitDiscDumper : public AttributeTypeDumper
@@ -86,6 +90,7 @@ public:
 	AttributeTypeMultiExitDiscDumper(AttributeType*);
 	virtual ~AttributeTypeMultiExitDiscDumper();
 	virtual xmlNodePtr genXml();
+	virtual string     genAscii();
 };
 
 class AttributeTypeCommunitiesDumper : public AttributeTypeDumper
@@ -94,6 +99,7 @@ public:
 	AttributeTypeCommunitiesDumper(AttributeType*);
 	virtual ~AttributeTypeCommunitiesDumper();
 	virtual xmlNodePtr genXml();
+	virtual string     genAscii();
 };
 
 class AttributeTypeAggregatorDumper : public AttributeTypeDumper
@@ -102,6 +108,7 @@ public:
 	AttributeTypeAggregatorDumper(AttributeType*);
 	virtual ~AttributeTypeAggregatorDumper();
 	virtual xmlNodePtr genXml();
+	virtual string     genAscii();
 };
 
 class AttributeTypeAtomicAggregateDumper : public AttributeTypeDumper
@@ -110,6 +117,7 @@ public:
 	AttributeTypeAtomicAggregateDumper(AttributeType*);
 	virtual ~AttributeTypeAtomicAggregateDumper();
 	virtual xmlNodePtr genXml();
+	virtual string     genAscii();
 };
 
 class AttributeTypeASPathDumper : public AttributeTypeDumper
@@ -118,6 +126,7 @@ public:
 	AttributeTypeASPathDumper(AttributeType*);
 	virtual ~AttributeTypeASPathDumper();
 	virtual xmlNodePtr genXml();
+	virtual string     genAscii();
 };
 
 class AttributeTypeMPReachNLRIDumper : public AttributeTypeDumper
@@ -126,6 +135,7 @@ public:
 	AttributeTypeMPReachNLRIDumper(AttributeType*);
 	virtual ~AttributeTypeMPReachNLRIDumper();
 	virtual xmlNodePtr genXml();
+	//virtual string     genAscii();
     xmlNodePtr genPrefixNode(Route rt, int afi, int safi);
 };
 
@@ -135,6 +145,7 @@ public:
 	AttributeTypeMPUnreachNLRIDumper(AttributeType*);
 	virtual ~AttributeTypeMPUnreachNLRIDumper();
 	virtual xmlNodePtr genXml();
+	//virtual string     genAscii();
     xmlNodePtr genPrefixNode(Route rt, int afi, int safi);
 };
 

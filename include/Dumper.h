@@ -31,7 +31,7 @@
 #define __DUMPER_H_
 
 #include <stdint.h>
-
+#include <string>
 #include <libxml/tree.h>
 
 using namespace std;
@@ -42,15 +42,25 @@ public:
 	Dumper();
 	virtual ~Dumper();
 	
+	/* XML output */
 	static int printXmlNode(xmlNodePtr node, int format, int newline);
 	virtual void printXml(bool format, bool newline) 
 	{ 
 	        xmlNodePtr node = genXml();	
-		printXmlNode(node, format, newline); 
+		printXmlNode(node, format, newline);
 		xmlUnlinkNode(node);
 		xmlFreeNode(node);
 	};
 	virtual xmlNodePtr genXml() { return NULL; };
+
+	/* ASCII output */
+	static int printAsciiNode(string node, int format, int newline);
+	virtual void printAscii(bool format, bool newline) 
+	{ 
+	        string node = genAscii();	
+		printAsciiNode(node, format, newline);
+	};
+	virtual string genAscii() { return ""; };
 
 protected:
 

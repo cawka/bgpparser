@@ -49,6 +49,7 @@ public:
 	// Factory method for creating a BGP dumper
 	//static class BGPMessageDumper* newDumper(BGPMessage**);
 	xmlNodePtr genXml();
+	string     genAscii();
 
     void setPeering(IPAddress peer_addr, IPAddress local_addr, uint32_t peer_as, uint32_t local_as, uint16_t if_idx, uint16_t afi) 
     {

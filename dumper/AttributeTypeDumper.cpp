@@ -133,4 +133,10 @@ xmlNodePtr AttributeTypeDumper::genXml()
     return node;
 }
 
+string AttributeTypeDumper::genAscii()
+{
+    string node = "";
+    return node;
+}
+
 // vim: sw=4 ts=4 sts=4 expandtab
