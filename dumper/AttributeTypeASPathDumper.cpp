@@ -141,7 +141,6 @@ string AttributeTypeASPathDumper::genAscii()
 
             AttributeTypeASPathSegment* as_seg = &(*it);
 
-            char *type = NULL;
             uint8_t pathSegmentType = as_seg->getPathSegmentType();
             switch (pathSegmentType)
             {

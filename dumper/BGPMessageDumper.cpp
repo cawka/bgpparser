@@ -133,7 +133,7 @@ string BGPMessageDumper::genAscii()
         buffer[0] = '\0';
         sprintf (buffer, "%s|%d|", 
                          "BGPDUMP", 
-                         timestamp
+                         (int)timestamp
                 );
         bgpmsg_node += buffer + *i;
         bgpmsg_node += "\n";

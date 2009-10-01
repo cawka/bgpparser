@@ -152,7 +152,7 @@ list<string> BGPDumper::genAsciiMsg()
 }
 */
 
-list<string> BGPDumper::genAsciiMsg(string peer_addr, uint32_t peer_as)
+list<string> BGPDumper::genAsciiMsg(string peer_addr, string peer_as)
 {
     // Virtual function, should be overriwritten by derived classes.
     list<string> bgp_msg_list;
