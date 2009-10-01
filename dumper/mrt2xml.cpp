@@ -110,6 +110,7 @@ void print_usage()
 	-f format the xml bgp message (default: YES),\n\
 	-n insert a newline character between each xml bgp message (default: YES),\n\
 	-m compact format, equivalent to disable -f and enable -n option (default: NO),\n\
+	-B output bgpdump compatible ascii short format,\n\
 	-r include a root element (default: NO),\n\
 	-h dispaly this message\n\
 	   \n";

@@ -130,23 +130,12 @@ string BGPMessageDumper::genAscii()
     buffer[0] = '\0';
     for(i=bgp_str_list.begin(); i != bgp_str_list.end(); ++i)
     {
-        // Common header
         buffer[0] = '\0';
         sprintf (buffer, "%s|%d|", 
-                         "BGP4MP", 
+                         "BGPDUMP", 
                          timestamp
                 );
-        bgpmsg_node += buffer;
-        // Anno / Withdraw
-        buffer[0] = '\0';
-        /*
-        sprintf (buffer, ((string)*i).c_str(),
-                         dst_addr,
-                         peer_as
-                );
-        bgpmsg_node += buffer;
-        */
-        bgpmsg_node += *i;
+        bgpmsg_node += buffer + *i;
         bgpmsg_node += "\n";
     }
 

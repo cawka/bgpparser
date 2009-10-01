@@ -112,4 +112,66 @@ xmlNodePtr MRTTblDumpV1Dumper::genXml()
     return node;
 }
 
+string MRTTblDumpV1Dumper::genAscii()
+{
+    string node = "";
+
+    /* [TODO] Check pointer validity */
+    // Prefix
+    // Prefix / Route
+    NLRIReachable   route(tblDumpMsg->getPrefixLength(),   tblDumpMsg->getPrefix());
+    NLRIUnReachable unroute(tblDumpMsg->getPrefixLength(), tblDumpMsg->getPrefix());
+
+    bool is_4byte = false;
+    BGPUpdate *update = new BGPUpdate(is_4byte);
+
+    /* Fill in the update members */
+    list<BGPAttribute>* attrs      = tblDumpMsg->getAttributes();
+    list<BGPAttribute>* path_attrs = update->getPathAttributes();
+    list<BGPAttribute>::iterator attrIter;
+    for (attrIter = attrs->begin(); attrIter != attrs->end(); attrIter++)
+    {
+        /* Multiple Protocol */
+        if (attrIter->getAttributeTypeCode() == AttributeType::MP_REACH_NLRI)
+        { 
+            AttributeTypeMPReachNLRI* mp_attr = (AttributeTypeMPReachNLRI*)attrIter->getAttributeValueMutable();
+            //mp_attr->setAFI(this->tblDumpMsg->getAFI());
+            //mp_attr->setSAFI(this->tblDumpMsg->getSAFI());
+            mp_attr->addNLRI(route);
+        }
+        if (attrIter->getAttributeTypeCode() == AttributeType::MP_UNREACH_NLRI)
+        { 
+            AttributeTypeMPUnreachNLRI* mp_attr = (AttributeTypeMPUnreachNLRI*)attrIter->getAttributeValueMutable();
+            //mp_attr->setAFI(this->tblDumpMsg->getAFI());
+            //mp_attr->setSAFI(this->tblDumpMsg->getSAFI());
+            mp_attr->addNLRI(unroute);
+        }
+        path_attrs->push_back(*attrIter);
+    }
+
+    /* Add IPV4/UNICAST NLRI */
+    list<Route>* nlri = update->getNlriRoutes();
+    nlri->push_back(route);
+
+    /* Message Dumper */
+    BGPMessageDumper *bgpmsg_dumper = new BGPMessageDumper();
+    /* Collect infomation */
+    bgpmsg_dumper->setTimestamp(tblDumpMsg->getTimestamp());
+    bgpmsg_dumper->setPeering(
+                                tblDumpMsg->getPeerIP(), // LocalIP
+                                tblDumpMsg->getPeerIP(), // PeerIP
+                                tblDumpMsg->getPeerAS(), // LocalAS
+                                tblDumpMsg->getPeerAS(), // LocalAS
+                                0,                       // Interface Index
+                                AFI_IPv4                 // IPV4
+                             );
+    bgpmsg_dumper->setBGPMessage((BGPMessage*)update);
+    node = bgpmsg_dumper->genAscii();
+
+    delete bgpmsg_dumper;
+    delete update;
+
+    return node;
+}
+
 // vim: sw=4 ts=4 sts=4 expandtab

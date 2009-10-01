@@ -151,4 +151,102 @@ xmlNodePtr MRTTblDumpV2Dumper::genXml()
     return node;
 }
 
+string MRTTblDumpV2Dumper::genAscii()
+{
+    string node = "";
+
+    /* [TODO] Check pointer validity */
+    // Prefix
+    /*
+    //cerr << "Subtype1:" <<  this->peerIndexTbl->getSubType() << endl;
+    //cerr << "Subtype2:" <<  this->tblDumpMsg->getSubType() << endl;
+    PRINT_IP_ADDR(tblDumpMsg->getPrefix().ipv4);
+	cout << "/" << (int)(tblDumpMsg->getPrefixLength() & BITMASK_8) << endl;
+    tblDumpMsg->printMeCompact();
+    cout << endl;
+    */
+
+    // Prefix / Route
+    NLRIReachable   route(tblDumpMsg->getPrefixLength(), tblDumpMsg->getPrefix());
+    NLRIUnReachable unroute(tblDumpMsg->getPrefixLength(), tblDumpMsg->getPrefix());
+
+	int i = 0;
+	list<TblDumpV2RibEntry>::iterator iter;
+	list<MRTTblDumpV2PeerIndexTblPeerEntry>::iterator peerIterator;
+	list<MRTTblDumpV2PeerIndexTblPeerEntry> *peerEntries = peerIndexTbl->getPeerEntries();
+	list<TblDumpV2RibEntry>                 *ribs        = tblDumpMsg->getRibEntries();
+
+	for (iter = ribs->begin(); iter != ribs->end(); iter++)
+	{
+        /* Peer */
+        /* [TODO] Modify for better performance */
+        for (
+             i = 0, peerIterator = peerEntries->begin(); 
+             (i < iter->getPeerIndex()) && (peerIterator != peerEntries->end()); 
+             peerIterator++, i++
+            )
+        {
+        /* find proper location into table */
+        }
+
+		//if (peerIterator->IPType == AFI_IPv4) { PRINT_IP_ADDR(peerIterator->peerIP.ipv4);   }
+		//else                                  { PRINT_IPv6_ADDR(peerIterator->peerIP.ipv6); }
+
+        /* Each Route Entry */
+        BGPUpdate *update = new BGPUpdate(peerIterator->isAS4);
+
+
+        /* Fill in the update members */
+        list<BGPAttribute>* attrs      = iter->getAttributes();
+        list<BGPAttribute>* path_attrs = update->getPathAttributes();
+        list<BGPAttribute>::iterator attrIter;
+        for (attrIter = attrs->begin(); attrIter != attrs->end(); attrIter++)
+        {
+            /* Multiple Protocol */
+            if (attrIter->getAttributeTypeCode() == AttributeType::MP_REACH_NLRI)
+            { 
+                AttributeTypeMPReachNLRI* mp_attr = (AttributeTypeMPReachNLRI*)attrIter->getAttributeValueMutable();
+                mp_attr->setAFI(this->tblDumpMsg->getAFI());
+                mp_attr->setSAFI(this->tblDumpMsg->getSAFI());
+                mp_attr->addNLRI(route);
+            }
+            if (attrIter->getAttributeTypeCode() == AttributeType::MP_UNREACH_NLRI)
+            { 
+                AttributeTypeMPUnreachNLRI* mp_attr = (AttributeTypeMPUnreachNLRI*)attrIter->getAttributeValueMutable();
+                mp_attr->setAFI(this->tblDumpMsg->getAFI());
+                mp_attr->setSAFI(this->tblDumpMsg->getSAFI());
+                mp_attr->addNLRI(unroute);
+            }
+            path_attrs->push_back(*attrIter);
+        }
+
+        /* Add IPV4/UNICAST NLRI */
+        if ( this->tblDumpMsg->getAFI() == AFI_IPv4 && this->tblDumpMsg->getSAFI() == SAFI_UNICAST)
+        {
+            list<Route>* nlri = update->getNlriRoutes();
+            nlri->push_back(route);
+        }
+
+        /* Message Dumper */
+        BGPMessageDumper *bgpmsg_dumper = new BGPMessageDumper();
+        /* Collect infomation */
+        bgpmsg_dumper->setTimestamp(tblDumpMsg->getTimestamp());
+        bgpmsg_dumper->setPeering(
+                                    peerIterator->peerIP, // LocalIP
+                                    peerIterator->peerIP, // PeerIP
+                                    peerIterator->peerAS, // LocalAS
+                                    peerIterator->peerAS, // LocalAS
+                                    0,                    // Interface Index
+                                    peerIterator->IPType  // AFI
+                                 );
+        bgpmsg_dumper->setBGPMessage((BGPMessage*)update);
+        node += bgpmsg_dumper->genAscii();
+
+        delete bgpmsg_dumper;
+        delete update;
+    }
+
+    return node;
+}
+
 // vim: sw=4 ts=4 sts=4 expandtab
