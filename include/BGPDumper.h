@@ -56,7 +56,7 @@ public:
     // Ascii output
 	virtual string genAscii();
     //virtual list<string> genAsciiMsg(); 
-    virtual list<string> genAsciiMsg(string peer_addr, string peer_as); 
+    virtual list<string> genAsciiMsg(string peer_addr, string peer_as, bool is_tabledump); 
 
 protected:
     BGPMessage* bgp_msg;
@@ -87,7 +87,7 @@ public:
 
     // Ascii output
     //virtual list<string> genAsciiMsg(); 
-    virtual list<string> genAsciiMsg(string peer_addr, string peer_as); 
+    virtual list<string> genAsciiMsg(string peer_addr, string peer_as, bool is_table_dump); 
 protected:
 };
 

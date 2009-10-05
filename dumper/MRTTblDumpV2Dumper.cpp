@@ -240,6 +240,7 @@ string MRTTblDumpV2Dumper::genAscii()
                                     peerIterator->IPType  // AFI
                                  );
         bgpmsg_dumper->setBGPMessage((BGPMessage*)update);
+        bgpmsg_dumper->isTableDump(true);
         node += bgpmsg_dumper->genAscii();
 
         delete bgpmsg_dumper;

@@ -119,7 +119,7 @@ xmlNodePtr BGPUpdateDumper::genXmlAsciiNode()
     return bgp_node;
 }
 
-list<string> BGPUpdateDumper::genAsciiMsg(string peer_addr, string peer_as)
+list<string> BGPUpdateDumper::genAsciiMsg(string peer_addr, string peer_as, bool is_tabledump=false)
 {
     BGPUpdate *bgp_update = (BGPUpdate *)bgp_msg;
     list<string> bgp_msg_list;
@@ -223,11 +223,12 @@ list<string> BGPUpdateDumper::genAsciiMsg(string peer_addr, string peer_as)
     }
 
     /* NLRI announcement */
+    string anno_type = ( is_tabledump ) ? "B" : "A";
     for (routeIter = bgp_update->getNlriRoutes()->begin(); routeIter != bgp_update->getNlriRoutes()->end(); routeIter++)
     {
         string anno = "";
         string prefix = ((Route)*routeIter).toString();
-        anno = anno + "A" + "|" + peer_addr + "|" + peer_as + "|" + prefix + attr_str;
+        anno = anno + anno_type + "|" + peer_addr + "|" + peer_as + "|" + prefix + attr_str;
         //anno = anno + "A" + "|\%s|\%d|" + prefix;
         bgp_msg_list.push_back(anno);
     }
@@ -240,7 +241,7 @@ list<string> BGPUpdateDumper::genAsciiMsg(string peer_addr, string peer_as)
         {
             string anno = "";
             string prefix = ((Route)*routeIter).toString();
-            anno = anno + "A" + "|" + peer_addr + "|" + peer_as + "|" + prefix + attr_str;
+            anno = anno + anno_type + "|" + peer_addr + "|" + peer_as + "|" + prefix + attr_str;
             bgp_msg_list.push_back(anno);
         }
     }

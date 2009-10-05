@@ -166,6 +166,7 @@ string MRTTblDumpV1Dumper::genAscii()
                                 AFI_IPv4                 // IPV4
                              );
     bgpmsg_dumper->setBGPMessage((BGPMessage*)update);
+    bgpmsg_dumper->isTableDump(true);
     node = bgpmsg_dumper->genAscii();
 
     delete bgpmsg_dumper;

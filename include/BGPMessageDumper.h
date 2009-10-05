@@ -71,9 +71,23 @@ public:
         this->bgp_msg = bgp_msg;
     };
 
+    bool isTableDump(bool is_tabledump)
+    {
+        this->is_tabledump  = is_tabledump;
+        return isTableDump();
+    };
+
+    bool isTableDump()
+    {
+        return this->is_tabledump;
+    };
+
 protected:
     /* Time */
     time_t timestamp;
+
+    /* Type */
+    bool is_tabledump;
 
     /* Peering */
     IPAddress peer_addr;

@@ -106,13 +106,18 @@ int procMsg(Dumper *dumper, int flag_format, int flag_newline, int flag_bgpdump)
 
 void print_usage()
 {
-    char *usage = "Usage: bgpparser [-f] [-n] [-m] [-h] mrt_file\n\
-	-f format the xml bgp message (default: YES),\n\
-	-n insert a newline character between each xml bgp message (default: YES),\n\
-	-m compact format, equivalent to disable -f and enable -n option (default: NO),\n\
-	-B output bgpdump compatible ascii short format,\n\
-	-r include a root element (default: NO),\n\
-	-h dispaly this message\n\
+    char *usage = "Usage: \n\
+1. Convert MRT files to XML format \n\
+   bgpparser [-f] [-n] [-m] [-h] mrt_file\n\
+    -f format/indent the xml bgp message (default: YES),\n\
+    -n insert a newline character between each xml bgp message (default: YES),\n\
+    -m compact format, equivalent to disable -f and enable -n option (default: NO),\n\
+    -r include a root element (default: NO),\n\
+    -h dispaly this message\n\
+    \n\
+2. Convert MRT files to bgpdump ascii short format \n\
+   bgpparser -B mrt_file\n\
+    -B output bgpdump compatible ascii short format,\n\
 	   \n";
     cout << usage;
 }

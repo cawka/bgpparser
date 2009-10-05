@@ -37,7 +37,9 @@ extern "C" {
 }
 
 BGPMessageDumper::BGPMessageDumper()
-{}
+{
+    is_tabledump = false;
+}
 
 BGPMessageDumper::~BGPMessageDumper()
 {}
@@ -115,7 +117,6 @@ string BGPMessageDumper::genAscii()
 			inet_ntop(AF_INET6, &(local_addr.ipv6), src_addr, INET6_ADDRSTRLEN);
 			break;
 	}
-
     static char buffer[256]; 
     buffer[0] = '\0';
     sprintf(buffer, "%u", peer_as);
@@ -123,16 +124,17 @@ string BGPMessageDumper::genAscii()
     string   peer_as_str   = buffer;
 
     BGPDumper *bgp_dumper = BGPDumper::newDumper(bgp_msg);
-    list<string> bgp_str_list = bgp_dumper->genAsciiMsg(peer_addr_str, peer_as_str);
+    list<string> bgp_str_list = bgp_dumper->genAsciiMsg(peer_addr_str, peer_as_str, is_tabledump);
     delete bgp_dumper;
 
     list<string>::iterator i;
+    string msg_type = ( is_tabledump ) ? "TABLE_DUMP" : "BGP4MP";
     buffer[0] = '\0';
     for(i=bgp_str_list.begin(); i != bgp_str_list.end(); ++i)
     {
         buffer[0] = '\0';
         sprintf (buffer, "%s|%d|", 
-                         "BGPDUMP", 
+                         msg_type.c_str(),
                          (int)timestamp
                 );
         bgpmsg_node += buffer + *i;

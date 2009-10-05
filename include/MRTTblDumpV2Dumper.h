@@ -51,6 +51,7 @@ public:
 	// Factory method for creating a BGP dumper
 	//static class MRTTblDumpV2Dumper* newDumper(BGPMessage*);
 	xmlNodePtr genXml();
+	string     genAscii();
 
     void setPeerIndexTbl(MRTTblDumpV2PeerIndexTbl* peerIndexTbl)
     {

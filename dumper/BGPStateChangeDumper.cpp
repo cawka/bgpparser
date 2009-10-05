@@ -100,4 +100,40 @@ xmlNodePtr BGPStateChangeDumper::genXml()
     return bgpmsg_node;
 }
 
+string BGPStateChangeDumper::genAscii()
+{
+    string bgpmsg_node = "";
+
+    /* | Peering node | ------------------------------------------------------------------ */
+    static char src_addr[INET6_ADDRSTRLEN]; src_addr[0] = '\0';
+    static char dst_addr[INET6_ADDRSTRLEN]; dst_addr[0] = '\0';
+	switch(afi)
+	{
+		case AFI_IPv4: 
+			inet_ntop(AF_INET,  &(peer_addr.ipv4),  dst_addr, INET_ADDRSTRLEN);
+			inet_ntop(AF_INET,  &(local_addr.ipv4), src_addr, INET_ADDRSTRLEN);
+			break;
+		case AFI_IPv6: 
+			inet_ntop(AF_INET6, &(peer_addr.ipv6),  dst_addr, INET6_ADDRSTRLEN);
+			inet_ntop(AF_INET6, &(local_addr.ipv6), src_addr, INET6_ADDRSTRLEN);
+			break;
+	}
+    string   peer_addr_str = dst_addr;
+    static char buffer[256]; 
+    buffer[0] = '\0'; sprintf(buffer, "%u", peer_as);        string peer_as_str = buffer;
+    buffer[0] = '\0'; sprintf(buffer, "%d", (int)timestamp); string ts_str      = buffer;
+    buffer[0] = '\0'; sprintf(buffer, "%d", oldState);       string old_str     = buffer;
+    buffer[0] = '\0'; sprintf(buffer, "%d", newState);       string new_str     = buffer;
+
+    bgpmsg_node = bgpmsg_node + "BGP4MP" 
+                              + "|" + ts_str 
+                              + "|" + "STATE"
+                              + "|" + peer_addr_str 
+                              + "|" + peer_as_str 
+                              + "|" + old_str
+                              + "|" + new_str;
+
+    return bgpmsg_node;
+}
+
 // vim: sw=4 ts=4 sts=4 expandtab
