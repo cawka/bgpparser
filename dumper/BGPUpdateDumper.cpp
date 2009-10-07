@@ -216,7 +216,7 @@ list<string> BGPUpdateDumper::genAsciiMsg(string peer_addr, string peer_as, bool
         for (routeIter = nlri_unreachable->begin(); routeIter != nlri_unreachable->end(); routeIter++)
         {
             string with = "";
-            string prefix = ((Route)*routeIter).toString();
+            string prefix = ((Route)*routeIter).toString(attr->getAFI());
             with = with + "W" + "|" + peer_addr + "|" + peer_as + "|" + prefix;
             bgp_msg_list.push_back(with);
         }
@@ -240,7 +240,7 @@ list<string> BGPUpdateDumper::genAsciiMsg(string peer_addr, string peer_as, bool
         for (routeIter = nlri_reachable->begin(); routeIter != nlri_reachable->end(); routeIter++)
         {
             string anno = "";
-            string prefix = ((Route)*routeIter).toString();
+            string prefix = ((Route)*routeIter).toString(attr->getAFI());
             anno = anno + anno_type + "|" + peer_addr + "|" + peer_as + "|" + prefix + attr_str;
             bgp_msg_list.push_back(anno);
         }

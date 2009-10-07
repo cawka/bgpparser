@@ -131,7 +131,7 @@ string BGPStateChangeDumper::genAscii()
                               + "|" + peer_addr_str 
                               + "|" + peer_as_str 
                               + "|" + old_str
-                              + "|" + new_str;
+                              + "|" + new_str + "\n";
 
     return bgpmsg_node;
 }
