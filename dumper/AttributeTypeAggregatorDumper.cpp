@@ -30,6 +30,7 @@
 #include <libxml/tree.h>
 #include "AttributeTypeDumper.h"
 #include "AttributeTypeAggregator.h"
+#include "AttributeTypeAS4Aggregator.h"
 
 extern "C" {
     #include "xmlinternal.h"
@@ -52,7 +53,22 @@ xmlNodePtr AttributeTypeAggregatorDumper::genXml()
     static char str[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &(addr.ipv4), str, INET_ADDRSTRLEN);
 
-    xmlNewChildInt(node,    "AS",   attr->getAggregatorLastAS());
+    uint32_t as = 0;
+	switch(type_code)
+	{
+        case AttributeType::AGGREGATOR:
+		{
+            as = ((AttributeTypeAggregator *)attr_type)->getAggregatorLastASComplete();
+			break;
+		}
+        case AttributeType::NEW_AGGREGATOR:
+		{
+            as = ((AttributeTypeAS4Aggregator *)attr_type)->getAggregatorLastAS();
+			break;
+		}
+    }
+
+    xmlNewChildInt(node,    "AS",   as);
     xmlNewChildString(node, "ADDR", str);
     return node;
 }
@@ -67,9 +83,24 @@ string AttributeTypeAggregatorDumper::genAscii()
     static char str[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &(addr.ipv4), str, INET_ADDRSTRLEN);
 
+    uint32_t as = 0;
+	switch(type_code)
+	{
+        case AttributeType::AGGREGATOR:
+		{
+            as = ((AttributeTypeAggregator *)attr_type)->getAggregatorLastASComplete();
+			break;
+		}
+        case AttributeType::NEW_AGGREGATOR:
+		{
+            as = ((AttributeTypeAS4Aggregator *)attr_type)->getAggregatorLastAS();
+			break;
+		}
+    }
+
     char buffer[64];
     buffer[0] = '\0';
-    sprintf(buffer, "%d %s", attr->getAggregatorLastAS(), str);
+    sprintf(buffer, "%u %s", as, str);
     node += buffer;
     return node;
 }

@@ -26,28 +26,25 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// Author: Paul Wang
-// Author: Jason Ryder
+// Author: Pei-chun Cheng
 
-#ifndef _ATTRIBUTETYPEAGGREGATOR_H_
-#define _ATTRIBUTETYPEAGGREGATOR_H_
+#ifndef _ATTRIBUTETYPEAS4AGGREGATOR_H_
+#define _ATTRIBUTETYPEAS4AGGREGATOR_H_
 
 #include "MRTStructure.h"
 #include "AttributeType.h"
 
-class AttributeTypeAggregator :
+class AttributeTypeAS4Aggregator :
 	public AttributeType
 {
 public:
-	AttributeTypeAggregator(void);
-	AttributeTypeAggregator(uint16_t len, uint8_t* msg);
-	AttributeTypeAggregator(const AttributeTypeAggregator&);
-	virtual ~AttributeTypeAggregator(void);
+	AttributeTypeAS4Aggregator(void);
+	AttributeTypeAS4Aggregator(uint16_t len, uint8_t* msg);
+	AttributeTypeAS4Aggregator(const AttributeTypeAS4Aggregator&);
+	virtual ~AttributeTypeAS4Aggregator(void);
 
-	uint32_t getAggregatorLastAS(void)         const { return aggregatorLastAS; };
-	uint32_t getAggregatorLastASComplete(void) const { return aggregatorLastASComplete; };
-	void setAggregatorLastAS(uint32_t aggregatorLastAS)         { this->aggregatorLastAS         = aggregatorLastAS; };
-	void setAggregatorLastASComplete(uint32_t aggregatorLastAS) { this->aggregatorLastASComplete = aggregatorLastAS; };
+	uint32_t getAggregatorLastAS(void) const { return aggregatorLastAS; };
+	void setAggregatorLastAS(uint32_t aggregatorLastAS) { this->aggregatorLastAS = aggregatorLastAS; };
 	IPAddress getAggregatorBGPSpeakerIPAddress(void) const { return bgpSpeakerIPAddress; };
 	void setAggregatorBGPSpeakerIPAddress(IPAddress *bgpSpeakerIPAddress) { memcpy(&(this->bgpSpeakerIPAddress.ipv4), bgpSpeakerIPAddress, sizeof(bgpSpeakerIPAddress->ipv4)); }; 
 	//void setAggregatorBGPSpeakerIPAddress(IPAddress *);
@@ -57,8 +54,7 @@ public:
 	
 protected:
 	uint32_t aggregatorLastAS;
-	uint32_t aggregatorLastASComplete;
 	IPAddress bgpSpeakerIPAddress;
 };
 
-#endif	/* _ATTRIBUTETYPEAGGREGATOR_H_ */
+#endif	/* _ATTRIBUTETYPEAS4AGGREGATOR_H_ */

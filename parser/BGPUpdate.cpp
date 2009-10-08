@@ -31,6 +31,8 @@
 #include "BGPUpdate.h"
 #include "AttributeTypeASPath.h"
 #include "AttributeTypeAS4Path.h"
+#include "AttributeTypeAggregator.h"
+#include "AttributeTypeAS4Aggregator.h"
 
 BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
 		 : BGPCommonHeader(*msg) {
@@ -94,6 +96,7 @@ BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
 	ptr += pathAttributesLength;
 
 	// Post processing
+	// 1. Merget AS_PATH and AS4_PATH
         list<BGPAttribute>::iterator attrIter;
 	AttributeTypeASPath*  as_path_attr  = NULL;
 	AttributeTypeAS4Path* as4_path_attr = NULL;
@@ -106,7 +109,19 @@ BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
 	{
 		as_path_attr->genPathSegmentsComplete(as4_path_attr);
 	}
-
+	// 2. Merget AGGREGATOR and AS4_AGGREGATOR
+	AttributeTypeAggregator*    agg_attr     = NULL;
+	AttributeTypeAS4Aggregator* as4_agg_attr = NULL;
+        for (attrIter = pathAttributes->begin(); attrIter != pathAttributes->end(); attrIter++)
+        {
+            if (attrIter->getAttributeTypeCode() == AttributeType::AGGREGATOR)     { agg_attr     = (AttributeTypeAggregator*)attrIter->getAttributeValueMutable();    }
+            if (attrIter->getAttributeTypeCode() == AttributeType::NEW_AGGREGATOR) { as4_agg_attr = (AttributeTypeAS4Aggregator*)attrIter->getAttributeValueMutable(); }
+        }
+	if (agg_attr != NULL)
+	{
+		uint32_t as = (as4_agg_attr != NULL) ? as4_agg_attr->getAggregatorLastAS() : agg_attr->getAggregatorLastAS();
+		agg_attr->setAggregatorLastASComplete(as);
+	}
 	
 	// This information is not part of the BGP message.
 	nlriLength = length 

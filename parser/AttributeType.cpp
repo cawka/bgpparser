@@ -31,6 +31,7 @@
 #include "AttributeType.h"
 
 #include "AttributeTypeAggregator.h"
+#include "AttributeTypeAS4Aggregator.h"
 #include "AttributeTypeASPath.h"
 #include "AttributeTypeAS4Path.h"
 #include "AttributeTypeAtomicAggregate.h"
@@ -93,19 +94,19 @@ AttributeType* AttributeType::newAttribute(uint8_t attrType, uint16_t len, uint8
 
 	switch(attrType) {
         PRINT_DBG("  Creating new Attribute(len, msg);");
-		case ORIGIN:           { attr =  new AttributeTypeOrigin(len, msg);        break; }
-		case AS_PATH:          { attr =  new AttributeTypeASPath(len, msg, isAS4); break; }
-		case NEXT_HOP:         { attr =  new AttributeTypeNextHop(len, msg);       break; }
-		case MULTI_EXIT_DISC:  { attr =  new AttributeTypeMultiExitDisc(len, msg); break; }
-		case LOCAL_PREF:       { attr =  new AttributeTypeLocalPref(len, msg);     break; }
-		case ATOMIC_AGGREGATE: { attr =  new AttributeTypeAtomicAggregate();       break; }
-		case AGGREGATOR:       { attr =  new AttributeTypeAggregator(len, msg);    break; }
-		case COMMUNITIES:      { attr =  new AttributeTypeCommunities(len, msg);   break; }
-		case EXT_COMMUNITIES:  { attr =  new AttributeTypeExtCommunities(len, msg);break; }
-		case MP_REACH_NLRI:    { attr =  new AttributeTypeMPReachNLRI(len, msg);   break; }
-		case MP_UNREACH_NLRI:  { attr =  new AttributeTypeMPUnreachNLRI(len, msg); break; }
-		case NEW_AS_PATH:      { attr =  new AttributeTypeAS4Path(len, msg);       break; }
-		case NEW_AGGREGATOR:   { attr =  new AttributeTypeAggregator(len, msg);    break; }
+		case ORIGIN:           { attr =  new AttributeTypeOrigin(len, msg);           break; }
+		case AS_PATH:          { attr =  new AttributeTypeASPath(len, msg, isAS4);    break; }
+		case NEXT_HOP:         { attr =  new AttributeTypeNextHop(len, msg);          break; }
+		case MULTI_EXIT_DISC:  { attr =  new AttributeTypeMultiExitDisc(len, msg);    break; }
+		case LOCAL_PREF:       { attr =  new AttributeTypeLocalPref(len, msg);        break; }
+		case ATOMIC_AGGREGATE: { attr =  new AttributeTypeAtomicAggregate();          break; }
+		case AGGREGATOR:       { attr =  new AttributeTypeAggregator(len, msg);       break; }
+		case COMMUNITIES:      { attr =  new AttributeTypeCommunities(len, msg);      break; }
+		case EXT_COMMUNITIES:  { attr =  new AttributeTypeExtCommunities(len, msg);   break; }
+		case MP_REACH_NLRI:    { attr =  new AttributeTypeMPReachNLRI(len, msg);      break; }
+		case MP_UNREACH_NLRI:  { attr =  new AttributeTypeMPUnreachNLRI(len, msg);    break; }
+		case NEW_AS_PATH:      { attr =  new AttributeTypeAS4Path(len, msg);          break; }
+		case NEW_AGGREGATOR:   { attr =  new AttributeTypeAS4Aggregator(len, msg);    break; }
 		// ADD MORE ATTRIBUTES HERE
 
 		default: {
