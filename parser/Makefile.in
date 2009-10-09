@@ -35,6 +35,7 @@ SOURCE_OBJ = AttributeType.o \
 	AttributeTypeASPath.o \
 	AttributeTypeAS4Path.o \
 	AttributeTypeAggregator.o \
+	AttributeTypeAS4Aggregator.o \
 	AttributeTypeAtomicAggregate.o \
 	AttributeTypeCommunities.o \
 	AttributeTypeExtCommunities.o \
