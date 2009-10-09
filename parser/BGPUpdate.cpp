@@ -81,11 +81,11 @@ BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
 	while (p < ptr + pathAttributesLength && p <= maxptr)
 	{
 		BGPAttribute attrib(p,isAS4,maxptr);
-		if( p+attrib.totalSize() > maxptr ) {
+		//if( p+attrib.totalSize() > maxptr ) {
 			/* error message is already diplayed by BGPAttribute object */
-			*msg = maxptr;
-			return;
-		}
+		//	*msg = maxptr;
+		//	return;
+		//}
 		if( attrib.getAttributeValue() == NULL ) {
 			Logger::err("malformed attribute. skip.");
 			return;

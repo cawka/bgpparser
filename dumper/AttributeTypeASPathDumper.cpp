@@ -148,8 +148,8 @@ string AttributeTypeASPathDumper::genAscii()
                 case AttributeTypeASPathSegment::AS_SET:               head = "{";  tail="}",  sep=",";  break;
                 //[TO_DO] conf_set / conf_sequence
                 case AttributeTypeASPathSegment::AS_CONFED_SEQUENCE:   head = "(";  tail=")";  sep=" ";  break; //[TODO]
-                case AttributeTypeASPathSegment::AS_CONFED_SET:        head = "({"; tail="})"; sep=",";  break; //[TODO]
-                default:                                               head = "";   tail="";   sep=" ";  break;
+                case AttributeTypeASPathSegment::AS_CONFED_SET:        head = "["; tail="]"; sep=",";  break; //[TODO]
+                default:                                               head = "";   tail="";   sep="";   break;
             }
 
             node += head;

@@ -66,8 +66,9 @@ foreach $sProj (@lsMRTProj) {
 			@lsUpdateFiles = glob("$sCollector/$sDate/updates.*");
 			foreach $sUpdateFile (sort @lsUpdateFiles) {
 
+#$sUpdateFile = "/export/data/j13park/mrt/ripe/rrc01/2009.03/updates.20090301.0200.gz";
 print "=================================\n";
-print "processing $sUpdateFile ... ";
+print "processing $sUpdateFile\n";
 
 				open(BGPDUMP,"$sBGPDump -m $sUpdateFile |");
 				open(BGPPARSER,"$sBGPParser -B $sUpdateFile |");
@@ -91,13 +92,48 @@ print "processing $sUpdateFile ... ";
 					while( $s2 =~ m/.*\|$/ ) { chop($s2); }
 
 					if( $s1 ne $s2 ) {
-#						print "BGPDUMP  : $s1\n";
-#						print "BGPPARSER: $s2\n";
 						$nDiffCnt = 0;
 						for($i=0; $i<@lsBGPDumpLine; $i++) {
 							if( $lsBGPDumpLine[$i] ne $lsBGPParserLine[$i] ) {
 								$nDiffCnt++;
-								print "$nType $i ( $lsBGPDumpLine[$i] ne $lsBGPParserLine[$i] )\n";
+							}
+						}
+						if( $nDiffCnt < 3 ) {
+							for($i=0; $i<@lsBGPDumpLine; $i++) {
+								if( $lsBGPDumpLine[$i] ne $lsBGPParserLine[$i] ) {
+									print "$nType $i ( $lsBGPDumpLine[$i] ne $lsBGPParserLine[$i] )\n";
+								}
+							}
+						} else {
+							$nFoundMatch = 0;
+							$nLookAheadCnt = 0;
+							while ( $nFoundMatch == 0 ) {
+								$nLookAheadCnt++;
+								if( $nLookAheadCnt > 10 ) { 
+									print "no match. give up\n"; die;
+								}
+								print "bgpdump missing $s2\n";
+								$sBGPParserLine =  &getLine("PARSER");
+								chomp($sBGPParserLine);
+								@lsBGPParserLine = split('\|',$sBGPParserLine);
+								$lsBGPParserLine[2] eq "A" ? $nType = 1 : $nType = 2;
+								$s2 = join('|',@lsBGPParserLine);
+								while( $s1 =~ m/.*\|$/ ) { chop($s1); }
+								while( $s2 =~ m/.*\|$/ ) { chop($s2); }
+
+								if( $s1 ne $s2 ) {
+									$nDiffCnt = 0;
+									for($i=0; $i<@lsBGPDumpLine; $i++) {
+										if( $lsBGPDumpLine[$i] ne $lsBGPParserLine[$i] ) {
+											$nDiffCnt++;
+										}
+									}
+									if( $nDiffCnt <= 2 ) {
+										$nFoundMatch = 1; last;
+									}
+								} else {
+									$nFoundMatch = 1; last;
+								}
 							}
 						}
 					}
@@ -105,9 +141,6 @@ print "processing $sUpdateFile ... ";
 
 				close(BGPDUMP);
 				close(BGPPARSER);
-
-print "done.\n";
-print "=================================\n";
 
 			}
 		}

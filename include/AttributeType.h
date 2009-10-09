@@ -68,9 +68,9 @@ public:
 	void setValue(uint8_t* value) { this->value = value; };
 	bool getAS4() { return isAS4; }
 	void setAS4(bool isAS4) { this->isAS4 = isAS4; };
-	virtual void printMe() { cout << "AttributeType Default"; };
-	virtual void printMeCompact() { cout << "AttributeType Default"; };
-	virtual AttributeType* clone() { cout << "Cloning AttributeType" << endl; return new AttributeType(length, value, isAS4); }
+	virtual void printMe() { /*cout << "AttributeType Default";*/ };
+	virtual void printMeCompact() { /*cout << "AttributeType Default";*/ };
+	virtual AttributeType* clone() { /*cout << "Cloning AttributeType" << endl;*/ return new AttributeType(length, value, isAS4); }
 	enum AttributeTypeCode
 	{
 		ORIGIN = 1,
