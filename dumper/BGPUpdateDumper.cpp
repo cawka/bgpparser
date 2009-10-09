@@ -200,7 +200,7 @@ list<string> BGPUpdateDumper::genAsciiMsg(string peer_addr, string peer_as, bool
                ;
 
 	list<Route>::iterator routeIter;
-    /* WITHDRAWN announcement */
+    /* WITHDRAWN */
     for (routeIter = bgp_update->getWithdrawnRoutes()->begin(); routeIter != bgp_update->getWithdrawnRoutes()->end(); routeIter++)
     {
         string with = "";
@@ -222,7 +222,7 @@ list<string> BGPUpdateDumper::genAsciiMsg(string peer_addr, string peer_as, bool
         }
     }
 
-    /* NLRI announcement */
+    /* NLRI */
     string anno_type = ( is_tabledump ) ? "B" : "A";
     for (routeIter = bgp_update->getNlriRoutes()->begin(); routeIter != bgp_update->getNlriRoutes()->end(); routeIter++)
     {

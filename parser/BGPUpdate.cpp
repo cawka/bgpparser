@@ -96,7 +96,7 @@ BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
 	ptr += pathAttributesLength;
 
 	// Post processing
-	// 1. Merget AS_PATH and AS4_PATH
+	// 1. Merge AS_PATH and AS4_PATH
         list<BGPAttribute>::iterator attrIter;
 	AttributeTypeASPath*  as_path_attr  = NULL;
 	AttributeTypeAS4Path* as4_path_attr = NULL;
@@ -109,7 +109,7 @@ BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
 	{
 		as_path_attr->genPathSegmentsComplete(as4_path_attr);
 	}
-	// 2. Merget AGGREGATOR and AS4_AGGREGATOR
+	// 2. Merge AGGREGATOR and AS4_AGGREGATOR
 	AttributeTypeAggregator*    agg_attr     = NULL;
 	AttributeTypeAS4Aggregator* as4_agg_attr = NULL;
         for (attrIter = pathAttributes->begin(); attrIter != pathAttributes->end(); attrIter++)
