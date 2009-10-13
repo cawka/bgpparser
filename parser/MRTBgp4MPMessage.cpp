@@ -115,7 +115,14 @@ MRTBgp4MPMessage::MRTBgp4MPMessage(uint8_t **ptr, bool _isAS4)
 			PRINT_DBG2("  bgpUpdate->withdrawnRoutesLength = ", bgpUpdate->getWithdrawnRoutesLength());
 			PRINT_DBG2("  bgpUpdate->pathAttributesLength = ", bgpUpdate->getPathAttributesLength());
 			PRINT_DBG2("  bgpUpdate->nlriLength = ", bgpUpdate->getNlriLength());
-			payload = bgpUpdate;
+			if( bgpUpdate->getWithdrawnRoutesLength() == 0 &&
+				bgpUpdate->getPathAttributesLength() == 0 &&
+				bgpUpdate->getNlriLength() == 0 ) {
+				delete bgpUpdate;
+				payload = NULL; 
+			} else {
+				payload = bgpUpdate;
+			}
 			}
 			break;
 		
