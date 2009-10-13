@@ -172,6 +172,13 @@ int main(int argc, char** argv)
         exit(0);
     }
 
+    
+    /* -------------------------- */
+    /* Initialize Logger          */
+    /* -------------------------- */
+    Logger::init();
+    Logger::out("parsing started");
+
     /* -------------------------- */
     /* Process file               */
     /* -------------------------- */
@@ -352,6 +359,12 @@ int main(int argc, char** argv)
         if (flag_root) cout << "</BGP_MESSAGES>" << endl;
     }
     cfr_close(f);
+
+    /* -------------------------- */
+    /* Finalize                   */
+    /* -------------------------- */
+    Logger::out("parsing ends");
+    Logger::finalize();
     return 0;
 }
 

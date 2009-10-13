@@ -342,6 +342,9 @@ void AttributeTypeASPath::genPathSegmentsComplete(AttributeTypeAS4Path* as4_path
             it4++;
         }
         */
+        if (it4 != as4_path_segs->rend()) {
+            Logger::err("Inconsistent as-path information between AS_PATH and AS4_PATH attributes.  Skip this update.");
+        }
 	}
 }
 
