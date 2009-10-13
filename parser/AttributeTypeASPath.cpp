@@ -320,9 +320,9 @@ void AttributeTypeASPath::genPathSegmentsComplete(AttributeTypeAS4Path* as4_path
             it++;
         }
 
+#if 0
         // [TODO] AS4_PATH is longer than AS_PATH 
         // Raise an error here
-        /*
         while (it4 != as4_path_segs->rend())
         {
 			// Copy from as4_path
@@ -341,10 +341,13 @@ void AttributeTypeASPath::genPathSegmentsComplete(AttributeTypeAS4Path* as4_path
             pathSegmentsComplete->push_front(pathSegment);
             it4++;
         }
-        */
+#else
+        /* if there is an inconsistency, we do not process this update */
         if (it4 != as4_path_segs->rend()) {
-            Logger::err("Inconsistent as-path information between AS_PATH and AS4_PATH attributes.  Skip this update.");
+            /* currently we do not have an indicator for errors.  Using NULL value to indicate error... */
+            delete pathSegmentsComplete; pathSegmentsComplete = NULL;
         }
+#endif
 	}
 }
 

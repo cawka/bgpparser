@@ -108,6 +108,10 @@ BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
 	if (as_path_attr != NULL)
 	{
 		as_path_attr->genPathSegmentsComplete(as4_path_attr);
+		if( as_path_attr->getPathSegmentsComplete() == NULL ) {
+            Logger::err("Inconsistent as-path information between AS_PATH and AS4_PATH attributes.");
+			return;
+		}
 	}
 	// 2. Merge AGGREGATOR and AS4_AGGREGATOR
 	AttributeTypeAggregator*    agg_attr     = NULL;
