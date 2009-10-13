@@ -320,7 +320,9 @@ void AttributeTypeASPath::genPathSegmentsComplete(AttributeTypeAS4Path* as4_path
             it++;
         }
 
-        // [TODO] Decide whether this is necessary
+        // [TODO] AS4_PATH is longer than AS_PATH 
+        // Raise an error here
+        /*
         while (it4 != as4_path_segs->rend())
         {
 			// Copy from as4_path
@@ -339,123 +341,8 @@ void AttributeTypeASPath::genPathSegmentsComplete(AttributeTypeAS4Path* as4_path
             pathSegmentsComplete->push_front(pathSegment);
             it4++;
         }
+        */
 	}
-
-    /*
-	if (as_path_segs != NULL)
-	{
-		list<AttributeTypeASPathSegment>::iterator  it  = as_path_segs->begin();
-		list<AttributeTypeAS4PathSegment>::iterator it4 = as4_path_segs->begin();
-
-		int size_as_path  = as_path_segs->size();
-		int size_as4_path = as4_path_segs->size();
-		int from_as       = size_as_path  - size_as4_path;
-
-		for(int index=1; index<=size_as4_path; index++)
-		{
-			if (index <= from_as)
-			{ // Copy from as_path
-				AttributeTypeASPathSegment pathSegment(*it);
-				pathSegmentsComplete->push_back(pathSegment);
-				it++;
-			}
-			else
-			{ // Merge as_path and as4_path
-				AttributeTypeASPathSegment pathSegment(it->getPathSegmentType(), it->getPathSegmentLength());
-
-				AttributeTypeASPathSegment*  as_seg  = &(*it);
-				AttributeTypeAS4PathSegment* as4_seg = &(*it4);
-
-				list<uint32_t> *as_seg_value  = as_seg->getPathSegmentValue();
-				list<uint32_t> *as4_seg_value = as4_seg->getPathSegmentValue();
-
-				list<uint32_t>::iterator it_seg  = as_seg_value->begin();
-				list<uint32_t>::iterator it_seg4 = as4_seg_value->begin();
-
-				int size_as_seg  = as_seg_value->size();
-				int size_as4_seg = as4_seg_value->size();
-				int from_as_seg  = size_as_seg  - size_as4_seg;
-
-				for(int idx=1; idx<=size_as_seg; idx++)
-				{
-					if (idx <= from_as_seg)
-					{
-						pathSegment.pathSegmentValue->push_back(*it_seg);
-						it_seg++;
-					}
-					else
-					{
-						pathSegment.pathSegmentValue->push_back(*it_seg4);
-						it_seg4++;
-					}
-				}
-				pathSegmentsComplete->push_back(pathSegment);
-                it++;
-				it4++;
-			}
-		}
-
-		for(int index=1; index<=size_as4_path; index++)
-		{
-			if (index <= from_as)
-			{ // Copy from as_path
-				AttributeTypeASPathSegment pathSegment(*it);
-				pathSegmentsComplete->push_back(pathSegment);
-				it++;
-			}
-			else if (index == from_as + 1)
-			{ // Merge from as_path
-				AttributeTypeASPathSegment pathSegment(it->getPathSegmentType(), it->getPathSegmentLength());
-
-				AttributeTypeASPathSegment*  as_seg  = &(*it);
-				AttributeTypeAS4PathSegment* as4_seg = &(*it4);
-
-				list<uint32_t> *as_seg_value  = as_seg->getPathSegmentValue();
-				list<uint32_t> *as4_seg_value = as4_seg->getPathSegmentValue();
-
-				list<uint32_t>::iterator it_seg  = as_seg_value->begin();
-				list<uint32_t>::iterator it_seg4 = as4_seg_value->begin();
-
-				int size_as_seg  = as_seg_value->size();
-				int size_as4_seg = as4_seg_value->size();
-				int from_as_seg  = size_as_seg  - size_as4_seg;
-
-				for(int idx=1; idx<=size_as_seg; idx++)
-				{
-					if (idx <= from_as_seg)
-					{
-						pathSegment.pathSegmentValue->push_back(*it_seg);
-						it_seg++;
-					}
-					else
-					{
-						pathSegment.pathSegmentValue->push_back(*it_seg4);
-						it_seg4++;
-					}
-				}
-				pathSegmentsComplete->push_back(pathSegment);
-				it4++;
-			}
-			else
-			{ // Copy from as4_path
-				AttributeTypeASPathSegment pathSegment(it->getPathSegmentType(), it->getPathSegmentLength());
-
-				AttributeTypeAS4PathSegment* as4_seg = &(*it4);
-                list<uint32_t> *pathSegmentValue = as4_seg->getPathSegmentValue();
-                if (pathSegmentValue != NULL)
-                {	
-                    list<uint32_t>::iterator it;
-                    for (it = pathSegmentValue->begin(); it != pathSegmentValue->end(); it++)
-                    {
-                        pathSegment.pathSegmentValue->push_back(*it);
-                    }	
-                }
-				pathSegmentsComplete->push_back(pathSegment);
-				it4++;
-			}
-		}
-	}
-    */
 }
 
 // vim: sw=4 ts=4 sts=4 expandtab
