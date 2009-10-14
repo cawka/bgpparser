@@ -126,7 +126,6 @@ MRTMessage * MRTCommonHeader::newMessage(uint8_t **ptr) {
 		case BGP4MP_MESSAGE:
 			PRINT_DBG("  Creating MRTBgp4MPMessage(ptr);");
 			msg = new MRTBgp4MPMessage(ptr, isAS4);
-			if( msg->hasError() == 1 ) { delete (MRTBgp4MPMessage*)msg; msg=NULL; }
 			break;
 		case BGP4MP_STATE_CHANGE_AS4:
 			PRINT_DBG("  Creating MRTBgp4MPStateChange(ptr);");
