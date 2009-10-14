@@ -65,6 +65,7 @@ public:
 
 	uint16_t getLength() { return length; }
 	uint8_t* getValue() { return value; }
+	uint8_t hasError() { return error; }
 	void setValue(uint8_t* value) { this->value = value; };
 	bool getAS4() { return isAS4; }
 	void setAS4(bool isAS4) { this->isAS4 = isAS4; };
@@ -99,6 +100,7 @@ protected:
 	uint8_t* value;
     bool isAS4;
     static uint8_t *endMsg;
+	uint8_t error;
 };
 
 #endif	/* _ATTRIBUTETYPE_H_ */

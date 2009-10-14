@@ -345,7 +345,7 @@ void AttributeTypeASPath::genPathSegmentsComplete(AttributeTypeAS4Path* as4_path
         /* if there is an inconsistency, we do not process this update */
         if (it4 != as4_path_segs->rend()) {
             /* currently we do not have an indicator for errors.  Using NULL value to indicate error... */
-            delete pathSegmentsComplete; pathSegmentsComplete = NULL;
+            //error = 1;
         }
 #endif
 	}

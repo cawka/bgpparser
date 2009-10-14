@@ -60,6 +60,7 @@ public:
 	uint16_t getType(void) const;
 	uint16_t getSubType(void) const;
 	uint32_t getLength(void) const;
+	uint8_t hasError() { return error; }
 	void setType(uint16_t);
 	void setSubType(uint16_t);
 	void setLength(uint32_t);
@@ -76,6 +77,7 @@ protected:
 	uint16_t subtype;	/* subtype of message in MRT payload */
 	uint32_t length;	/* length of payload in MRT */
 	void* payload;
+	uint8_t error;
 };
 
 #endif	/* _MRTCOMMONHEADER_H_ */

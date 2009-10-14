@@ -49,6 +49,7 @@ uint8_t *AttributeType::endMsg = NULL;
 AttributeType::AttributeType(void) {
 	length = 0;
 	value = NULL;
+    error = 0;
 }
 
 AttributeType::AttributeType(uint16_t len, uint8_t* msg, bool isAS4) {
@@ -58,6 +59,7 @@ AttributeType::AttributeType(uint16_t len, uint8_t* msg, bool isAS4) {
 	value = (uint8_t*)malloc(length);
 	memcpy(value, msg, length);
     this->isAS4 = isAS4;
+    error = 0;
 }
 
 AttributeType::AttributeType(uint16_t len, uint8_t* msg) {
@@ -67,6 +69,7 @@ AttributeType::AttributeType(uint16_t len, uint8_t* msg) {
 	value = (uint8_t*)malloc(length);
 	memcpy(value, msg, length);
     isAS4 = false;
+    error = 0;
 }
 
 AttributeType::AttributeType(const AttributeType& attr) {
@@ -80,6 +83,7 @@ AttributeType::AttributeType(const AttributeType& attr) {
 	} else {
 		value = NULL;
     }
+    error = 0;
 }
 
 AttributeType::~AttributeType(void) {

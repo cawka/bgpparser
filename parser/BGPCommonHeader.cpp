@@ -43,6 +43,7 @@ BGPCommonHeader::BGPCommonHeader() {
 
 	/* octets */
 	octets  = NULL;
+	error = 0;
 }
 
 BGPCommonHeader::BGPCommonHeader(const uint8_t* const msg) {
@@ -59,6 +60,7 @@ BGPCommonHeader::BGPCommonHeader(const uint8_t* const msg) {
 	octets = NULL;
 	octets  = (uint8_t*) malloc(len);
 	memcpy(octets, msg, len); 
+	error = 0;
 }
 
 BGPCommonHeader::~BGPCommonHeader() {

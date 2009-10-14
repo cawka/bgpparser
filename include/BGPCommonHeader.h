@@ -206,6 +206,7 @@ public:
 	inline void setType(uint8_t aType) { type = aType; }
 	inline uint8_t getType() { return type; }
 	inline uint8_t *getOctets() { return octets; }
+	uint8_t hasError() { return error; }
 	
 	BGPMessage_t& getBgpData() { return bgpData; }
 	
@@ -219,6 +220,7 @@ protected:
 	uint8_t type;
 	uint8_t *octets;
 	BGPMessage_t bgpData;
+	uint8_t error;
 } BGPMessage;
 
 

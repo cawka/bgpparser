@@ -108,11 +108,9 @@ BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
 	if (as_path_attr != NULL)
 	{
 		as_path_attr->genPathSegmentsComplete(as4_path_attr);
-		if( as_path_attr->getPathSegmentsComplete() == NULL ) {
+		if( as_path_attr->hasError() == 1 ) {
             Logger::err("Inconsistent as-path information between AS_PATH and AS4_PATH attributes.");
-			withdrawnRoutes->clear();
-			pathAttributes->clear();
-			announcedRoutes->clear();
+			error = 1;
 			return;
 		}
 	}
