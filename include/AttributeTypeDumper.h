@@ -127,6 +127,7 @@ public:
 	virtual ~AttributeTypeASPathDumper();
 	virtual xmlNodePtr genXml();
 	virtual string     genAscii();
+	virtual string     genAscii(bool);
 };
 
 class AttributeTypeMPReachNLRIDumper : public AttributeTypeDumper
