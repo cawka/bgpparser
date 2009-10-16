@@ -38,6 +38,8 @@ SOURCE_OBJ = AttributeType.o \
 	AttributeTypeAS4Aggregator.o \
 	AttributeTypeAtomicAggregate.o \
 	AttributeTypeCommunities.o \
+	AttributeTypeOriginatorID.o \
+	AttributeTypeClusterList.o \
 	AttributeTypeExtCommunities.o \
 	AttributeTypeLocalPref.o \
 	AttributeTypeMPReachNLRI.o \

@@ -36,6 +36,8 @@
 #include "AttributeTypeAS4Path.h"
 #include "AttributeTypeAtomicAggregate.h"
 #include "AttributeTypeCommunities.h"
+#include "AttributeTypeOriginatorID.h"
+#include "AttributeTypeClusterList.h"
 #include "AttributeTypeExtCommunities.h"
 #include "AttributeTypeLocalPref.h"
 #include "AttributeTypeMultiExitDisc.h"
@@ -106,6 +108,8 @@ AttributeType* AttributeType::newAttribute(uint8_t attrType, uint16_t len, uint8
 		case ATOMIC_AGGREGATE: { attr =  new AttributeTypeAtomicAggregate();          break; }
 		case AGGREGATOR:       { attr =  new AttributeTypeAggregator(len, msg);       break; }
 		case COMMUNITIES:      { attr =  new AttributeTypeCommunities(len, msg);      break; }
+		case ORIGINATOR_ID:    { attr =  new AttributeTypeOriginatorID(len, msg);     break; }
+		case CLUSTER_LIST:     { attr =  new AttributeTypeClusterList(len, msg);      break; }
 		case EXT_COMMUNITIES:  { attr =  new AttributeTypeExtCommunities(len, msg);   break; }
 		case MP_REACH_NLRI:    { attr =  new AttributeTypeMPReachNLRI(len, msg);      break; }
 		case MP_UNREACH_NLRI:  { attr =  new AttributeTypeMPUnreachNLRI(len, msg);    break; }
@@ -132,6 +136,8 @@ string AttributeType::getTypeStr(uint8_t attrType) {
 		case ATOMIC_AGGREGATE: { return "ATOMIC_AGGREGATE"; break; }
 		case AGGREGATOR:       { return "AGGREGATOR";       break; }
 		case COMMUNITIES:      { return "COMMUNITIES";      break; }
+		case ORIGINATOR_ID:    { return "ORIGINATOR_ID";    break; }
+		case CLUSTER_LIST:     { return "CLUSTER_LIST";     break; }
 		case MP_REACH_NLRI:    { return "MP_REACH_NLRI";    break; }
 		case MP_UNREACH_NLRI:  { return "MP_UNREACH_NLRI";  break; }
 		case NEW_AS_PATH:      { return "AS4_PATH";         break; }
