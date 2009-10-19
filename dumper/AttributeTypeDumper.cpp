@@ -50,68 +50,20 @@ AttributeTypeDumper* AttributeTypeDumper::newDumper(uint8_t attrType, string att
 
 	switch(attrType)
 	{
-		case AttributeType::ORIGIN:
-		{
-			PRINT_DBG("  Creating new AttributeTypeOrigin(len, msg);");
-			attr_dumper = new AttributeTypeOriginDumper(attr);
-			break;
-		}
-		case AttributeType::AS_PATH:
-		{
-			attr_dumper = new AttributeTypeASPathDumper(attr);
-			break;
-		}
-		case AttributeType::NEXT_HOP:
-		{
-			attr_dumper = new AttributeTypeNextHopDumper(attr);
-			break;
-		}
-		case AttributeType::MULTI_EXIT_DISC:
-		{
-			attr_dumper = new AttributeTypeMultiExitDiscDumper(attr);
-			break;
-		}
-		case AttributeType::LOCAL_PREF:
-		{
-			attr_dumper = new AttributeTypeLocalPrefDumper(attr);
-			break;
-		}
-		case AttributeType::ATOMIC_AGGREGATE:
-		{
-			attr_dumper = new AttributeTypeAtomicAggregateDumper(attr);
-			break;
-		}
-		// TODO: Finish filling in the logic for the rest
-		case AttributeType::AGGREGATOR:
-		{
-			attr_dumper = new AttributeTypeAggregatorDumper(attr);
-			break;
-		}
-		case AttributeType::COMMUNITIES:
-		{
-			attr_dumper = new AttributeTypeCommunitiesDumper(attr);
-			break;
-		}
-		case AttributeType::MP_REACH_NLRI:
-		{
-			attr_dumper = new AttributeTypeMPReachNLRIDumper(attr);
-			break;
-		}
-		case AttributeType::MP_UNREACH_NLRI:
-		{
-			attr_dumper = new AttributeTypeMPUnreachNLRIDumper(attr);
-			break;
-		}
-		case AttributeType::NEW_AS_PATH:
-		{
-			attr_dumper = new AttributeTypeASPathDumper(attr);
-			break;
-		}
-		case AttributeType::NEW_AGGREGATOR:
-		{
-			attr_dumper = new AttributeTypeAggregatorDumper(attr);
-			break;
-		}
+		case AttributeType::ORIGIN:           { attr_dumper = new AttributeTypeOriginDumper(attr);          break; }
+		case AttributeType::AS_PATH:          { attr_dumper = new AttributeTypeASPathDumper(attr);          break; }
+		case AttributeType::NEXT_HOP:         { attr_dumper = new AttributeTypeNextHopDumper(attr);         break; }
+		case AttributeType::MULTI_EXIT_DISC:  { attr_dumper = new AttributeTypeMultiExitDiscDumper(attr);   break; }
+		case AttributeType::LOCAL_PREF:       { attr_dumper = new AttributeTypeLocalPrefDumper(attr);       break; }
+		case AttributeType::ATOMIC_AGGREGATE: { attr_dumper = new AttributeTypeAtomicAggregateDumper(attr); break; }
+		case AttributeType::AGGREGATOR:       { attr_dumper = new AttributeTypeAggregatorDumper(attr);      break; }
+		case AttributeType::COMMUNITIES:      { attr_dumper = new AttributeTypeCommunitiesDumper(attr);     break; }
+        case AttributeType::ORIGINATOR_ID:    { attr_dumper = new AttributeTypeOriginatorIDDumper(attr);    break; }
+        case AttributeType::CLUSTER_LIST:     { attr_dumper = new AttributeTypeClusterListDumper(attr);     break; }
+		case AttributeType::MP_REACH_NLRI:    { attr_dumper = new AttributeTypeMPReachNLRIDumper(attr);     break; }
+		case AttributeType::MP_UNREACH_NLRI:  { attr_dumper = new AttributeTypeMPUnreachNLRIDumper(attr);   break; }
+		case AttributeType::NEW_AS_PATH:      { attr_dumper = new AttributeTypeASPathDumper(attr);          break; }
+		case AttributeType::NEW_AGGREGATOR:   { attr_dumper = new AttributeTypeAggregatorDumper(attr);      break; }
 		default:
 		{
 			PRINT_INFO("  Unhandled attribute type code");

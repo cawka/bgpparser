@@ -29,6 +29,8 @@ DUMPER_OBJ = Dumper.o \
 				     AttributeTypeASPathDumper.o \
 				     AttributeTypeMPReachNLRIDumper.o \
 				     AttributeTypeMPUnreachNLRIDumper.o \
+				     AttributeTypeOriginatorIDDumper.o \
+				     AttributeTypeClusterListDumper.o \
 			     BGPKeepAliveDumper.o \
 			     BGPNotificationDumper.o \
 			     BGPRouteRefreshDumper.o \

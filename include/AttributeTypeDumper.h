@@ -150,6 +150,24 @@ public:
     xmlNodePtr genPrefixNode(Route rt, int afi, int safi);
 };
 
+class AttributeTypeOriginatorIDDumper : public AttributeTypeDumper
+{
+public:
+	AttributeTypeOriginatorIDDumper(AttributeType*);
+	virtual ~AttributeTypeOriginatorIDDumper();
+	virtual xmlNodePtr genXml();
+	virtual string     genAscii();
+};
+
+class AttributeTypeClusterListDumper : public AttributeTypeDumper
+{
+public:
+	AttributeTypeClusterListDumper(AttributeType*);
+	virtual ~AttributeTypeClusterListDumper();
+	virtual xmlNodePtr genXml();
+	virtual string     genAscii();
+};
+
 #endif /* __ATTDUMPER_H_ */
 
 // vim: sw=4 ts=4 sts=4 expandtab

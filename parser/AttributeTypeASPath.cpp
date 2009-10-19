@@ -272,10 +272,6 @@ void AttributeTypeASPath::genPathSegmentsComplete(AttributeTypeAS4Path* as4_path
 		list<AttributeTypeASPathSegment>::reverse_iterator  it  = as_path_segs->rbegin();
 		list<AttributeTypeAS4PathSegment>::reverse_iterator it4 = as4_path_segs->rbegin();
 
-		int size_as_path  = as_path_segs->size();
-		int size_as4_path = as4_path_segs->size();
-		int from_as       = size_as_path  - size_as4_path;
-
         while (it != as_path_segs->rend() && it4 != as4_path_segs->rend())
         {
             // Merge as_path and as4_path
