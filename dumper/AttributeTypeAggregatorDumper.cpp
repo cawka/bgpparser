@@ -58,12 +58,12 @@ xmlNodePtr AttributeTypeAggregatorDumper::genXml()
 	{
         case AttributeType::AGGREGATOR:
 		{
-            as = ((AttributeTypeAggregator *)attr_type)->getAggregatorLastASComplete();
+            as = ((AttributeTypeAS4Aggregator *)attr_type)->getAggregatorLastAS();
 			break;
 		}
         case AttributeType::NEW_AGGREGATOR:
 		{
-            as = ((AttributeTypeAS4Aggregator *)attr_type)->getAggregatorLastAS();
+            as = ((AttributeTypeAggregator *)attr_type)->getAggregatorLastASComplete();
 			break;
 		}
     }
@@ -76,7 +76,6 @@ xmlNodePtr AttributeTypeAggregatorDumper::genXml()
 string AttributeTypeAggregatorDumper::genAscii()
 {
     AttributeTypeAggregator *attr = (AttributeTypeAggregator *)attr_type;
-    //xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "AGGREGATOR");
     string node = "";
 
 	IPAddress addr = attr->getAggregatorBGPSpeakerIPAddress();
@@ -88,12 +87,12 @@ string AttributeTypeAggregatorDumper::genAscii()
 	{
         case AttributeType::AGGREGATOR:
 		{
-            as = ((AttributeTypeAggregator *)attr_type)->getAggregatorLastASComplete();
+            as = ((AttributeTypeAS4Aggregator *)attr_type)->getAggregatorLastAS();
 			break;
 		}
         case AttributeType::NEW_AGGREGATOR:
 		{
-            as = ((AttributeTypeAS4Aggregator *)attr_type)->getAggregatorLastAS();
+            as = ((AttributeTypeAggregator *)attr_type)->getAggregatorLastASComplete();
 			break;
 		}
     }

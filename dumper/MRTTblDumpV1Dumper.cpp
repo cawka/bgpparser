@@ -51,63 +51,16 @@ xmlNodePtr MRTTblDumpV1Dumper::genXml()
 {
     xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "BGP_MESSAGES");
 
-    /* [TODO] Check pointer validity */
-    // Prefix
-    /*
-    */
+    BGPMessageDumper *bgpmsg_dumper = genMsgDumper();
+    BGPMessage*      update         = bgpmsg_dumper->getBGPMessage();
 
-    // Prefix / Route
-    NLRIReachable   route(tblDumpMsg->getPrefixLength(),   tblDumpMsg->getPrefix());
-    NLRIUnReachable unroute(tblDumpMsg->getPrefixLength(), tblDumpMsg->getPrefix());
-
-    bool is_4byte = false;
-    BGPUpdate *update = new BGPUpdate(is_4byte);
-
-    /* Fill in the update members */
-    list<BGPAttribute>* attrs      = tblDumpMsg->getAttributes();
-    list<BGPAttribute>* path_attrs = update->getPathAttributes();
-    list<BGPAttribute>::iterator attrIter;
-    for (attrIter = attrs->begin(); attrIter != attrs->end(); attrIter++)
-    {
-        /* Multiple Protocol */
-        if (attrIter->getAttributeTypeCode() == AttributeType::MP_REACH_NLRI)
-        { 
-            AttributeTypeMPReachNLRI* mp_attr = (AttributeTypeMPReachNLRI*)attrIter->getAttributeValueMutable();
-            //mp_attr->setAFI(this->tblDumpMsg->getAFI());
-            //mp_attr->setSAFI(this->tblDumpMsg->getSAFI());
-            mp_attr->addNLRI(route);
-        }
-        if (attrIter->getAttributeTypeCode() == AttributeType::MP_UNREACH_NLRI)
-        { 
-            AttributeTypeMPUnreachNLRI* mp_attr = (AttributeTypeMPUnreachNLRI*)attrIter->getAttributeValueMutable();
-            //mp_attr->setAFI(this->tblDumpMsg->getAFI());
-            //mp_attr->setSAFI(this->tblDumpMsg->getSAFI());
-            mp_attr->addNLRI(unroute);
-        }
-        path_attrs->push_back(*attrIter);
-    }
-
-    /* Add IPV4/UNICAST NLRI */
-    list<Route>* nlri = update->getNlriRoutes();
-    nlri->push_back(route);
-
-    /* Message Dumper */
-    BGPMessageDumper *bgpmsg_dumper = new BGPMessageDumper();
-    /* Collect infomation */
-    bgpmsg_dumper->setTimestamp(tblDumpMsg->getTimestamp());
-    bgpmsg_dumper->setPeering(
-                                tblDumpMsg->getPeerIP(), // LocalIP
-                                tblDumpMsg->getPeerIP(), // PeerIP
-                                tblDumpMsg->getPeerAS(), // LocalAS
-                                tblDumpMsg->getPeerAS(), // LocalAS
-                                0,                       // Interface Index
-                                AFI_IPv4                 // IPV4
-                             );
-    bgpmsg_dumper->setBGPMessage((BGPMessage*)update);
+    // Gen xml
     xmlAddChild(node, bgpmsg_dumper->genXml());
 
     delete bgpmsg_dumper;
     delete update;
+    bgpmsg_dumper = NULL;
+    update        = NULL;
 
     return node;
 }
@@ -116,42 +69,97 @@ string MRTTblDumpV1Dumper::genAscii()
 {
     string node = "";
 
+    BGPMessageDumper *bgpmsg_dumper = genMsgDumper();
+    BGPMessage*      update         = bgpmsg_dumper->getBGPMessage();
+
+    // Gen ascii
+    node = bgpmsg_dumper->genAscii();
+
+    delete bgpmsg_dumper;
+    delete update;
+    bgpmsg_dumper = NULL;
+    update        = NULL;
+
+    return node;
+}
+
+BGPMessageDumper* MRTTblDumpV1Dumper::genMsgDumper()
+{
     /* [TODO] Check pointer validity */
     // Prefix
+    /*
+    */
+
     // Prefix / Route
     NLRIReachable   route(tblDumpMsg->getPrefixLength(),   tblDumpMsg->getPrefix());
-    NLRIUnReachable unroute(tblDumpMsg->getPrefixLength(), tblDumpMsg->getPrefix());
 
     bool is_4byte = false;
     BGPUpdate *update = new BGPUpdate(is_4byte);
 
     /* Fill in the update members */
+    AttributeTypeMPReachNLRI* mp_attr = NULL;
+    AttributeTypeNextHop*     nh_attr = NULL;
+
     list<BGPAttribute>* attrs      = tblDumpMsg->getAttributes();
     list<BGPAttribute>* path_attrs = update->getPathAttributes();
     list<BGPAttribute>::iterator attrIter;
     for (attrIter = attrs->begin(); attrIter != attrs->end(); attrIter++)
     {
+        /* Nexthop */
+        if (attrIter->getAttributeTypeCode() == AttributeType::NEXT_HOP)
+        { 
+            nh_attr = (AttributeTypeNextHop*)attrIter->getAttributeValueMutable();
+        }
         /* Multiple Protocol */
         if (attrIter->getAttributeTypeCode() == AttributeType::MP_REACH_NLRI)
         { 
-            AttributeTypeMPReachNLRI* mp_attr = (AttributeTypeMPReachNLRI*)attrIter->getAttributeValueMutable();
-            //mp_attr->setAFI(this->tblDumpMsg->getAFI());
-            //mp_attr->setSAFI(this->tblDumpMsg->getSAFI());
-            mp_attr->addNLRI(route);
-        }
-        if (attrIter->getAttributeTypeCode() == AttributeType::MP_UNREACH_NLRI)
-        { 
-            AttributeTypeMPUnreachNLRI* mp_attr = (AttributeTypeMPUnreachNLRI*)attrIter->getAttributeValueMutable();
-            //mp_attr->setAFI(this->tblDumpMsg->getAFI());
-            //mp_attr->setSAFI(this->tblDumpMsg->getSAFI());
-            mp_attr->addNLRI(unroute);
+            mp_attr = (AttributeTypeMPReachNLRI*)attrIter->getAttributeValueMutable();
         }
         path_attrs->push_back(*attrIter);
     }
 
-    /* Add IPV4/UNICAST NLRI */
-    list<Route>* nlri = update->getNlriRoutes();
-    nlri->push_back(route);
+    /* Add NLRI */
+    switch(tblDumpMsg->getSubType())
+    {
+        case AFI_IPv4:
+        {
+            /* Add IPV4 NLRI */
+            list<Route>* nlri = update->getNlriRoutes();
+            nlri->push_back(route);
+            break;
+        }
+
+        case AFI_IPv6:
+        {
+            /* Add IPV6 NLRI */
+            if (mp_attr == NULL)
+            {
+                //Create MP_REACH_NLRI attribute
+                AttributeTypeMPReachNLRI* mp_attr = new AttributeTypeMPReachNLRI();
+                mp_attr->setAFI(tblDumpMsg->getSubType());
+                mp_attr->setSAFI(1);
+                mp_attr->addNLRI(route);
+                //mp_attr->setNextHopAddressLength(0);
+                //mp_attr->setNextHopAddress(&nh_attr->getNextHopIPAddress());
+
+                //TODO
+                BGPAttribute* attr = new BGPAttribute();
+                attr->setAttributeFlags(0x80);
+                attr->setAttributeTypeCode(14);
+                attr->setAttributeValue((AttributeType*)mp_attr);
+
+                path_attrs->push_back(*attr);
+
+                //delete mp_attr;
+                delete attr;;
+            }
+            else
+            {
+                mp_attr->addNLRI(route);
+            }
+            break;
+        }
+    }
 
     /* Message Dumper */
     BGPMessageDumper *bgpmsg_dumper = new BGPMessageDumper();
@@ -163,16 +171,12 @@ string MRTTblDumpV1Dumper::genAscii()
                                 tblDumpMsg->getPeerAS(), // LocalAS
                                 tblDumpMsg->getPeerAS(), // LocalAS
                                 0,                       // Interface Index
-                                AFI_IPv4                 // IPV4
+                                tblDumpMsg->getSubType() // IPV4/IPV6
                              );
     bgpmsg_dumper->setBGPMessage((BGPMessage*)update);
     bgpmsg_dumper->isTableDump(true);
-    node = bgpmsg_dumper->genAscii();
 
-    delete bgpmsg_dumper;
-    delete update;
-
-    return node;
+    return bgpmsg_dumper;
 }
 
 // vim: sw=4 ts=4 sts=4 expandtab

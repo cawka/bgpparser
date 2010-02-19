@@ -71,6 +71,11 @@ public:
         this->bgp_msg = bgp_msg;
     };
 
+    BGPMessage* getBGPMessage()
+    {
+        return this->bgp_msg;
+    };
+
     bool isTableDump(bool is_tabledump)
     {
         this->is_tabledump  = is_tabledump;

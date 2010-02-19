@@ -35,6 +35,7 @@
 #include "BGPCommonHeader.h"
 #include "BGPAttribute.h"
 #include "MRTTblDump.h"
+#include "BGPMessageDumper.h"
 
 using namespace std;
 
@@ -60,6 +61,7 @@ public:
 protected:
     /* TABLE_DUMPV1 */
 	MRTTblDump*    tblDumpMsg;
+    BGPMessageDumper* genMsgDumper();
 };
 
 #endif /* __MRTTBLDUMPV2DUMPER_H_ */

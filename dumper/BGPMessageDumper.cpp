@@ -117,6 +117,7 @@ string BGPMessageDumper::genAscii()
 			inet_ntop(AF_INET6, &(local_addr.ipv6), src_addr, INET6_ADDRSTRLEN);
 			break;
 	}
+
     static char buffer[256]; 
     buffer[0] = '\0';
     sprintf(buffer, "%u", peer_as);
