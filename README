@@ -1,0 +1,43 @@
+BGP Parser Library Readme 
+==========================
+BGP Praser is an extensible MRT BGP message parser implemented in C++. 
+
+-----------------------------------
+Library Use
+-----------------------------------
+The purpose of this library is to parser MRT messages.
+
+Currently three types of messages are supported.
+12 - Table dump
+13 - Table dump v2
+16 - BGP4MP
+(the MRT format is at http://tools.ietf.org/html/draft-ietf-grow-mrt-09)
+Details of supported subtypes which are handled can be viewed in the 
+inc/MRTStructure.h file.
+
+The MRTCommonHeader.h file contains the structure for the outermost layer of
+a MRT message.  The static interface function, newMessage, is used to parse 
+through the given message, and generate the appropriate message structure. Each 
+structure then contains the appropriate getter functions to retrieve any 
+specific information that is desired.  For instance, initially, one would use 
+getType() on the MRTMessage returned from calling newMessage in order to 
+determine the type of the incoming message. 
+
+For handling just BGP Message data, the BGPCommonHeader.h defines a similar 
+newMessage function that can be used in a similar fashion. The appropriate 
+getters for each field are defined in all derived classes, which retrieve any 
+data which is initially parsed from creating the structure.
+
+-----------------------------------
+Example Application
+-----------------------------------
+Note that the purpose of this library is merely to parser each *individual* MRT 
+message efficently and correctly. For a given MRT file, users are required to 
+extract each MRT message before using the library.
+
+For demo purpose, an example program 'mrt2xml' is also included, which takes a 
+BGP MRT file as an input, uses the library to parses it, and outputs the parsed 
+data in xml format.  
+The explanation of the xml format could be obtained at 
+http://bgpmon.netsec.colostate.edu/publications/draft-ietf-bgp-xml.txt
+

@@ -1,0 +1,59 @@
+PARSER_DIR = ../parser
+
+CC=gcc
+INCLUDE=-I../include -I/usr/include -I/usr/local/include -I../ -I/usr/include/libxml2 -I/usr/local/include/libxml2
+LIB=-L/usr/lib -L/usr/local/lib -L../
+CFLAGS=-g -Wall -Wno-write-strings 
+LFLAGS=-lxml2 -lz -lbz2
+
+COMMON_OBJ = cfile_tools.o \
+
+DUMPER_OBJ = Dumper.o \
+             MRTTblDumpV1Dumper.o \
+             MRTTblDumpV2Dumper.o \
+             \
+             MRTBgp4MPMessageDumper.o \
+             BGPMessageDumper.o \
+		     BGPDumper.o \
+			     BGPOpenDumper.o \
+			     BGPUpdateDumper.o \
+				     BGPAttributeDumper.o \
+				     AttributeTypeDumper.o \
+				     AttributeTypeOriginDumper.o \
+				     AttributeTypeNextHopDumper.o \
+				     AttributeTypeLocalPrefDumper.o \
+				     AttributeTypeMultiExitDiscDumper.o \
+				     AttributeTypeCommunitiesDumper.o \
+				     AttributeTypeAggregatorDumper.o \
+				     AttributeTypeAtomicAggregateDumper.o \
+				     AttributeTypeASPathDumper.o \
+				     AttributeTypeMPReachNLRIDumper.o \
+				     AttributeTypeMPUnreachNLRIDumper.o \
+				     AttributeTypeOriginatorIDDumper.o \
+				     AttributeTypeClusterListDumper.o \
+			     BGPKeepAliveDumper.o \
+			     BGPNotificationDumper.o \
+			     BGPRouteRefreshDumper.o \
+	     \
+             MRTBgp4MPStateChangeDumper.o \
+             BGPStateChangeDumper.o \
+	     \
+	     xmlinternal.o \
+
+EXE_MRT2XML_OBJ = mrt2xml.o $(COMMON_OBJ) $(DUMPER_OBJ)
+EXE = mrt2xml 
+
+all: $(EXE)
+
+mrt2xml: $(EXE_MRT2XML_OBJ)
+	$(CC) $(CFLAGS) $(INCLUDE) -o mrt2xml $(EXE_MRT2XML_OBJ) $(PARSER_DIR)/libbgpparser.a $(LIB) -lstdc++ $(LFLAGS)
+
+.cpp.o:
+	$(CC) -c $(CFLAGS) $(INCLUDE) $(LDFLAGS) $<
+
+.c.o:
+	$(CC) -c $(CFLAGS) $(INCLUDE) $(LDFLAGS) $<
+
+
+clean:
+	rm -f *.o core $(EXE)

@@ -1,0 +1,100 @@
+ # Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
+ # 
+ # Redistribution and use in source and binary forms, with or without
+ # modification, are permitted provided that the following conditions are met:
+ # 
+ # * Redistributions of source code must retain the above copyright notice,
+ #     this list of conditions and the following disclaimer.
+ # * Redistributions in binary form must reproduce the above copyright
+ #     notice, this list of conditions and the following disclaimer in the
+ #     documentation and/or other materials provided with the distribution.
+ # * Neither the name of NLnetLabs nor the names of its
+ #     contributors may be used to endorse or promote products derived from this
+ #     software without specific prior written permission.
+ # 
+ # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ # IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ # ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ # LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ # CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ # SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ # POSSIBILITY OF SUCH DAMAGE.
+
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.62)
+AC_INIT(bgpparser, 0.1.0, rveloso@cs.ucla.edu)
+AC_CONFIG_SRCDIR([include/AttributeType.h])
+AC_CONFIG_SRCDIR([parser/AttributeType.cc])
+AC_CONFIG_SRCDIR([dumper/AttributeTypeASPathDumper.cpp])
+AC_CONFIG_HEADERS([parser/config.h])
+AC_CONFIG_HEADERS([dumper/config.h])
+
+
+
+AC_ARG_WITH(xml2-lib-dir,
+ AC_HELP_STRING(
+[--with-xml2-lib-dir],
+[XML2 library directory]),
+[xml2_lib_dir=$withval])
+
+
+AC_CHECK_LIB(xml2, xmlNewNode, XML2_LIBS=" ", XML2_LIBS= )
+# hunt through several directories trying to find the libraries
+if test "x$XML2_LIBS" = "x"; then
+  old_LDFLAGS="$LDFLAGS"
+  for try in $xml2_lib_dir /usr/lib /usr/local/lib /opt/local/lib; do
+    LDFLAGS="$old_LDFLAGS -L$try"
+    unset ac_cv_lib_xml2_xmlNewNode
+    AC_CHECK_LIB(xml2, xmlNewNode,
+      XML2_LIBS="-L$try",
+      XML2_LIBS=
+    )
+    if test "x$XML2_LIBS" != "x"; then
+      break;
+    fi
+  done
+  LDFLAGS="$old_LDFLAGS $XML2_LIBS"
+fi
+if test "x$XML2_LIBS" = "x"; then
+  AC_MSG_ERROR([XML2 libraries not found.  Use --with-xml2-lib-dir=<path>])
+fi
+# don't forget to add xml2 to the list of libraries
+LIBS="-lxml2 $LIBS"
+
+AC_PATH_TOOL(AR, ar, [false])
+if test $AR = false; then
+  AC_MSG_ERROR([Cannot find 'ar', please extend PATH to include it])
+fi
+
+
+# Checks for programs.
+AC_PROG_CC
+
+# Checks for libraries.
+
+# Checks for header files.
+AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdint.h string.h sys/socket.h unistd.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT8_T
+
+# Checks for library functions.
+AC_FUNC_MALLOC
+AC_CHECK_FUNCS([inet_ntoa memset])
+
+#AC_CONFIG_FILES([Makefile])
+#AC_CONFIG_SUBDIRS([dumper
+ #                  parser])
+AC_OUTPUT(dumper/Makefile parser/Makefile Makefile)

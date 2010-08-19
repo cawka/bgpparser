@@ -1,0 +1,4 @@
+v0.2b, 20091017
+
+- added ASCII output compatible with bgpdump (-B option)
+- added XML representation of confederation sequences, cluster lists and originator ID for iBGP feeds
