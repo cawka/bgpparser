@@ -34,6 +34,8 @@
 #include "AttributeTypeAggregator.h"
 #include "AttributeTypeAS4Aggregator.h"
 
+LoggerPtr BGPUpdate::Logger = Logger::getLogger( "bgpparser.BGPUpdate" );
+
 BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
 		 : BGPCommonHeader(*msg) {
 	uint8_t* ptr = *msg + MESSAGE_HEADER_SIZE; // 19
@@ -57,14 +59,14 @@ BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
 		uint8_t prefixLen = *p;
 		if( prefixLen > sizeof(IPAddress)*8 ) {
 			*msg = maxptr;
-			Logger::err("abnormal prefix-length [%d]. skip this record.", prefixLen );
+			Logger->error( str(format("abnormal prefix-length [%d]. skip this record.") % prefixLen) );
 			return;
 		}
 		Route wRoute(prefixLen, ++p);
 		if( p+wRoute.getNumOctets() > maxptr ) {
 			*msg = maxptr;
-			Logger::err("message truncated! need to read [%d], but only have [%d] bytes.",
-						 wRoute.getNumOctets(), maxptr-p);
+			Logger->error( str(format("message truncated! need to read [%d], but only have [%d] bytes.") %
+						 wRoute.getNumOctets() % (maxptr-p)) );
 			return;
 		}
 		withdrawnRoutes->push_back(wRoute);
@@ -87,7 +89,7 @@ BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
 		//	return;
 		//}
 		if( attrib.getAttributeValue() == NULL ) {
-			Logger::err("malformed attribute. skip.");
+			Logger->error("malformed attribute. skip.");
 			return;
 		}
 		pathAttributes->push_back(attrib);
@@ -109,7 +111,7 @@ BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
 	{
 		as_path_attr->genPathSegmentsComplete(as4_path_attr);
 		if( as_path_attr->hasError() == 1 ) {
-            Logger::err("Inconsistent as-path information between AS_PATH and AS4_PATH attributes.");
+            Logger->error("Inconsistent as-path information between AS_PATH and AS4_PATH attributes.");
 			error = 1;
 			return;
 		}
@@ -142,15 +144,15 @@ BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
 		memcpy(&prefixLen, p, sizeof(uint8_t));
 		if( prefixLen > sizeof(IPAddress)*8 ) {
 			*msg = maxptr;
-			Logger::err("abnormal prefix-length [%d]. skip this record.", prefixLen );
+			Logger->error( str(format("abnormal prefix-length [%d]. skip this record.") % prefixLen) );
 			return;
 		}
 		Route aRoute(prefixLen, ++p);
 		if( p+aRoute.getNumOctets() > maxptr ) {
 			nlriLength = maxptr - ptr;
 			*msg = maxptr;
-			Logger::err("message truncated! need to read [%d], but only have [%d] bytes.",
-						 aRoute.getNumOctets(), maxptr-p);
+			Logger->error( str(format("message truncated! need to read [%d], but only have [%d] bytes.") %
+						 aRoute.getNumOctets() % (maxptr-p)) );
 			return;
 		}
 		announcedRoutes->push_back(aRoute);

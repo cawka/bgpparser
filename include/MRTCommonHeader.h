@@ -78,6 +78,8 @@ protected:
 	uint32_t length;	/* length of payload in MRT */
 	void* payload;
 	uint8_t error;
+
+	static LoggerPtr Logger;
 };
 
 #endif	/* _MRTCOMMONHEADER_H_ */

@@ -59,10 +59,23 @@
 /* Constants */
 #define MRT_COMMON_HDR_LEN  12
 
+#include <log4cxx/logger.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/defaultconfigurator.h>
+#include <log4cxx/helpers/exception.h>
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+
+#include <boost/filesystem.hpp>
+using namespace boost::filesystem;
+
 extern "C" {
 #include "cfile_tools.h"
 #include "xmlinternal.h"
 }
+
+static LoggerPtr _log=Logger::getLogger( "bgpdump" );
 
 int dump_type = 0;   // 1: TABLE_DUMP1
                      // 2: TABLE_DUMP2
@@ -106,7 +119,7 @@ int procMsg(Dumper *dumper, int flag_format, int flag_newline, int flag_bgpdump)
 
 void print_usage()
 {
-    char *usage = "Usage: \n\
+    cout << "Usage: \n\
 1. Convert MRT files to XML format \n\
    bgpparser [-f] [-n] [-m] [-h] mrt_file\n\
     -f format/indent the xml bgp message (default: YES),\n\
@@ -119,7 +132,6 @@ void print_usage()
    bgpparser -B mrt_file\n\
     -B output bgpdump compatible ascii short format,\n\
 	   \n";
-    cout << usage;
 }
 
 //int _tmain(int argc, _TCHAR* argv[])
@@ -176,8 +188,13 @@ int main(int argc, char** argv)
     /* -------------------------- */
     /* Initialize Logger          */
     /* -------------------------- */
-    Logger::init();
-    Logger::out("parsing started");
+	// configure Logger
+	if( exists("log4cxx.properties") )
+		PropertyConfigurator::configureAndWatch( "log4cxx.properties" );
+	else
+		BasicConfigurator::configure( );
+
+    _log->info( "Parsing started" );
 
     /* -------------------------- */
     /* Process file               */
@@ -363,8 +380,7 @@ int main(int argc, char** argv)
     /* -------------------------- */
     /* Finalize                   */
     /* -------------------------- */
-    Logger::out("parsing ends");
-    Logger::finalize();
+    _log->info( "parsing ends" );
     return 0;
 }
 

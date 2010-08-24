@@ -52,7 +52,16 @@
 #include <AttributeType.h>
 #include <AttributeTypeOrigin.h>
 
-#include <Logger.h>
+#include <log4cxx/Logger.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/defaultconfigurator.h>
+#include <log4cxx/helpers/exception.h>
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+
+#include <boost/filesystem.hpp>
+using namespace boost::filesystem;
 
 extern "C" {
 	#include "cfile_tools.h"
@@ -183,6 +192,8 @@ const char* rrrchMRTSubTypes[][MAX_MRT_SUBTYPE_NUM + 1]
 							{"UNKNOWN"}, {"UNKNOWN"}					// 48, 49
 						};
 
+static LoggerPtr _log=Logger::getLogger( "simple" );
+
 int main(int argc, char** argv)
 {
 	uint32_t    unFlags = 0;
@@ -191,15 +202,23 @@ int main(int argc, char** argv)
 
 	if (argc < 2)
 	{
-		cout << "Usage:\ntestr <MRT File>\n";
-		exit(-1);
+		cout << "Usage:\n\tsimple <MRT File> [<log4cxx config file>]"
+			 << endl;
+		exit( -1 );
 	}
 
-    Logger::init();
-    Logger::out("parsing started");
+	// configure Logger
+	if( exists("log4cxx.properties") )
+		PropertyConfigurator::configureAndWatch( "log4cxx.properties" );
+	else if( argc==3 )
+		PropertyConfigurator::configure( argv[2] );
+	else
+		BasicConfigurator::configure( );
+
+	_log->info( "Parsing started" );
 
 	// Set any flags
-	if (argv[1][0] == '-' && argv[1][1] != '\0')
+	if( string(argv[1])=="-" )
 	{
 		unFlags = 0x80000000;
 		char* pchFlagVals = argv[1];
@@ -552,8 +571,7 @@ int main(int argc, char** argv)
         }
     }
 
-    Logger::out("parsing ends");
-    Logger::finalize();
+	_log->info( "Parsing ended" );
 	return 0;
 }
 

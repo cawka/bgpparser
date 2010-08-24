@@ -51,6 +51,8 @@ public:
 
 private:
 	MRTTblDumpV2RibGeneric(void);
+
+	static LoggerPtr Logger;
 };
 
 #endif	/* _MRTTBLDUMPV2RIBGENERIC_H_ */

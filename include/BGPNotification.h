@@ -57,6 +57,8 @@ protected:
 
 private:
 	//BGPNotification(void);		/* default constructor BGPCommonHeader() not defined */
+
+	static LoggerPtr Logger;
 };
 
 #endif	/* _BGPNOTIFICATION_H_ */

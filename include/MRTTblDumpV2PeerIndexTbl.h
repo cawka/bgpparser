@@ -67,6 +67,8 @@ protected:
 
 private:
 	MRTTblDumpV2PeerIndexTbl(void);
+
+	static LoggerPtr Logger;
 };
 
 #endif	/* _MRTTBLDUMPV2PEERINDEXTBL_H_ */

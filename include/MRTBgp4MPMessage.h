@@ -66,6 +66,8 @@ protected:
 
 private:
 	MRTBgp4MPMessage(void);		/* disable default constructor */
+
+	static LoggerPtr Logger;
 };
 
 #endif	/* _MRTBGP4MPMESSAGE_H_ */

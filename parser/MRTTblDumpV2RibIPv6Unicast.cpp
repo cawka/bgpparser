@@ -29,6 +29,8 @@
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
 #include "MRTTblDumpV2RibIPv6Unicast.h"
 
+LoggerPtr MRTTblDumpV2RibIPv6Unicast::Logger = Logger::getLogger( "bgpparser.MRTTblDumpV2RibIPv6Unicast" );
+
 MRTTblDumpV2RibIPv6Unicast::MRTTblDumpV2RibIPv6Unicast(void) {
 	/* nothing */
 }
@@ -93,7 +95,7 @@ void MRTTblDumpV2RibIPv6Unicast::printMe(MRTTblDumpV2PeerIndexTbl* peerIndexTbl)
 		if (peerIndexTbl) {
 			peerEntries = peerIndexTbl->getPeerEntries();
 			if (peerEntries == NULL) {
-				Logger::err("fatal: peer index table not found.");
+				Logger->error("fatal: peer index table not found.");
 				return;
 			}
 			int i=0;
@@ -134,7 +136,7 @@ void MRTTblDumpV2RibIPv6Unicast::printMeCompact(MRTTblDumpV2PeerIndexTbl* peerIn
 		if (peerIndexTbl) {
 			peerEntries = peerIndexTbl->getPeerEntries();
 			if (peerEntries == NULL) {
-				Logger::err("fatal: peer index table not found.");
+				Logger->error("fatal: peer index table not found.");
 				return;
 			}
 			int i=0;

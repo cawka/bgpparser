@@ -29,6 +29,8 @@
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
 #include "AttributeTypeMPReachNLRI.h"
 
+LoggerPtr AttributeTypeMPReachNLRI::Logger = Logger::getLogger( "bgpparser.AttributeTypeMPReachNLRI" );
+
 AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI(void) {
 	afi  = 0;
 	safi = 0;
@@ -123,19 +125,19 @@ AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI(uint16_t len, uint8_t* msg, b
 		uint8_t prefixLength = 0;
 		prefixLength = *ptr++;
 		if( ptr > endMsg ) {
-			Logger::err("message truncated! cannot read mbgp prefix.");
+			Logger->error("message truncated! cannot read mbgp prefix.");
 			break;
 		}
 		if( prefixLength > sizeof(IPAddress)*8) { 
-			Logger::err("abnormal prefix-length [%u]. skip this record.", prefixLength );
+			Logger->error( str(format("abnormal prefix-length [%u]. skip this record.") % prefixLength) );
 			break;
 		}
 		PRINT_DBGFL(0,"  prefixLength = %u\n", prefixLength);
 		
 		NLRIReachable route(prefixLength, ptr);
 		if( route.getNumOctets()+ptr > endMsg ) { 
-			Logger::err("message (mbgp a) truncated! need to read [%d], but only have [%d] bytes.",
-						 route.getNumOctets(), endMsg-ptr);
+			Logger->error( str(format("message (mbgp a) truncated! need to read [%d], but only have [%d] bytes.") %
+						 route.getNumOctets() % (endMsg-ptr)) );
 			break;
 		}
 		ptr += route.getNumOctets();

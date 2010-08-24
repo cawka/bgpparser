@@ -35,6 +35,8 @@
 #include "BGPOpen.h"
 #include "BGPRouteRefresh.h"
 
+LoggerPtr MRTBgp4MPMessage::Logger = Logger::getLogger( "bgpparser.MRTBgp4MPMessage" );
+
 MRTBgp4MPMessage::MRTBgp4MPMessage(void) {
 	/* nothing */
 	payload = NULL;
@@ -93,7 +95,7 @@ MRTBgp4MPMessage::MRTBgp4MPMessage(uint8_t **ptr, bool _isAS4)
 		p += sizeof(localIP.ipv6);
 		nBytesRead += sizeof(localIP.ipv6);
 	} else {
-		Logger::err("unsupported address family [%u]", addressFamily);
+		Logger->error( str(format("unsupported address family [%u]") % addressFamily) );
 	}
 
 	/* TODO: pointer p now points to beginning of BGP message... parse BGP message */
@@ -146,7 +148,7 @@ MRTBgp4MPMessage::MRTBgp4MPMessage(uint8_t **ptr, bool _isAS4)
 		}
 	}
 	else {
-		Logger::err("bgp message is NULL.");
+		Logger->error("bgp message is NULL.");
 	}
 	/* TODO: increment the pointer to the new location in the file stream */
 	*ptr = p;

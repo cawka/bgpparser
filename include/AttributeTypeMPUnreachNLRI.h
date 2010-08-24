@@ -65,6 +65,8 @@ protected:
 	list<NLRIUnReachable> *nlri;
 	
 	bool corrupt;
+
+	static LoggerPtr Logger;
 };
 
 #endif	/* _ATTRIBUTETYPEMPUNREACHNLRI_H_ */

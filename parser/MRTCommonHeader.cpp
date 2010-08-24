@@ -45,6 +45,8 @@
 
 #include "BGPCommonHeader.h"
 
+LoggerPtr MRTCommonHeader::Logger = Logger::getLogger( "bgpparser.MRTCommonHeader" );
+
 MRTCommonHeader::MRTCommonHeader(void) {
 	/* nothing */
 	error = 0;
@@ -147,7 +149,7 @@ MRTMessage * MRTCommonHeader::newMessage(uint8_t **ptr) {
 			//msg = new MRTBgp4MPSnapshot(ptr);		/* not supported yet */
 			//break;
 		default:
-			Logger::err("unrecognized subtype [%u] for bgp4mp.", header.getSubType());
+			Logger->error( str(format("unrecognized subtype [%u] for bgp4mp.") % header.getSubType()) );
 			/* if failed to parse packet then update packet pointer */
 			*ptr += sizeof(MRTCommonHeaderPacket) + header.getLength();
 			break;
@@ -179,14 +181,14 @@ MRTMessage * MRTCommonHeader::newMessage(uint8_t **ptr) {
 				msg = new MRTTblDumpV2RibGeneric(ptr);
 				break;
 			default:
-				Logger::err("unrecognized subtype [%u] for table-dump-v2.", header.getSubType());
+				Logger->error( str(format("unrecognized subtype [%u] for table-dump-v2.") % header.getSubType()) );
 				/* if failed to parse packet then update packet pointer */
 				ptr += sizeof(MRTCommonHeaderPacket) + header.getLength();
 				break;
 			}
 			break;
 		default:
-			Logger::err("unrecognized type [%u] for table-dump-v2", header.getType());
+			Logger->error( str(format("unrecognized type [%u] for table-dump-v2") % header.getType()) );
 			/* if failed to parse packet then update packet pointer */
 			*ptr += sizeof(MRTCommonHeaderPacket) + header.getLength();
 			break;

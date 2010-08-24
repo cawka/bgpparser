@@ -29,6 +29,8 @@
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
 #include "AttributeTypeMPUnreachNLRI.h"
 
+LoggerPtr AttributeTypeMPUnreachNLRI::Logger = Logger::getLogger( "bgpparser.AttributeTypeMPUnreachNLRI" );
+
 AttributeTypeMPUnreachNLRI::AttributeTypeMPUnreachNLRI(void) {
 	nlri = new list<NLRIUnReachable>();
 	corrupt = 0;
@@ -55,31 +57,31 @@ AttributeTypeMPUnreachNLRI::AttributeTypeMPUnreachNLRI(uint16_t len, uint8_t* ms
 	afi = ntohs(afi);
 
 	if ((afi != AFI_IPv4) &&  (afi != AFI_IPv6)) {
-		Logger::err("unknown address family %u", afi);
+		Logger->error( str(format("unknown address family %u") % afi) );
 		corrupt = 1;
 		return;
 	}
 
 	safi = *ptr++;
 	if ((((uint32_t)safi & BITMASK_8) != SAFI_UNICAST) && (((uint32_t)safi & BITMASK_8) != SAFI_MULTICAST)) {
-		Logger::err("unknown subsequent address family %u", safi);
+		Logger->error( str(format("unknown subsequent address family %u") % safi) );
 	}
 
 	while (ptr < (msg + len) && ptr < endMsg ) {
 		uint8_t prefixLength = BITMASK_8 & (*ptr);
 		ptr++;
 		if( ptr > endMsg ) {
-			Logger::err("message truncated! cannot read mbgp prefix.");
+			Logger->error( "message truncated! cannot read mbgp prefix.");
 			break;
 		}
 		if( prefixLength > sizeof(IPAddress)*8) { 
-			Logger::err("abnormal prefix-length [%u]. skip this record.", prefixLength );
+			Logger->error( str(format("abnormal prefix-length [%u]. skip this record.") % prefixLength) );
 			break;
 		}
 		NLRIUnReachable route(prefixLength, ptr);
 		if( route.getNumOctets()+ptr > endMsg ) { 
-			Logger::err("message (mbgp w) truncated! need to read [%d], but only have [%d] bytes.",
-						 route.getNumOctets(), endMsg-ptr);
+			Logger->error( str(format("message (mbgp w) truncated! need to read [%d], but only have [%d] bytes.") %
+						 route.getNumOctets() % (endMsg-ptr)) );
 			break;
 		}
 		nlri->push_back(route);

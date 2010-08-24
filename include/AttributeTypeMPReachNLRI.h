@@ -79,6 +79,8 @@ protected:
 	list<NLRIReachable> *nlri;
 	
 	bool corrupt;
+
+	static LoggerPtr Logger;
 };
 
 #endif	/* _ATTRIBUTETYPEMPREACHNLRI_H_ */

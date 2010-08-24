@@ -29,6 +29,8 @@
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
 #include "MRTBgp4MPStateChange.h"
 
+LoggerPtr MRTBgp4MPStateChange::Logger = Logger::getLogger( "bgpparser.MRTBgp4MPStateChange" );
+
 MRTBgp4MPStateChange::MRTBgp4MPStateChange(void) {
 	/* nothing */
 }
@@ -77,7 +79,7 @@ MRTBgp4MPStateChange::MRTBgp4MPStateChange(uint8_t **ptr, bool _isAS4)
 		memcpy(&localIP, p, sizeof(localIP.ipv6));
 		p += sizeof(localIP.ipv6);
 	} else {
-		Logger::err("unsupported address family [%u]", addressFamily);
+		Logger->error( str(format("unsupported address family [%u]") % addressFamily) );
 	}
 
 	/* pointer p now points to beginning of old state */

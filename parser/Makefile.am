@@ -1,10 +1,11 @@
-AM_CPPFLAGS = -I$(top_srcdir)/include
+AM_CPPFLAGS = -I$(top_srcdir)/include $(log4cxx_CFLAGS) $(BOOST_CPPFLAGS)
 
 lib_LTLIBRARIES=libbgpparser.la
 
 libbgpparser_ladir=$(includedir)/bgpparser
 
 libbgpparser_la_SOURCES=\
+../include/Logger.h \
 AttributeType.cpp \
 AttributeTypeAS4Aggregator.cpp \
 AttributeTypeAS4Path.cpp \
@@ -28,7 +29,6 @@ BGPNotification.cpp \
 BGPOpen.cpp \
 BGPRouteRefresh.cpp \
 BGPUpdate.cpp \
-Logger.cpp \
 MRTBgp4MPEntry.cpp \
 MRTBgp4MPMessage.cpp \
 MRTBgp4MPSnapshot.cpp \
@@ -75,7 +75,6 @@ libbgpparser_la_HEADERS = \
 ../include/BGPStructure.h \
 ../include/BGPUpdate.h \
 ../include/Dumper.h \
-../include/Logger.h \
 ../include/MRTBgp4MPEntry.h \
 ../include/MRTBgp4MPMessage.h \
 ../include/MRTBgp4MPMessageDumper.h \

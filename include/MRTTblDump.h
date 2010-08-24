@@ -82,6 +82,8 @@ protected:
 	list<BGPAttribute> *attributes;
 private:
 	MRTTblDump(void);
+
+	static LoggerPtr Logger;
 };
 
 #endif	/* _MRTTBLDUMP_H_ */

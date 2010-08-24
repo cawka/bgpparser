@@ -30,6 +30,8 @@
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
 #include "MRTTblDumpV2RibIPv4Unicast.h"
 
+LoggerPtr MRTTblDumpV2RibIPv4Unicast::Logger = Logger::getLogger( "bgpparser.MRTTblDumpV2RibIPv4Unicast" );
+
 MRTTblDumpV2RibIPv4Unicast::MRTTblDumpV2RibIPv4Unicast(void) {
 	/* nothing */
 }
@@ -96,7 +98,7 @@ void MRTTblDumpV2RibIPv4Unicast::printMe(MRTTblDumpV2PeerIndexTbl* peerIndexTbl)
 		if (peerIndexTbl) {
 			peerEntries = peerIndexTbl->getPeerEntries();
 			if (peerEntries == NULL) {
-				Logger::err("fatal: peer entry not found.");
+				Logger->error("fatal: peer entry not found.");
 			}
 			int i=0;
 			for (indexIter = peerEntries->begin(); 

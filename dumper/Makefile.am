@@ -35,6 +35,6 @@ xmlinternal.c \
 cfile_tools.c	cfile_tools.h
 
 bgpparser_LDADD   = ../../src/libbgpparser.la
-bgpparser_LDFLAGS = $(XML_LIBS) -lbz2 -lz
-bgpparser_CPPFLAGS= -I$(top_srcdir)/include $(XML_CFLAGS)
+bgpparser_LDFLAGS = $(XML_LIBS) -lbz2 -lz $(log4cxx_LIBS) $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB)
+bgpparser_CPPFLAGS= -I$(top_srcdir)/include $(XML_CFLAGS)  $(log4cxx_CFLAGS)
 

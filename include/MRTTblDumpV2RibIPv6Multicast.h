@@ -56,6 +56,8 @@ public:
 	virtual void printMeCompact(MRTTblDumpV2PeerIndexTbl*);
 private:
 	MRTTblDumpV2RibIPv6Multicast(void);
+
+	static LoggerPtr Logger;
 };
 
 #endif	/* _MRTTBLDUMPV2RIBIPV6MULTICAST_H_ */

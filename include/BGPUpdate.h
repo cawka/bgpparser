@@ -70,6 +70,8 @@ protected:
 												//			- withdrawnRoutesLength - pathAttributesLength
 	list<Route>* announcedRoutes;
 
+
+	static LoggerPtr Logger;
 };
 
 #endif /* __BGPUPDATE_H_ */

@@ -29,6 +29,8 @@
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
 #include "MRTTblDumpV2RibIPv6Multicast.h"
 
+LoggerPtr MRTTblDumpV2RibIPv6Multicast::Logger = Logger::getLogger( "bgpparser.MRTTblDumpV2RibIPv6Multicast" );
+
 MRTTblDumpV2RibIPv6Multicast::MRTTblDumpV2RibIPv6Multicast(void) {
 	/* nothing */
 }
@@ -93,7 +95,7 @@ void MRTTblDumpV2RibIPv6Multicast::printMe(MRTTblDumpV2PeerIndexTbl* peerIndexTb
 		if (peerIndexTbl) {
 			peerEntries = peerIndexTbl->getPeerEntries();
 			if (peerEntries == NULL) {
-				Logger::err("fatal: peer index table not found.");
+				Logger->error("fatal: peer index table not found.");
 				return;
 			}
 			int i=0;
@@ -136,7 +138,7 @@ void MRTTblDumpV2RibIPv6Multicast::printMeCompact(MRTTblDumpV2PeerIndexTbl* peer
 		if (peerIndexTbl) {
 			peerEntries = peerIndexTbl->getPeerEntries();
 			if (peerEntries == NULL) {
-				Logger::err("fatal: peer index table not found.");
+				Logger->error("fatal: peer index table not found.");
 				return;
 			}
 			int i=0;

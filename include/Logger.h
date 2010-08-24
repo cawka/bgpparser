@@ -29,31 +29,10 @@
 #ifndef _LOGGER_H_
 #define _LOGGER_H_
 
-#include <stdint.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
-#include <ctime>
-
-#define LOG_BUF_SIZE 1024
-#define TIME_BUF_SIZE 128
-
-class Logger
-{
-public:
-    static int init(void);
-    static int out(const char [], ... );
-    static int err(const char [], ... );
-    static int finalize(void);
-	
-private:
-    static FILE *fdout;
-    static FILE *fderr;
-    static time_t t;
-    static struct tm *ts;
-    static char msgbuf[LOG_BUF_SIZE];
-    static char timebuf[TIME_BUF_SIZE];
-};
+#include <log4cxx/logger.h>
+#include <boost/format.hpp>
+using namespace log4cxx;
+using boost::format;
 
 #endif	/* _LOGGER_H_ */
 

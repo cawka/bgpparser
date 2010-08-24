@@ -72,6 +72,8 @@ protected:
 
 private:
 	MRTBgp4MPStateChange(void);
+
+	static LoggerPtr Logger;
 };
 
 #endif	/* _MRTBGP4MPSTATECHANGE_H_ */

@@ -30,6 +30,8 @@
 
 #include "BGPNotification.h"
 
+LoggerPtr BGPNotification::Logger = Logger::getLogger( "bgpparser.BGPNotification" );
+
 BGPNotification::BGPNotification(uint8_t **ptr) : BGPCommonHeader((uint8_t *)*ptr) {
 	uint8_t *p;
 	uint8_t *endptr;
@@ -80,7 +82,7 @@ BGPNotification::BGPNotification(uint8_t **ptr) : BGPCommonHeader((uint8_t *)*pt
 				}
 				break;
 			default:
-				Logger::err("unknown sub-error code [%u] in BGP Notification", subErrorCode );
+				Logger->error( str(format("unknown sub-error code [%u] in BGP Notification") % subErrorCode) );
 				break;
 			}
 		}
@@ -108,7 +110,7 @@ BGPNotification::BGPNotification(uint8_t **ptr) : BGPCommonHeader((uint8_t *)*pt
 			case UNACCEPTABLE_HOLD_TIME:
 				break;
 			default:
-				Logger::err("unknown sub-error code [%u] in BGP Open", subErrorCode );
+				Logger->error( str(format("unknown sub-error code [%u] in BGP Open") % subErrorCode) );
 				break;
 			}
 		}
@@ -151,7 +153,7 @@ BGPNotification::BGPNotification(uint8_t **ptr) : BGPCommonHeader((uint8_t *)*pt
 	case BGP_NOTIFICATION_CEASE:
 		break;
 	default:
-		Logger::err("unknown error code [%u] in BGP Notification", errorCode);
+		Logger->error( str(format("unknown error code [%u] in BGP Notification") % errorCode) );
 		break;
 	}
 
