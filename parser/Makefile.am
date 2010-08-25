@@ -5,7 +5,6 @@ lib_LTLIBRARIES=libbgpparser.la
 libbgpparser_ladir=$(includedir)/bgpparser
 
 libbgpparser_la_SOURCES=\
-../include/Logger.h \
 AttributeType.cpp \
 AttributeTypeAS4Aggregator.cpp \
 AttributeTypeAS4Path.cpp \
@@ -45,6 +44,7 @@ MRTTblDumpV2RibIPv6Unicast.cpp \
 TblDumpV2RibEntry.cpp
 
 libbgpparser_la_HEADERS = \
+../include/Logger.h \
 ../include/AttributeType.h \
 ../include/AttributeTypeAS4Aggregator.h \
 ../include/AttributeTypeAS4Path.h \
