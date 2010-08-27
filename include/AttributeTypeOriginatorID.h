@@ -50,6 +50,8 @@ public:
 	
 protected:
 	uint32_t originator_id;
+
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _ATTRIBUTETYPEORIGINATORID_H_ */

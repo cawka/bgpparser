@@ -28,7 +28,11 @@
 
 // Author: Jason Ryder, Paul Wang
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "AttributeTypeMultiExitDisc.h"
+
+log4cxx::LoggerPtr AttributeTypeMultiExitDisc::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeMultiExitDisc" );
 
 AttributeTypeMultiExitDisc::AttributeTypeMultiExitDisc(void) {
 	/* nothing */
@@ -36,7 +40,7 @@ AttributeTypeMultiExitDisc::AttributeTypeMultiExitDisc(void) {
 
 AttributeTypeMultiExitDisc::AttributeTypeMultiExitDisc(uint16_t len, uint8_t* msg)
 						   : AttributeType(len, msg) {
-	PRINT_DBG("AttributeTypeMultiExitDisc::AttributeTypeMultiExitDisc()");
+	LOG4CXX_TRACE(Logger,"AttributeTypeMultiExitDisc::AttributeTypeMultiExitDisc()");
 	memcpy(&discriminator, msg, len);
 	discriminator = ntohl(discriminator);
 }
@@ -50,11 +54,11 @@ AttributeTypeMultiExitDisc::~AttributeTypeMultiExitDisc(void) {
 }
 
 void AttributeTypeMultiExitDisc::printMeCompact() {
-	cout << "MULTI_EXIT_DISC: " << discriminator;
+	std::cout << "MULTI_EXIT_DISC: " << discriminator;
 }
 
 void AttributeTypeMultiExitDisc::printMe() {
-	cout << "MULTI_EXIT_DISC: " << discriminator;
+	std::cout << "MULTI_EXIT_DISC: " << discriminator;
 }
 
 AttributeType* AttributeTypeMultiExitDisc::clone() {

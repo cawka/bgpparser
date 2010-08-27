@@ -49,8 +49,8 @@ public:
 	
 	// Factory method for creating a BGP dumper
 	//static class MRTTblDumpV1Dumper* newDumper(BGPMessage*);
-	xmlNodePtr genXml();
-	string     genAscii();
+	xmlNodePtr  genXml();
+	std::string genAscii();
 
     void setTblDumpMsg(MRTTblDump* tblDumpMsg)
     {

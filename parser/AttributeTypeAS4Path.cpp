@@ -28,7 +28,12 @@
 
 // Author: Paul Wang, Jason Ryder
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "AttributeTypeAS4Path.h"
+using namespace std;
+
+log4cxx::LoggerPtr AttributeTypeAS4PathSegment::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeAS4PathSegment" );
 
 AttributeTypeAS4PathSegment::AttributeTypeAS4PathSegment(void) {
 	this->pathSegmentValue = new list<uint32_t>();
@@ -160,7 +165,7 @@ AttributeTypeAS4Path::AttributeTypeAS4Path(const AttributeTypeAS4Path& attr)
 AttributeTypeAS4Path::AttributeTypeAS4Path(uint16_t len, uint8_t* msg)
 : AttributeType(len, msg, isAS4)
 {
-	PRINT_DBG("AttributeTypeAS4Path::AttributeTypeAS4Path()");	
+	LOG4CXX_DEBUG(Logger,"AttributeTypeAS4Path::AttributeTypeAS4Path()");
 	
 	pathSegments = new list<AttributeTypeAS4PathSegment>();
 	

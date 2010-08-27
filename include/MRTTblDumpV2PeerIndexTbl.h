@@ -56,20 +56,22 @@ public:
 	uint16_t getViewNameLength(void) const;
 	const uint8_t *getViewName(void) const;
 	uint16_t getPeerCount(void) const;
-	list<struct _MRTTblDumpV2PeerIndexTblPeerEntry> *getPeerEntries(void);
+	std::list<struct _MRTTblDumpV2PeerIndexTblPeerEntry> *getPeerEntries(void);
 
 protected:
 	uint32_t collectorBGPId;
 	uint16_t viewNameLength;
 	uint8_t *viewName;
 	uint16_t peerCount;
-	list<struct _MRTTblDumpV2PeerIndexTblPeerEntry> *peerEntries;
+	std::list<struct _MRTTblDumpV2PeerIndexTblPeerEntry> *peerEntries;
 
 private:
 	MRTTblDumpV2PeerIndexTbl(void);
 
-	static LoggerPtr Logger;
+	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<MRTTblDumpV2PeerIndexTbl> MRTTblDumpV2PeerIndexTblPtr;
 
 #endif	/* _MRTTBLDUMPV2PEERINDEXTBL_H_ */
 

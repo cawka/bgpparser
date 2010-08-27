@@ -52,7 +52,7 @@ public:
 private:
 	MRTTblDumpV2RibGeneric(void);
 
-	static LoggerPtr Logger;
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _MRTTBLDUMPV2RIBGENERIC_H_ */

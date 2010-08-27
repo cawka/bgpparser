@@ -50,7 +50,7 @@ public:
 	uint8_t getSAFI(void) const { return safi; };
 
 	void addNLRI(NLRIUnReachable nlri) { this->nlri->push_back(nlri); };
-	list<NLRIUnReachable> *getNLRI(void) const { return nlri; };
+	std::list<NLRIUnReachable> *getNLRI(void) const { return nlri; };
 
 	virtual void printMe();
 	virtual void printMeCompact();
@@ -62,11 +62,11 @@ public:
 protected:
 	uint16_t afi;
 	uint8_t safi;
-	list<NLRIUnReachable> *nlri;
+	std::list<NLRIUnReachable> *nlri;
 	
 	bool corrupt;
 
-	static LoggerPtr Logger;
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _ATTRIBUTETYPEMPUNREACHNLRI_H_ */

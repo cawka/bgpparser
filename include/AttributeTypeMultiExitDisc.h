@@ -51,6 +51,8 @@ public:
 
 protected:
 	uint32_t discriminator;
+
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _ATTRIBUTETYPEMULTIEXITDISC_H_ */

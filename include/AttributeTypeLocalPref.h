@@ -49,6 +49,8 @@ public:
 	virtual AttributeType *clone();
 protected:
 	uint32_t localPref;
+
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _ATTRIBUTETYPELOCALPREF_H_ */

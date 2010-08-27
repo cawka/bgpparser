@@ -35,11 +35,11 @@ class BGPNotification :
 	public BGPCommonHeader
 {
 public:
-	BGPNotification(uint8_t **);
+	BGPNotification( BGPCommonHeader &header, std::istream &input );
 	virtual ~BGPNotification(void);
 	
 	virtual BGP_MESSAGE_TYPE Type()    { return NOTIFICATION;   }
-	virtual string           TypeStr() { return "NOTIFICATION"; };
+	virtual std::string      TypeStr() { return "NOTIFICATION"; };
 
 	uint32_t getErrorCode(void) const { return errorCode; };
 	void setErrorCode(uint32_t errorCode) { this->errorCode = errorCode; };
@@ -47,18 +47,18 @@ public:
 	void setSubErrorCode(uint32_t subErrorCode) { this->subErrorCode = subErrorCode; };
 
 	// TODO: add data getter/setter functions
-	const uint8_t * const getData(void) const { return data; };
+	const boost::shared_ptr<uint8_t> getData(void) const { return data; };
 	virtual void printMe();
 	virtual void printMeCompact();
 protected:
-	uint32_t errorCode;
-	uint32_t subErrorCode;
-	uint8_t *data;
+	uint8_t errorCode;
+	uint8_t subErrorCode;
+	boost::shared_ptr<uint8_t> data;
 
 private:
 	//BGPNotification(void);		/* default constructor BGPCommonHeader() not defined */
 
-	static LoggerPtr Logger;
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _BGPNOTIFICATION_H_ */

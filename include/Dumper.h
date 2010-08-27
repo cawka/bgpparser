@@ -34,8 +34,6 @@
 #include <string>
 #include <libxml/tree.h>
 
-using namespace std;
-
 class Dumper
 {
 public:
@@ -60,7 +58,7 @@ public:
 	        string node = genAscii();	
 		printAsciiNode(node, format, newline);
 	};
-	virtual string genAscii() { return ""; };
+	virtual std::string genAscii() { return ""; };
 
 protected:
 

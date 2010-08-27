@@ -53,8 +53,6 @@
 
 #include "BGPAttribute.h"
 
-using namespace std;
-
 /*
  *
 	The maximum message size is 4096 octets.  
@@ -111,7 +109,7 @@ using namespace std;
  *
  */
 
-#define MESSAGE_HEADER_SIZE		19
+#define MESSAGE_HEADER_SIZE			19
 #define MAX_MESSAGE_SIZE 			4096
 #define MIN_MESSAGE_SIZE 			MESSAGE_HEADER_SIZE
 
@@ -157,32 +155,30 @@ using namespace std;
  */ 
 
 
-typedef struct BGPMessage_t
-{
-	// NOTE: The first 4 fields come from MRT header
-	long time;		// epoch time
-	string* type;	// update, withdraw, RIB
-	string* peerIP;	// of the router sending the update
-	string* peerAS;	// AS number of router sending updating	
-	string* prefix;	// prefix being announced
-	set<uint32_t>* sASes;	// all ASes present in AS path including AS_SET
-	vector<string>* vASPath;	// ASPathe w/out prepending
-	set<string>* sLinks;			// set of links in AS path, in A {B, C}, assume A-B, A-C and B-C
-	string* nexthopIP;				// next HOP IP
-	set<uint32_t>* sOrigins;	// need a set here because of AS_SET
-	uint32_t nexthopAS;
-	string* line;							// contains the ENTIRE raw line
-} BGPMessage_t;
+//typedef struct BGPMessage_t
+//{
+//	// NOTE: The first 4 fields come from MRT header
+//	long time;		// epoch time
+//	std::string* type;	// update, withdraw, RIB
+//	std::string* peerIP;	// of the router sending the update
+//	std::string* peerAS;	// AS number of router sending updating
+//	std::string* prefix;	// prefix being announced
+//	std::set<uint32_t>* sASes;	// all ASes present in AS path including AS_SET
+//	std::vector<std::string>* vASPath;	// ASPathe w/out prepending
+//	std::set<std::string>   * sLinks;			// set of links in AS path, in A {B, C}, assume A-B, A-C and B-C
+//	std::string* nexthopIP;				// next HOP IP
+//	std::set<uint32_t>* sOrigins;	// need a set here because of AS_SET
+//	uint32_t nexthopAS;
+//	std::string* line;							// contains the ENTIRE raw line
+//} BGPMessage_t;
 
+class BGPCommonHeader;
+typedef BGPCommonHeader BGPMessage;
+typedef boost::shared_ptr<BGPMessage> BGPMessagePtr;
 
-typedef 
 class BGPCommonHeader /* AKA BGPMessage */
 {
 public:
-	BGPCommonHeader(); // Dummy constructor
-	BGPCommonHeader(const uint8_t* const msg);
-	virtual ~BGPCommonHeader();
-	
 	enum BGP_MESSAGE_TYPE
 	{
 		UNKNOWN, // Not a defined BGP message type
@@ -192,36 +188,43 @@ public:
 		KEEPALIVE,
 		ROUTE_REFRESH
 	};
+
+
+	BGPCommonHeader( std::istream &input );
+	virtual ~BGPCommonHeader();
 	
 	virtual BGP_MESSAGE_TYPE Type()    { return UNKNOWN;   };
-	virtual string           TypeStr() { return "UNKNOWN"; };
+	virtual std::string      TypeStr() { return "UNKNOWN"; };
 	
-	// Getters and Setters
-	inline void setMarker(const uint8_t aMarker[]) { memcpy(marker, aMarker, sizeof(marker)); }
-	inline uint8_t* getMarker() { return marker; }
+//	// Getters and Setters
+//	inline void setMarker(const uint8_t aMarker[]) { memcpy(marker, aMarker, sizeof(marker)); }
+//	inline uint8_t* getMarker() { return marker; }
 	
-	inline void setLength(uint16_t aLength) { length = aLength; }
 	inline uint16_t getLength() { return length; }
-	
-	inline void setType(uint8_t aType) { type = aType; }
 	inline uint8_t getType() { return type; }
-	inline uint8_t *getOctets() { return octets; }
-	uint8_t hasError() { return error; }
+
+//	inline uint8_t *getOctets() { return octets; }
+//	uint8_t hasError() { return error; }
 	
-	BGPMessage_t& getBgpData() { return bgpData; }
+//	BGPMessage_t& getBgpData() { return bgpData; }
 	
 	// Factory method for creating a BGP message instance.
-	static class BGPCommonHeader* newMessage(uint8_t** msg, bool isAS4, uint16_t mrtLen);
+	static BGPMessagePtr newMessage( std::istream &input, bool isAS4, uint16_t mrtLen);
 
 protected:
 	// There is a 16-byte marker that is all 1s
 	uint8_t marker[16];
 	uint16_t length;
 	uint8_t type;
-	uint8_t *octets;
-	BGPMessage_t bgpData;
-	uint8_t error;
-} BGPMessage;
+//	boost::shared_ptr<uint8_t> octets;
+//	BGPMessage_t bgpData;
+//	uint8_t error;
+
+private:
+	BGPCommonHeader( ) { ; }
+
+	static log4cxx::LoggerPtr Logger;
+};
 
 
 #endif /* __BGPCOMMOMHEADER_H_ */

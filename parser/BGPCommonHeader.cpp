@@ -27,81 +27,83 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
-#include "MRTCommonHeader.h"
+#include <bgpparser.h>
+
 #include "BGPCommonHeader.h"
+
 #include "BGPOpen.h"
 #include "BGPUpdate.h"
 #include "BGPKeepAlive.h"
 #include "BGPNotification.h"
 #include "BGPRouteRefresh.h"
 
-BGPCommonHeader::BGPCommonHeader() {
-	/* marker */
-	memset(marker, 255, sizeof(marker));
-	length = 0;
-	setType((uint8_t)0);
+#include <boost/iostreams/read.hpp>
+#include <boost/iostreams/skip.hpp>
+namespace io = boost::iostreams;
 
-	/* octets */
-	octets  = NULL;
-	error = 0;
-}
+using namespace std;
 
-BGPCommonHeader::BGPCommonHeader(const uint8_t* const msg) {
-	setMarker(msg);
-	//msg += 16;
-	memcpy(&length, (msg+16), sizeof(length));
+log4cxx::LoggerPtr BGPCommonHeader::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPCommonHeader" );
+
+BGPCommonHeader::BGPCommonHeader( istream &input )
+{
+	io::read( input, reinterpret_cast<char*>(&marker), sizeof(marker) );
+
+	io::read( input, reinterpret_cast<char*>(&length), sizeof(length) );
 	length = ntohs(length);
-	//msg += 2;
-	setType((uint8_t)*(msg + 18));
-	//msg++;
 
-	/* octets */
-	int len = 16+2+1+length;
-	octets = NULL;
-	octets  = (uint8_t*) malloc(len);
-	memcpy(octets, msg, len); 
-	error = 0;
+	io::read( input, reinterpret_cast<char*>(&type), sizeof(type) );
+
+//	/* octets */
+//	int len = 16+2+1+length;
+//	octets = NULL;
+//	octets  = (uint8_t*) malloc(len);
+//	memcpy(octets, msg, len);
+//	error = 0;
 }
 
-BGPCommonHeader::~BGPCommonHeader() {
-	if (octets != NULL) {
-		delete [] octets;
-	}
-	octets = NULL;
+BGPCommonHeader::~BGPCommonHeader()
+{
+//	if (octets != NULL) {
+//		delete [] octets;
+//	}
+//	octets = NULL;
 }
 
 // This method will indirectly update the value of msg to point 
 //  to the next byte after the message.  The sub-class constructors
 //  will directly update the pointer.
-BGPCommonHeader* BGPCommonHeader::newMessage(uint8_t** msg, bool isAS4, uint16_t mrtLen) {
-	BGPMessage* bgpMsg = NULL;
-	
-	BGPCommonHeader bgpHeader(*msg);
-	switch(bgpHeader.getType()) {
+BGPMessagePtr BGPCommonHeader::newMessage( istream &input, bool isAS4, uint16_t mrtLen )
+{
+	BGPMessagePtr bgpMsg;
+	BGPCommonHeader header( input );
+
+	switch( header.getType() )
+	{
 	case BGPCommonHeader::OPEN:
-		PRINT_DBG("  case BGPCommonHeader::OPEN");
-		bgpMsg = new BGPOpen(msg);
+		LOG4CXX_INFO(Logger,"  case BGPCommonHeader::OPEN");
+		bgpMsg = BGPMessagePtr( new BGPOpen(header,input) );
 		break;
 
-	case BGPCommonHeader::UPDATE:
-		PRINT_DBG("  case BGPCommonHeader::UPDATE");
-		bgpMsg = new BGPUpdate(msg,isAS4,mrtLen);
-		break;
-		
-	case BGPCommonHeader::NOTIFICATION:
-		PRINT_DBG("  case BGPCommonHeader::NOTIFICAION");
-		bgpMsg = new BGPNotification(msg);	
-		break;
-		
-	case BGPCommonHeader::KEEPALIVE:
-		PRINT_DBG("  case BGPCommonHeader::KEEPALIVE");
-		bgpMsg = new BGPKeepAlive(msg);	
-		break;
-		
-	case BGPCommonHeader::ROUTE_REFRESH:
-		PRINT_DBG("  case BGPCommonHeader::ROUTE_REFRESH");
-		bgpMsg = new BGPRouteRefresh(msg);	
-		break;
+//	case BGPCommonHeader::UPDATE:
+//		LOG4CXX_INFO(Logger,"  case BGPCommonHeader::UPDATE");
+//		bgpMsg = BGPMessagePtr( new BGPUpdate(header,msg,isAS4,mrtLen) );
+//		break;
+//
+//	case BGPCommonHeader::NOTIFICATION:
+//		LOG4CXX_INFO(Logger,"  case BGPCommonHeader::NOTIFICAION");
+//		bgpMsg = BGPMessagePtr( new BGPNotification(header,msg) );
+//		break;
+//
+//	case BGPCommonHeader::KEEPALIVE:
+//		LOG4CXX_INFO(Logger,"  case BGPCommonHeader::KEEPALIVE");
+//		bgpMsg = BGPMessagePtr( new BGPKeepAlive(header,msg) );
+//		break;
+//
+//	case BGPCommonHeader::ROUTE_REFRESH:
+//		LOG4CXX_INFO(Logger,"  case BGPCommonHeader::ROUTE_REFRESH");
+//		bgpMsg = BGPMessagePtr( new BGPRouteRefresh(header,msg) );
+//		break;
 	}
 	return bgpMsg;
 }

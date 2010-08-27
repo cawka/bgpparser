@@ -27,7 +27,12 @@
  */
 
 // Author: Jonathan Park
+#include <bgpparser.h>
+
 #include "AttributeTypeClusterList.h"
+using namespace std;
+
+log4cxx::LoggerPtr AttributeTypeClusterList::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeClusterList" );
 
 AttributeTypeClusterList::AttributeTypeClusterList(void) {
 	/* nothing */
@@ -35,7 +40,7 @@ AttributeTypeClusterList::AttributeTypeClusterList(void) {
 
 AttributeTypeClusterList::AttributeTypeClusterList(uint16_t len, uint8_t* msg)
 					: AttributeType(len, msg) {
-	PRINT_DBG("AttributeTypeClusterList::AttributeTypeClusterList()");
+	LOG4CXX_DEBUG(Logger,"AttributeTypeClusterList::AttributeTypeClusterList()");
 	uint32_t cluster_id;
 	cluster_list = new list<uint32_t>();
 	while( len > 0 ) {

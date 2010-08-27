@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ * Copyright (c) 2008-2010 University of California, Los Angeles All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -26,40 +26,26 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MRTTBLDUMPV2RIBIPV4MULTICAST_H_
-#define _MRTTBLDUMPV2RIBIPV4MULTICAST_H_
+#ifndef _EXCEPTIONS_H_
+#define _EXCEPTIONS_H_
 
+#include <exception>
 
-#include "MRTTblDumpV2RibHeader.h"
+class BGPParserError : public std::exception { };
 
-#ifdef WIN32
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#else
-#include <netinet/in.h>
-#endif	/* WIN32 */
-
-#include "MRTStructure.h"
-
-#include <list>
-
-class MRTTblDumpV2RibIPv4Multicast :
-	public MRTTblDumpV2RibHeader
+class MRTException : public BGPParserError
 {
-public:
-	MRTTblDumpV2RibIPv4Multicast(uint8_t **);
-	virtual ~MRTTblDumpV2RibIPv4Multicast(void);
-
-	virtual void printMe();
-	virtual void printMe(MRTTblDumpV2PeerIndexTblPtr);
-	virtual void printMeCompact();
-	virtual void printMeCompact(MRTTblDumpV2PeerIndexTblPtr);
-
 private:
-	MRTTblDumpV2RibIPv4Multicast(void);
+	string _msg;
+
+public:
+	explicit MRTException( const std::string& __str ) throw() : _msg() { }
+	virtual ~MRTException() throw() { }
+	virtual const char* what() const throw() { return _msg.c_str(); }
 };
 
-typedef boost::shared_ptr<MRTTblDumpV2RibIPv4Multicast> MRTTblDumpV2RibIPv4MulticastPtr;
+class EOFException : public BGPParserError
+{
+};
 
-#endif	/* _MRTTBLDUMPV2RIBIPV4MULTICAST_H_ */
-
+#endif

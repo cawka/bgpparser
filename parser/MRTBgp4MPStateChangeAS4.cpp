@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -26,40 +26,29 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MRTTBLDUMPV2RIBIPV4MULTICAST_H_
-#define _MRTTBLDUMPV2RIBIPV4MULTICAST_H_
+// Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
 
+#include "MRTBgp4MPStateChangeAS4.h"
+using namespace std;
 
-#include "MRTTblDumpV2RibHeader.h"
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
 
-#ifdef WIN32
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#else
-#include <netinet/in.h>
-#endif	/* WIN32 */
+log4cxx::LoggerPtr MRTBgp4MPStateChangeAS4::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTBgp4MPStateChangeAS4" );
 
-#include "MRTStructure.h"
-
-#include <list>
-
-class MRTTblDumpV2RibIPv4Multicast :
-	public MRTTblDumpV2RibHeader
+MRTBgp4MPStateChangeAS4::MRTBgp4MPStateChangeAS4( MRTCommonHeader &header, istream &input )
+: MRTBgp4MPStateChange( header )
 {
-public:
-	MRTTblDumpV2RibIPv4Multicast(uint8_t **);
-	virtual ~MRTTblDumpV2RibIPv4Multicast(void);
+	MRTBgp4MPStateChangeAS4Packet pkt;
+	io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPStateChangeAS4Packet) );
 
-	virtual void printMe();
-	virtual void printMe(MRTTblDumpV2PeerIndexTblPtr);
-	virtual void printMeCompact();
-	virtual void printMeCompact(MRTTblDumpV2PeerIndexTblPtr);
+	peerAS = ntohl(pkt.peerAS);
+	localAS = ntohl(pkt.localAS);
+	interfaceIndex = ntohs(pkt.interfaceIndex);
+	addressFamily = ntohs(pkt.addressFamily);
 
-private:
-	MRTTblDumpV2RibIPv4Multicast(void);
-};
+	processIPs( input );
 
-typedef boost::shared_ptr<MRTTblDumpV2RibIPv4Multicast> MRTTblDumpV2RibIPv4MulticastPtr;
-
-#endif	/* _MRTTBLDUMPV2RIBIPV4MULTICAST_H_ */
-
+	processStates( input );
+}

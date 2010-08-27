@@ -27,9 +27,11 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "MRTTblDumpV2RibGeneric.h"
 
-LoggerPtr MRTTblDumpV2RibGeneric::Logger = Logger::getLogger( "bgpparser.MRTTblDumpV2RibGeneric" );
+log4cxx::LoggerPtr MRTTblDumpV2RibGeneric::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibGeneric" );
 
 MRTTblDumpV2RibGeneric::MRTTblDumpV2RibGeneric(void) {
 	/* nothing */
@@ -60,7 +62,7 @@ MRTTblDumpV2RibGeneric::MRTTblDumpV2RibGeneric(uint8_t **ptr)
 	} else if (addressFamily == AFI_IPv6) {
 		afi = AFI_IPv6;
 	} else {
-		Logger->error( str(format("rib generic has unknown address family [%u]") % addressFamily) );
+		LOG4CXX_ERROR( Logger,"rib generic has unknown address family ["<< addressFamily <<"]" );
 	}
 
 	/* copy out the SAFI, increment the pointer */
@@ -71,7 +73,7 @@ MRTTblDumpV2RibGeneric::MRTTblDumpV2RibGeneric(uint8_t **ptr)
 	} else if (subsequentAddressFamily == SAFI_MULTICAST) {
 		safi = (uint16_t) subsequentAddressFamily;
 	} else {
-		Logger->error( str(format("rib generic has unknown subsequent address family [%u]") % subsequentAddressFamily) );
+		LOG4CXX_ERROR( Logger,"rib generic has unknown subsequent address family ["<< subsequentAddressFamily <<"]" );
 	}
 
 	prefixLength = *p++;

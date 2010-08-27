@@ -28,16 +28,20 @@
 
 // Author: Jason Ryder
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "BGPUpdate.h"
 #include "AttributeTypeASPath.h"
 #include "AttributeTypeAS4Path.h"
 #include "AttributeTypeAggregator.h"
 #include "AttributeTypeAS4Aggregator.h"
+using namespace std;
 
-LoggerPtr BGPUpdate::Logger = Logger::getLogger( "bgpparser.BGPUpdate" );
+log4cxx::LoggerPtr BGPUpdate::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPUpdate" );
 
-BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
-		 : BGPCommonHeader(*msg) {
+BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4, uint16_t maxLen)
+		 : BGPCommonHeader(header)
+{
 	uint8_t* ptr = *msg + MESSAGE_HEADER_SIZE; // 19
 	uint32_t one = (uint32_t)maxLen;
 	uint32_t two = (uint32_t)getLength();
@@ -59,14 +63,14 @@ BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
 		uint8_t prefixLen = *p;
 		if( prefixLen > sizeof(IPAddress)*8 ) {
 			*msg = maxptr;
-			Logger->error( str(format("abnormal prefix-length [%d]. skip this record.") % prefixLen) );
+			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< prefixLen <<"]. skip this record." );
 			return;
 		}
 		Route wRoute(prefixLen, ++p);
 		if( p+wRoute.getNumOctets() > maxptr ) {
 			*msg = maxptr;
-			Logger->error( str(format("message truncated! need to read [%d], but only have [%d] bytes.") %
-						 wRoute.getNumOctets() % (maxptr-p)) );
+			LOG4CXX_ERROR(Logger,"message truncated! need to read ["<< wRoute.getNumOctets()
+					<<"], but only have ["<< (int)(maxptr-p) <<"] bytes.");
 			return;
 		}
 		withdrawnRoutes->push_back(wRoute);
@@ -89,7 +93,7 @@ BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
 		//	return;
 		//}
 		if( attrib.getAttributeValue() == NULL ) {
-			Logger->error("malformed attribute. skip.");
+			LOG4CXX_ERROR(Logger,"malformed attribute. skip.");
 			return;
 		}
 		pathAttributes->push_back(attrib);
@@ -111,7 +115,7 @@ BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
 	{
 		as_path_attr->genPathSegmentsComplete(as4_path_attr);
 		if( as_path_attr->hasError() == 1 ) {
-            Logger->error("Inconsistent as-path information between AS_PATH and AS4_PATH attributes.");
+			LOG4CXX_ERROR(Logger,"Inconsistent as-path information between AS_PATH and AS4_PATH attributes.");
 			error = 1;
 			return;
 		}
@@ -144,15 +148,15 @@ BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
 		memcpy(&prefixLen, p, sizeof(uint8_t));
 		if( prefixLen > sizeof(IPAddress)*8 ) {
 			*msg = maxptr;
-			Logger->error( str(format("abnormal prefix-length [%d]. skip this record.") % prefixLen) );
+			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< prefixLen <<"]. skip this record." );
 			return;
 		}
 		Route aRoute(prefixLen, ++p);
 		if( p+aRoute.getNumOctets() > maxptr ) {
 			nlriLength = maxptr - ptr;
 			*msg = maxptr;
-			Logger->error( str(format("message truncated! need to read [%d], but only have [%d] bytes.") %
-						 aRoute.getNumOctets() % (maxptr-p)) );
+			LOG4CXX_ERROR(Logger,"message truncated! need to read ["<< aRoute.getNumOctets()
+					<<"], but only have ["<< (int)(maxptr-p) <<"] bytes.");
 			return;
 		}
 		announcedRoutes->push_back(aRoute);
@@ -165,15 +169,15 @@ BGPUpdate::BGPUpdate(uint8_t** msg, bool isAS4, uint16_t maxLen)
 	*msg = ptr;
 }
 
-BGPUpdate::BGPUpdate(bool isAS4)
-		 : BGPCommonHeader() {
-	setLength(0);
-	setType((uint8_t)BGPCommonHeader::UPDATE);
-
-	withdrawnRoutes = new list<Route>();
-	pathAttributes  = new list<BGPAttribute>();
-	announcedRoutes = new list<Route>();
-}
+//BGPUpdate::BGPUpdate(bool isAS4)
+//		 : BGPCommonHeader() {
+//	setLength(0);
+//	setType((uint8_t)BGPCommonHeader::UPDATE);
+//
+//	withdrawnRoutes = new list<Route>();
+//	pathAttributes  = new list<BGPAttribute>();
+//	announcedRoutes = new list<Route>();
+//}
 
 BGPUpdate::~BGPUpdate() { 
 	delete withdrawnRoutes; withdrawnRoutes = NULL;
@@ -215,7 +219,8 @@ void BGPUpdate::printMe() {
 	}
 }
 
-void BGPUpdate::printMeCompact() {
+void BGPUpdate::printMeCompact()
+{
 	list<Route>::iterator routeIter;
 	bool isFirstLoop = true;
 	cout << "WITH_CNT: " << withdrawnRoutes->size() << "|";
@@ -245,7 +250,3 @@ void BGPUpdate::printMeCompact() {
 	}
 	cout << "|";
 }
-
-
-
-

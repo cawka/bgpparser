@@ -27,9 +27,13 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "AttributeTypeMPUnreachNLRI.h"
 
-LoggerPtr AttributeTypeMPUnreachNLRI::Logger = Logger::getLogger( "bgpparser.AttributeTypeMPUnreachNLRI" );
+using namespace std;
+
+log4cxx::LoggerPtr AttributeTypeMPUnreachNLRI::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeMPUnreachNLRI" );
 
 AttributeTypeMPUnreachNLRI::AttributeTypeMPUnreachNLRI(void) {
 	nlri = new list<NLRIUnReachable>();
@@ -57,14 +61,14 @@ AttributeTypeMPUnreachNLRI::AttributeTypeMPUnreachNLRI(uint16_t len, uint8_t* ms
 	afi = ntohs(afi);
 
 	if ((afi != AFI_IPv4) &&  (afi != AFI_IPv6)) {
-		Logger->error( str(format("unknown address family %u") % afi) );
+		LOG4CXX_ERROR(Logger,"unknown address family " << afi );
 		corrupt = 1;
 		return;
 	}
 
 	safi = *ptr++;
 	if ((((uint32_t)safi & BITMASK_8) != SAFI_UNICAST) && (((uint32_t)safi & BITMASK_8) != SAFI_MULTICAST)) {
-		Logger->error( str(format("unknown subsequent address family %u") % safi) );
+		LOG4CXX_ERROR(Logger,"unknown subsequent address family " << (uint32_t)safi );
 	}
 
 	while (ptr < (msg + len) && ptr < endMsg ) {
@@ -75,13 +79,13 @@ AttributeTypeMPUnreachNLRI::AttributeTypeMPUnreachNLRI(uint16_t len, uint8_t* ms
 			break;
 		}
 		if( prefixLength > sizeof(IPAddress)*8) { 
-			Logger->error( str(format("abnormal prefix-length [%u]. skip this record.") % prefixLength) );
+			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< prefixLength <<"]. skip this record." );
 			break;
 		}
 		NLRIUnReachable route(prefixLength, ptr);
 		if( route.getNumOctets()+ptr > endMsg ) { 
-			Logger->error( str(format("message (mbgp w) truncated! need to read [%d], but only have [%d] bytes.") %
-						 route.getNumOctets() % (endMsg-ptr)) );
+			LOG4CXX_ERROR(Logger,"message (mbgp w) truncated! need to read ["<< route.getNumOctets()
+					<<"], but only have ["<< (int)(endMsg-ptr) <<"] bytes." );
 			break;
 		}
 		nlri->push_back(route);

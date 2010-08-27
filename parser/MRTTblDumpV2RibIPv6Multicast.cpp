@@ -27,9 +27,11 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "MRTTblDumpV2RibIPv6Multicast.h"
 
-LoggerPtr MRTTblDumpV2RibIPv6Multicast::Logger = Logger::getLogger( "bgpparser.MRTTblDumpV2RibIPv6Multicast" );
+log4cxx::LoggerPtr MRTTblDumpV2RibIPv6Multicast::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibIPv6Multicast" );
 
 MRTTblDumpV2RibIPv6Multicast::MRTTblDumpV2RibIPv6Multicast(void) {
 	/* nothing */
@@ -83,7 +85,7 @@ void MRTTblDumpV2RibIPv6Multicast::printMe() {
 	cout << "SEQUENCE: " << sequenceNumber;
 }
 
-void MRTTblDumpV2RibIPv6Multicast::printMe(MRTTblDumpV2PeerIndexTbl* peerIndexTbl) {
+void MRTTblDumpV2RibIPv6Multicast::printMe(MRTTblDumpV2PeerIndexTblPtr peerIndexTbl) {
 	printMe();
 	cout << endl;
 	// Now continue with infor from the peer index table
@@ -125,7 +127,7 @@ void MRTTblDumpV2RibIPv6Multicast::printMeCompact() {
 	cout << "|" << sequenceNumber;
 }
 
-void MRTTblDumpV2RibIPv6Multicast::printMeCompact(MRTTblDumpV2PeerIndexTbl* peerIndexTbl) {
+void MRTTblDumpV2RibIPv6Multicast::printMeCompact(MRTTblDumpV2PeerIndexTblPtr peerIndexTbl) {
 	cout << "ENTRY_CNT: " << ribs->size() << endl;
 	printMeCompact();
 	cout << "|";

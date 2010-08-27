@@ -32,15 +32,10 @@
 #ifndef __BGPSTRUCTURE_H_
 #define __BGPSTRUCTURE_H_
 
-#include <sstream>
 #include "MRTStructure.h"
 #include "MRTCommonHeader.h"
 
-#ifdef WIN32
-//
-#else
-#include <sys/socket.h>
-#endif
+#include <string>
 
 class Route
 {
@@ -50,12 +45,12 @@ public:
 	
 	Route(uint8_t aLength, uint8_t* aPrefix) 
 	{ 
-		PRINT_DBG("  Creating a Route");
+		LOG4CXX_DEBUG(Logger,"Creating a Route");
 		length = aLength;
 		numOctets = aLength / 8 + ((aLength % 8) ? 1 : 0);
 		
-		PRINT_DBGF("  length = %i, numOctets = %i\n", length, numOctets);
-		//prefix = (uint8_t*)malloc(numOctets);
+		LOG4CXX_DEBUG(Logger,"length = "<< length << ", numOctets = " << numOctets);
+
 		memset(&prefix, 0, sizeof(prefix));
 		if (numOctets > 0)
 			memcpy(&prefix, aPrefix, numOctets);
@@ -93,7 +88,7 @@ public:
 	inline IPAddress setPrefix(IPAddress in_prefix) { memcpy(&prefix, &in_prefix, sizeof(IPAddress)); return prefix; }
 	inline int getNumOctets() { return numOctets; }
 
-	string toString(uint16_t afi=0)
+	std::string toString(uint16_t afi=0)
 	{
 	        route_str.clear();
 
@@ -114,23 +109,16 @@ public:
 		return route_str;
 	}
 	
-	void printMe()
-	{
-		PRINT_IP_ADDR(prefix.ipv4);
-		cout << "/";
-		printf("%i", length);
-	}
-	
-	void printMeCompact()
-	{
-		printMe();
-	}
+	void printMe();
+	void printMeCompact() { printMe(); }
 
 protected:
 	uint8_t length; // number of bits in the IP prefix.
 	IPAddress prefix; // Variable length prefix - padded to equal ceil(length / 8) octets. 
 	int numOctets;
-	string route_str; 
+	std::string route_str;
+
+	static log4cxx::LoggerPtr Logger;
 };
 
 class WithdrawnRoute : public Route

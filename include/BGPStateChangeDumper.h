@@ -90,6 +90,9 @@ protected:
     /* State */
 	uint16_t oldState;
 	uint16_t newState;
+
+private:
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif /* __BGPSTATECHANGEDUMPER_H_ */

@@ -28,8 +28,12 @@
 
 // Author: Paul Wang, Jason Ryder
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
-#include "AttributeTypeASPath.h"
+#include <bgpparser.h>
 
+#include "AttributeTypeASPath.h"
+using namespace std;
+
+log4cxx::LoggerPtr AttributeTypeASPath::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeASPath" );
 
 ////////////////////////////////////////////////////////////////////
 // AttributeTypeASPathSegment
@@ -163,7 +167,7 @@ AttributeTypeASPath::AttributeTypeASPath(const AttributeTypeASPath& attr)
 
 AttributeTypeASPath::AttributeTypeASPath(uint16_t len, uint8_t* msg)
 : AttributeType(len, msg, isAS4) {
-	PRINT_DBG("AttributeTypeASPath::AttributeTypeASPath()");	
+	LOG4CXX_DEBUG(Logger,"AttributeTypeASPath::AttributeTypeASPath()");
 	
 	pathSegments         = new list<AttributeTypeASPathSegment>();
 	pathSegmentsComplete = new list<AttributeTypeASPathSegment>();
@@ -189,7 +193,7 @@ AttributeTypeASPath::AttributeTypeASPath(uint16_t len, uint8_t* msg)
 
 AttributeTypeASPath::AttributeTypeASPath(uint16_t len, uint8_t* msg, bool isAS4)
 : AttributeType(len, msg, isAS4) {
-	PRINT_DBG("AttributeTypeASPath::AttributeTypeASPath()");	
+	LOG4CXX_DEBUG(Logger,"AttributeTypeASPath::AttributeTypeASPath()");
 	
 	pathSegments         = new list<AttributeTypeASPathSegment>();
 	pathSegmentsComplete = new list<AttributeTypeASPathSegment>();

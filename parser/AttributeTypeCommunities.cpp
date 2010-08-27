@@ -28,6 +28,8 @@
 
 // Author: Jason Ryder, Paul Wang
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "AttributeTypeCommunities.h"
 
 AttributeTypeCommunities::AttributeTypeCommunities(void) {

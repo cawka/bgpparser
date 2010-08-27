@@ -27,9 +27,12 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
-#include "AttributeTypeMPReachNLRI.h"
+#include <bgpparser.h>
 
-LoggerPtr AttributeTypeMPReachNLRI::Logger = Logger::getLogger( "bgpparser.AttributeTypeMPReachNLRI" );
+#include "AttributeTypeMPReachNLRI.h"
+using namespace std;
+
+log4cxx::LoggerPtr AttributeTypeMPReachNLRI::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeMPReachNLRI" );
 
 AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI(void) {
 	afi  = 0;
@@ -85,16 +88,16 @@ AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI(uint16_t len, uint8_t* msg, b
 	memcpy(&afi, ptr, sizeof(uint16_t));
 	ptr += sizeof(uint16_t);
 	afi = ntohs(afi);
-	PRINT_DBGFL(0,"  afi = %u\n", afi);
+	LOG4CXX_TRACE(Logger,"  afi = " << afi);
 
 	/* SAFI */
 	safi = *ptr++;
-	PRINT_DBGFL(0,"  safi = %u\n", safi);
+	LOG4CXX_TRACE(Logger,"  safi = " << safi);
 	// SAFI not valid in MP_REACH_NLRI
 
 	/* Next hop length and address */
 	nextHopAddressLength = *ptr++;
-	PRINT_DBGFL(0,"  nextHopAddressLength = %u\n", nextHopAddressLength);
+	LOG4CXX_TRACE(Logger,"  nextHopAddressLength = " << nextHopAddressLength);
 
 	memset(&nextHopAddress, 0, sizeof(IPAddress));
 	memset(&nextHopAddressLocal, 0, sizeof(IPAddress));
@@ -115,7 +118,7 @@ AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI(uint16_t len, uint8_t* msg, b
 	uint8_t unSNPACnt = 0;
 	uint8_t unSNPALen = 0;
 	unSNPACnt = *ptr++;
-	PRINT_DBGFL(0,"  unSNPACnt = %u\n", unSNPACnt);
+	LOG4CXX_TRACE(Logger,"  unSNPACnt = " << unSNPACnt);
 	for(int ic=0; ic<unSNPACnt; ic++) {
 		unSNPALen = *ptr++;
 		ptr += unSNPALen;
@@ -125,24 +128,24 @@ AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI(uint16_t len, uint8_t* msg, b
 		uint8_t prefixLength = 0;
 		prefixLength = *ptr++;
 		if( ptr > endMsg ) {
-			Logger->error("message truncated! cannot read mbgp prefix.");
+			LOG4CXX_ERROR(Logger,"message truncated! cannot read mbgp prefix.");
 			break;
 		}
 		if( prefixLength > sizeof(IPAddress)*8) { 
-			Logger->error( str(format("abnormal prefix-length [%u]. skip this record.") % prefixLength) );
+			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< prefixLength <<"]. skip this record." );
 			break;
 		}
-		PRINT_DBGFL(0,"  prefixLength = %u\n", prefixLength);
+		LOG4CXX_TRACE(Logger,"  prefixLength = %u" << prefixLength);
 		
 		NLRIReachable route(prefixLength, ptr);
 		if( route.getNumOctets()+ptr > endMsg ) { 
-			Logger->error( str(format("message (mbgp a) truncated! need to read [%d], but only have [%d] bytes.") %
-						 route.getNumOctets() % (endMsg-ptr)) );
+			LOG4CXX_ERROR(Logger,"message (mbgp a) truncated! need to read ["<< route.getNumOctets() <<"], "<<
+					"but only have ["<< (int)(endMsg-ptr) <<"] bytes." );
 			break;
 		}
 		ptr += route.getNumOctets();
 		nlri->push_back(route);
-		PRINT_DBGFL(0,"  num_octets = %u\n", route.getNumOctets());
+		LOG4CXX_TRACE(Logger, "num_octets = %u" << route.getNumOctets() );
 	}
 }
 
@@ -191,7 +194,7 @@ void AttributeTypeMPReachNLRI::printMeCompact() {
 }
 
 AttributeType* AttributeTypeMPReachNLRI::clone() {
-	PRINT_DBG("AttributeTypeMPReachNLRI::clone()");
+	LOG4CXX_TRACE(Logger,"AttributeTypeMPReachNLRI::clone()");
 	AttributeTypeMPReachNLRI *atMPR = new AttributeTypeMPReachNLRI();
 	IPAddress nhaddr = getNextHopAddress();
 	IPAddress nhaddrl = getNextHopAddressLocal();
@@ -211,6 +214,6 @@ AttributeType* AttributeTypeMPReachNLRI::clone() {
 		atMPR->addSNPA(*it);
 	}
 	return atMPR;
-	PRINT_DBG("END AttributeTypeMPReachNLRI::clone()");
+	LOG4CXX_TRACE(Logger,"END AttributeTypeMPReachNLRI::clone()");
 }
 

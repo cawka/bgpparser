@@ -27,9 +27,12 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
-#include "MRTTblDumpV2PeerIndexTbl.h"
+#include <bgpparser.h>
 
-LoggerPtr MRTTblDumpV2PeerIndexTbl::Logger = Logger::getLogger( "bgpparser.MRTTblDumpV2PeerIndexTbl" );
+#include "MRTTblDumpV2PeerIndexTbl.h"
+using namespace std;
+
+log4cxx::LoggerPtr MRTTblDumpV2PeerIndexTbl::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2PeerIndexTbl" );
 
 MRTTblDumpV2PeerIndexTbl::MRTTblDumpV2PeerIndexTbl(void) {
 	/* nothing */
@@ -59,7 +62,7 @@ MRTTblDumpV2PeerIndexTbl::MRTTblDumpV2PeerIndexTbl(uint8_t **ptr)
 		/* dynamically allocate memory to store view name */
 		viewName = (uint8_t *)malloc(sizeof(uint8_t) * (viewNameLength + 1));
 		if (viewName == NULL) {
-			Logger->error( str(format("dynamic memory allocation of [%u] bytes failed.") % (viewNameLength+1)) );
+			LOG4CXX_ERROR(Logger,"dynamic memory allocation of ["<< (viewNameLength+1) <<"] bytes failed." );
 		} else {
 			/* zero out memory of view name */
 			memset(viewName, 0, sizeof(uint8_t) * (viewNameLength + 1));

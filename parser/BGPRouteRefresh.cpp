@@ -27,16 +27,36 @@
  */
 
 // Author: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "BGPRouteRefresh.h"
 
-BGPRouteRefresh::BGPRouteRefresh(uint8_t** msg)
-				: BGPCommonHeader(*msg) {
-	PRINT_DBG("BGPRouteRefresh::BGPRouteRefresh()");
-	*msg += MESSAGE_HEADER_SIZE;
-	memcpy(&afi,*msg,sizeof(uint16_t)); *msg += sizeof(uint16_t);
+#include <boost/iostreams/read.hpp>
+#include <boost/iostreams/skip.hpp>
+namespace io = boost::iostreams;
+
+using namespace std;
+
+log4cxx::LoggerPtr BGPRouteRefresh::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPRouteRefresh" );
+/*
+Message Format: One <AFI, SAFI> encoded as
+
+	  0       7      15      23      31
+	  +-------+-------+-------+-------+
+	  |      AFI      | Res.  | SAFI  |
+	  +-------+-------+-------+-------+
+
+ */
+BGPRouteRefresh::BGPRouteRefresh( BGPCommonHeader &header, istream &input )
+: BGPCommonHeader(header)
+{
+	LOG4CXX_TRACE(Logger,"BGPRouteRefresh::BGPRouteRefresh()");
+
+	io::read( input, reinterpret_cast<char*>(&afi), sizeof(uint16_t) );
 	afi = ntohs(afi);
-	memcpy(&res,*msg,sizeof(uint8_t)); *msg += sizeof(uint8_t);
-	memcpy(&safi,*msg,sizeof(uint8_t)); *msg += sizeof(uint8_t);
+
+	io::read( input, reinterpret_cast<char*>(&res), sizeof(uint8_t) );
+	io::read( input, reinterpret_cast<char*>(&safi), sizeof(uint8_t) );
 }
 
 BGPRouteRefresh::~BGPRouteRefresh() { 

@@ -27,7 +27,10 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu) 
+#include <bgpparser.h>
+
 #include "MRTBgp4MPSnapshot.h"
+using namespace std;
 
 MRTBgp4MPSnapshot::MRTBgp4MPSnapshot(void) {
 	/* nothing */

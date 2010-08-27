@@ -28,7 +28,11 @@
 
 // Author: Jason Ryder, Paul Wang
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "BGPAttribute.h"
+
+log4cxx::LoggerPtr BGPAttribute::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPAttribute" );
 
 BGPAttribute::BGPAttribute(void) {
 	value = NULL;
@@ -68,7 +72,7 @@ BGPAttribute::BGPAttribute(const BGPAttribute& bgpA) {
 	attributeLength = bgpA.attributeLength;
 
 	/* define an attribute value class here */
-	PRINT_DBG("  Attempting copy value");
+	LOG4CXX_TRACE(Logger,"Attempting copy value");
 	//AttributeType* val = bgpA.value; // Hopefully uses copy constructor
 	//value = val; // Uses assignment, not copy constructor
 	//value = new AttributeType(*bgpA.value);

@@ -54,6 +54,8 @@ public:
 protected:
 	IPAddress nextHop;
 	uint16_t afi;
+
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _ATTRIBUTETYPENEXTHOP_H_ */

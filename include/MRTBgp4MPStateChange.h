@@ -45,7 +45,7 @@ class MRTBgp4MPStateChange :
 	public MRTCommonHeader
 {
 public:
-	MRTBgp4MPStateChange(uint8_t **, bool isAS4);
+	MRTBgp4MPStateChange( MRTCommonHeader &header, std::istream &input, bool isAS4 );
 	virtual ~MRTBgp4MPStateChange(void);
 
 	uint32_t getPeerAS(void) const;
@@ -60,6 +60,11 @@ public:
 	virtual void printMeCompact(void);
 
 protected:
+	MRTBgp4MPStateChange( MRTCommonHeader &header) : MRTCommonHeader( header ) { ; }
+	void processIPs( std::istream &input );
+	void processStates( std::istream &input );
+
+protected:
 	uint32_t peerAS;
 	uint32_t localAS;
 	uint16_t interfaceIndex;
@@ -71,10 +76,12 @@ protected:
 	bool isAS4;
 
 private:
-	MRTBgp4MPStateChange(void);
+	MRTBgp4MPStateChange( );
 
-	static LoggerPtr Logger;
+	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<MRTBgp4MPStateChange> MRTBgp4MPStateChangePtr;
 
 #endif	/* _MRTBGP4MPSTATECHANGE_H_ */
 

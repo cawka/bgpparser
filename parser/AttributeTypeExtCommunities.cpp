@@ -28,7 +28,11 @@
 
 // Author: Jason Ryder, Paul Wang
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "AttributeTypeExtCommunities.h"
+
+log4cxx::LoggerPtr AttributeTypeExtCommunities::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeExtCommunities" );
 
 AttributeTypeExtCommunities::AttributeTypeExtCommunities(void) {
 	extCommunityValues = new list<ExtCommunityValue>();
@@ -36,7 +40,7 @@ AttributeTypeExtCommunities::AttributeTypeExtCommunities(void) {
 
 AttributeTypeExtCommunities::AttributeTypeExtCommunities(uint16_t len, uint8_t* msg)
 							: AttributeType(len, msg) {
-	PRINT_DBG("AttributeTypeExtCommunities::AttributeTypeExtCommunities()");
+	LOG4CXX_DEBUG(Logger,"AttributeTypeExtCommunities::AttributeTypeExtCommunities()");
 	extCommunityValues = new list<ExtCommunityValue>();
 	uint8_t* ptr = msg;
 	

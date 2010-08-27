@@ -27,7 +27,12 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "AttributeTypeLocalPref.h"
+using namespace std;
+
+log4cxx::LoggerPtr AttributeTypeLocalPref::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeLocalPref" );
 
 AttributeTypeLocalPref::AttributeTypeLocalPref(void) {
 	/* nothing */
@@ -35,7 +40,7 @@ AttributeTypeLocalPref::AttributeTypeLocalPref(void) {
 
 AttributeTypeLocalPref::AttributeTypeLocalPref(uint16_t len, uint8_t* msg)
 					   : AttributeType(len, msg) {
-	PRINT_DBG("AttributeTypeLocalPref::AttributeTypeLocalPref(...)");
+	LOG4CXX_DEBUG(Logger,"AttributeTypeLocalPref::AttributeTypeLocalPref(...)");
 	memcpy(&localPref, msg, len);
 	localPref = ntohl(localPref);
 }

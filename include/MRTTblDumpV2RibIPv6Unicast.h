@@ -51,14 +51,16 @@ public:
 	virtual ~MRTTblDumpV2RibIPv6Unicast(void);
 
 	virtual void printMe();
-	virtual void printMe(MRTTblDumpV2PeerIndexTbl*);
+	virtual void printMe(MRTTblDumpV2PeerIndexTblPtr);
 	virtual void printMeCompact();
-	virtual void printMeCompact(MRTTblDumpV2PeerIndexTbl*);
+	virtual void printMeCompact(MRTTblDumpV2PeerIndexTblPtr);
 private:
 	MRTTblDumpV2RibIPv6Unicast(void);
 
-	static LoggerPtr Logger;
+	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<MRTTblDumpV2RibIPv6Unicast> MRTTblDumpV2RibIPv6UnicastPtr;
 
 #endif	/* _MRTTBLDUMPV2RIBIPV6UNICAST_H_ */
 

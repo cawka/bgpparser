@@ -27,6 +27,8 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "MRTCommonHeader.h"
 
 #include "MRTBgp4MPStateChange.h"
@@ -45,25 +47,37 @@
 
 #include "BGPCommonHeader.h"
 
-LoggerPtr MRTCommonHeader::Logger = Logger::getLogger( "bgpparser.MRTCommonHeader" );
+#include <Exceptions.h>
+
+#include <boost/iostreams/read.hpp>
+#include <boost/iostreams/skip.hpp>
+namespace io = boost::iostreams;
+
+log4cxx::LoggerPtr MRTCommonHeader::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTCommonHeader" );
 
 MRTCommonHeader::MRTCommonHeader(void) {
 	/* nothing */
-	error = 0;
+	throw std::exception( );
 }
 
+MRTCommonHeader::MRTCommonHeader( const uint8_t **input )
+{
+	throw std::exception( );
+}
 
-MRTCommonHeader::MRTCommonHeader(const uint8_t **ptr) {
-
+MRTCommonHeader::MRTCommonHeader( istream &input )
+{
 	MRTCommonHeader();
 	MRTCommonHeaderPacket pkt;
-	memcpy(&pkt, *ptr, sizeof(MRTCommonHeaderPacket));
+
+	int len=io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTCommonHeaderPacket) );
+	if( len<0 ) throw EOFException( );
+	if( len!=sizeof(MRTCommonHeaderPacket) ) throw MRTException( "MRT format error" );
 
 	timestamp = ntohl(pkt.timestamp);
 	type = ntohs(pkt.type);
 	subtype = ntohs(pkt.subtype);
 	length = ntohl(pkt.length);
-	error = 0;
 }
 
 MRTCommonHeader::~MRTCommonHeader(void) {
@@ -86,58 +100,50 @@ uint32_t MRTCommonHeader::getLength(void) const {
 	return length;
 }
 
-void MRTCommonHeader::setType(uint16_t t) {
-	type = t; 
-}
-
-void MRTCommonHeader::setSubType(uint16_t st) {
-	subtype = st;
-}
-
-void MRTCommonHeader::setLength(uint32_t len) {
-	length = len;
-}
-
 /* 
  * Factory method for creating MRTMessages
  */ 
-MRTMessage * MRTCommonHeader::newMessage(uint8_t **ptr) {
-	PRINT_DBG("MRTCommonHeader::newMessage(uint8_t **ptr)");
-	//fprintf(stderr, "address of pointer: %p\n", *ptr);
-	MRTMessage *msg = NULL;
-	MRTCommonHeader header((const uint8_t **)ptr);
+MRTMessagePtr MRTCommonHeader::newMessage( istream &input ) {
+	LOG4CXX_TRACE( Logger, "==> MRTCommonHeader::newMessage( istream &input )" );
+
+	MRTMessagePtr msg;
+	MRTCommonHeader header( input );
 	
-	PRINT_DBGF("  Type:      %u\n", header.getType());
-	PRINT_DBGF("  SubType:   %u\n", header.getSubType());
-	PRINT_DBGF("  Length:    %u\n", header.getLength());
+	LOG4CXX_DEBUG( Logger, "Type:      %u" << header.getType() );
+	LOG4CXX_DEBUG( Logger, "SubType:   %u" << header.getSubType() );
+	LOG4CXX_DEBUG( Logger, "Length:    %u" << header.getLength() );
 
 	/* only accept BGP4MP message and TABLE_DUMP message types */
 	if ((header.getType() != BGP4MP) && /*(header.getType() != BGP4MP_ET) && */
-		(header.getType() != TABLE_DUMP) && (header.getType() != TABLE_DUMP_V2)) {
-		*ptr += sizeof(MRTCommonHeaderPacket) + header.getLength();
-		return NULL;
+		(header.getType() != TABLE_DUMP) && (header.getType() != TABLE_DUMP_V2))
+	{
+		io::detail::skip( input, header.getLength(), boost::mpl::false_() );
+		return msg;
 	}
 
-	if (header.getType() == BGP4MP) {
-		bool isAS4 = false;
-		switch (header.getSubType()) {
+	if( header.getType( ) == BGP4MP )
+	{
+		switch( header.getSubType( ) )
+		{
 		case BGP4MP_STATE_CHANGE:
-			PRINT_DBG("  Creating MRTBgp4MPStateChange(ptr)");
-			msg = new MRTBgp4MPStateChange(ptr, isAS4);
-			break;
-		case BGP4MP_MESSAGE:
-			PRINT_DBG("  Creating MRTBgp4MPMessage(ptr);");
-			msg = new MRTBgp4MPMessage(ptr, isAS4);
+			LOG4CXX_INFO(Logger,"MRTBgp4MPStateChange");
+
+			msg = MRTMessagePtr( new MRTBgp4MPStateChange(header, input) );
 			break;
 		case BGP4MP_STATE_CHANGE_AS4:
-			PRINT_DBG("  Creating MRTBgp4MPStateChange(ptr);");
-			isAS4 = true;
-			msg = new MRTBgp4MPStateChange(ptr, isAS4);
+			LOG4CXX_INFO(Logger,"MRTBgp4MPStateChange");
+
+			msg = MRTMessagePtr( new MRTBgp4MPStateChangeAS4(header, input) );
+			break;
+		case BGP4MP_MESSAGE:
+			LOG4CXX_INFO(Logger,"MRTBgp4MPMessage");
+
+			msg = MRTMessagePtr( new MRTBgp4MPMessage(header, input) );
 			break;
 		case BGP4MP_MESSAGE_AS4:
-			PRINT_DBG("  Creating MRTBgp4MPMessage(ptr);");
-			isAS4 = true;
-			msg = new MRTBgp4MPMessage(ptr,isAS4);
+			LOG4CXX_INFO(Logger,"MRTBgp4MPMessage");
+
+			msg = MRTMessagePtr( new MRTBgp4MPMessageAS4(header, input) );
 			break;
 
 		case BGP4MP_ENTRY:
@@ -149,53 +155,78 @@ MRTMessage * MRTCommonHeader::newMessage(uint8_t **ptr) {
 			//msg = new MRTBgp4MPSnapshot(ptr);		/* not supported yet */
 			//break;
 		default:
-			Logger->error( str(format("unrecognized subtype [%u] for bgp4mp.") % header.getSubType()) );
-			/* if failed to parse packet then update packet pointer */
-			*ptr += sizeof(MRTCommonHeaderPacket) + header.getLength();
+			LOG4CXX_ERROR( Logger, "unrecognized subtype ["<< header.getSubType() <<"] for bgp4mp." );
+
+			io::detail::skip( input, header.getLength(), boost::mpl::false_() );
 			break;
 		}
-	} else if ((header.getType() == TABLE_DUMP) || (header.getType() == TABLE_DUMP_V2)) {
-		switch (header.getType()) {
-		case TABLE_DUMP:
-			msg = new MRTTblDump(ptr);
-			break;
-		case TABLE_DUMP_V2:
-			switch (header.getSubType()) {
-			case PEER_INDEX_TABLE:
-				msg = new MRTTblDumpV2PeerIndexTbl(ptr);
-			        MRTTblDumpV2RibHeader::setPeerIndexTbl((MRTTblDumpV2PeerIndexTbl*)msg);
-				break;
-			case RIB_IPV4_UNICAST:
-				msg = new MRTTblDumpV2RibIPv4Unicast(ptr);
-				break;
-			case RIB_IPV4_MULTICAST:
-				msg = new MRTTblDumpV2RibIPv4Multicast(ptr);
-				break;
-			case RIB_IPV6_UNICAST:
-				msg = new MRTTblDumpV2RibIPv6Unicast(ptr);
-				break;
-			case RIB_IPV6_MULTICAST:
-				msg = new MRTTblDumpV2RibIPv6Multicast(ptr);
-				break;
-			case RIB_GENERIC:
-				msg = new MRTTblDumpV2RibGeneric(ptr);
-				break;
-			default:
-				Logger->error( str(format("unrecognized subtype [%u] for table-dump-v2.") % header.getSubType()) );
-				/* if failed to parse packet then update packet pointer */
-				ptr += sizeof(MRTCommonHeaderPacket) + header.getLength();
-				break;
-			}
-			break;
-		default:
-			Logger->error( str(format("unrecognized type [%u] for table-dump-v2") % header.getType()) );
-			/* if failed to parse packet then update packet pointer */
-			*ptr += sizeof(MRTCommonHeaderPacket) + header.getLength();
-			break;
-		}
-	} else {
-		*ptr += sizeof(MRTCommonHeaderPacket) + header.getLength();
 	}
-	PRINT_DBG("END MRTCommonHeader::newMessage(uint8_t **ptr)");
+//	else if( (header.getType( ) == TABLE_DUMP) ||
+//			 (header.getType( ) == TABLE_DUMP_V2) )
+//	{
+//		switch( header.getType( ) )
+//		{
+//		case TABLE_DUMP:
+//			msg = new MRTTblDump( ptr );
+//			LOG4CXX_INFO(Logger,"MRTTblDump");
+//
+//			break;
+//		case TABLE_DUMP_V2:
+//			switch( header.getSubType( ) )
+//			{
+//			case PEER_INDEX_TABLE:
+//				LOG4CXX_INFO(Logger,"MRTTblDumpV2PeerIndexTbl");
+//
+//				msg = new MRTTblDumpV2PeerIndexTbl( ptr );
+//				MRTTblDumpV2RibHeader::setPeerIndexTbl(
+//						(MRTTblDumpV2PeerIndexTbl*)msg );
+//				break;
+//			case RIB_IPV4_UNICAST:
+//				LOG4CXX_INFO(Logger,"MRTTblDumpV2RibIPv4Unicast");
+//
+//				msg = new MRTTblDumpV2RibIPv4Unicast( ptr );
+//				break;
+//			case RIB_IPV4_MULTICAST:
+//				LOG4CXX_INFO(Logger,"MRTTblDumpV2RibIPv4Multicast");
+//
+//				msg = new MRTTblDumpV2RibIPv4Multicast( ptr );
+//				break;
+//			case RIB_IPV6_UNICAST:
+//				LOG4CXX_INFO(Logger,"MRTTblDumpV2RibIPv6Unicast");
+//
+//				msg = new MRTTblDumpV2RibIPv6Unicast( ptr );
+//				break;
+//			case RIB_IPV6_MULTICAST:
+//				LOG4CXX_INFO(Logger,"MRTTblDumpV2RibIPv6Multicast");
+//
+//				msg = new MRTTblDumpV2RibIPv6Multicast( ptr );
+//				break;
+//			case RIB_GENERIC:
+//				LOG4CXX_INFO(Logger,"MRTTblDumpV2RibGeneric");
+//
+//				msg = new MRTTblDumpV2RibGeneric( ptr );
+//				break;
+//			default:
+//				LOG4CXX_ERROR( Logger, str(format("unrecognized subtype [%u] for table-dump-v2.") % header.getSubType()) );
+//
+//				/* if failed to parse packet then update packet pointer */
+//				ptr += sizeof(MRTCommonHeaderPacket) + header.getLength( );
+//				break;
+//			}
+//			break;
+//		default:
+//			LOG4CXX_ERROR( Logger, str(format("unrecognized type [%u] for table-dump-v2") % header.getType()) );
+//
+//			/* if failed to parse packet then update packet pointer */
+//			*ptr += sizeof(MRTCommonHeaderPacket) + header.getLength( );
+//			break;
+//		}
+//	}
+	else
+	{
+		io::detail::skip( input, header.getLength( ), boost::mpl::false_( ) );
+	}
+
+	LOG4CXX_TRACE( Logger, "<== MRTCommonHeader::newMessage( istream &input )" );
 	return msg;
 }

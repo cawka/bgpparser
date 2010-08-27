@@ -28,7 +28,13 @@
 
 // Author: Jason Ryder, Paul Wang
 // Modified: Jonathan Park
+#include <bgpparser.h>
+
 #include "AttributeTypeOrigin.h"
+
+using namespace std;
+
+log4cxx::LoggerPtr AttributeTypeOrigin::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeOrigin" );
 
 AttributeTypeOrigin::AttributeTypeOrigin(void) {
 	/* nothing */
@@ -36,7 +42,7 @@ AttributeTypeOrigin::AttributeTypeOrigin(void) {
 
 AttributeTypeOrigin::AttributeTypeOrigin(uint16_t len, uint8_t* msg)
 					: AttributeType(len, msg) {
-	PRINT_DBG("AttributeTypeOrigin::AttributeTypeOrigin()");
+	LOG4CXX_TRACE(Logger,"AttributeTypeOrigin::AttributeTypeOrigin()");
 	origin = (Origin)*msg;
 }
 

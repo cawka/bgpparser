@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -26,14 +26,23 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _LOGGER_H_
-#define _LOGGER_H_
+// Author: Jason Ryder
+// Common file for containing BGP structures
+#include <bgpparser.h>
 
-#include <log4cxx/logger.h>
-#include <boost/format.hpp>
-using namespace log4cxx;
-using boost::format;
+#include "BGPStructure.h"
+#include <iostreams>
 
-#endif	/* _LOGGER_H_ */
+log4cxx::LoggerPtr Route::Logger=log4cxx::Logger::getLogger( "bgpparser.Route" );
 
-// vim: sw=4 ts=4 sts=4 expandtab
+void Route::printMe( )
+{
+}
+
+void Route::printMeCompact( )
+{
+	PRINT_IP_ADDR(prefix.ipv4);
+	cout << "/";
+	printf("%i", length);
+}
+

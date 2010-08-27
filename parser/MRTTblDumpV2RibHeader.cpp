@@ -28,6 +28,8 @@
 
 // Author: Paul Wang, Jason Ryder
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "MRTTblDumpV2RibHeader.h"
 #include "MRTTblDumpV2PeerIndexTbl.h"
 
@@ -76,7 +78,7 @@ list<TblDumpV2RibEntry> *MRTTblDumpV2RibHeader::getRibEntries(void) const {
 }
 
 void MRTTblDumpV2RibHeader::parseRibEntry(list<TblDumpV2RibEntry> *ribs, uint16_t entryCount, uint8_t **ptr) {
-	PRINT_DBG("MRTTblDumpV2RibHeader::parseRibEntry");
+	LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibHeader::parseRibEntry");
 	uint8_t *p;
 	TblDumpV2RibEntry* pRib;
 	uint16_t peerIndex;
@@ -95,7 +97,7 @@ void MRTTblDumpV2RibHeader::parseRibEntry(list<TblDumpV2RibEntry> *ribs, uint16_
 		p += sizeof(uint16_t);
 		peerIndex = ntohs(peerIndex);
 		rib.setPeerIndex(peerIndex);
-		PRINT_DBGF("set peer index to %u\n", (uint32_t)peerIndex);
+		LOG4CXX_TRACE(Logger,"set peer index to " << (uint32_t)peerIndex);
 
 		MRTTblDumpV2PeerIndexTbl* peerIndexTbl = MRTTblDumpV2RibHeader::getPeerIndexTbl();
 		list<MRTTblDumpV2PeerIndexTblPeerEntry>::iterator myPeerEntry;
@@ -107,13 +109,13 @@ void MRTTblDumpV2RibHeader::parseRibEntry(list<TblDumpV2RibEntry> *ribs, uint16_
 		p += sizeof(uint32_t);
 		originatedTime = ntohl(originatedTime);
 		rib.setOriginatedTime(originatedTime);
-		PRINT_DBGF("set originated time to %u\n", (uint32_t)originatedTime);
+		LOG4CXX_TRACE(Logger,"set originated time to " << (uint32_t)originatedTime);
 
 		memcpy(&attributeLength, p, sizeof(uint16_t));
 		p += sizeof(uint16_t);
 		attributeLength = ntohs(attributeLength);
 		rib.setAttributeLength(attributeLength);
-		PRINT_DBGF("set attribute length to %u\n", (uint32_t)attributeLength);
+		LOG4CXX_TRACE(Logger,"set attribute length to " << (uint32_t)attributeLength);
 		
 		/* TODO: dynamically allocate attributes array... */
 		/* TODO: is attribute lenght in bytes or number of attributes? */
@@ -140,7 +142,7 @@ void MRTTblDumpV2RibHeader::parseRibEntry(list<TblDumpV2RibEntry> *ribs, uint16_
 
 	/* DONE: update ptr */
 	*ptr = p;
-	PRINT_DBG("END MRTTblDumpV2RibHeader::parseRibEntry(...)");
+	LOG4CXX_TRACE(Logger,"END MRTTblDumpV2RibHeader::parseRibEntry(...)");
 }
 
 
@@ -150,7 +152,7 @@ void MRTTblDumpV2RibHeader::processAttributes(
 	const uint8_t * const endptr, 
 	bool isAS4) {
 
-	PRINT_DBG("MRTTblDumpV2RibHeader::processAttributes(...)");
+	LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibHeader::processAttributes(...)");
 	uint8_t *p;
 	BGPAttribute attr;
 
@@ -160,7 +162,7 @@ void MRTTblDumpV2RibHeader::processAttributes(
 		attributes->push_back(attrib);
 		p += attrib.totalSize();
 	}
-	PRINT_DBG("END MRTTblDumpV2RibHeader::processAttributes(...)");
+	LOG4CXX_TRACE(Logger,"END MRTTblDumpV2RibHeader::processAttributes(...)");
 
 	// Post processing
         list<BGPAttribute>::iterator attrIter;

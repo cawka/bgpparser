@@ -27,72 +27,56 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
-#include "MRTBgp4MPStateChange.h"
+#include <bgpparser.h>
 
-LoggerPtr MRTBgp4MPStateChange::Logger = Logger::getLogger( "bgpparser.MRTBgp4MPStateChange" );
+#include "MRTBgp4MPStateChange.h"
+using namespace std;
+
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
+
+log4cxx::LoggerPtr MRTBgp4MPStateChange::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTBgp4MPStateChange" );
 
 MRTBgp4MPStateChange::MRTBgp4MPStateChange(void) {
 	/* nothing */
 }
 
-MRTBgp4MPStateChange::MRTBgp4MPStateChange(uint8_t **ptr, bool _isAS4) 
-: MRTCommonHeader((const uint8_t **)ptr) 
+MRTBgp4MPStateChange::MRTBgp4MPStateChange( MRTCommonHeader &header, istream &input, bool isAS4 )
+: MRTCommonHeader( header )
 {
-	uint8_t *p;
+	MRTBgp4MPStateChangePacket pkt;
+	io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPStateChangePacket) );
 
-	/* add sizeof(MRTCommonHeaderPacket to ptr since ptr points to base of message */
-	p = const_cast<uint8_t *>(*ptr) + sizeof(MRTCommonHeaderPacket);
-	isAS4 = _isAS4;
+	peerAS = ntohs(pkt.peerAS);
+	localAS = ntohs(pkt.localAS);
+	interfaceIndex = ntohs(pkt.interfaceIndex);
+	addressFamily = ntohs(pkt.addressFamily);
 
-	if( !isAS4 ) {
-		MRTBgp4MPStateChangePacket pkt;
-		memcpy(&pkt, p, sizeof(MRTBgp4MPStateChangePacket));
-		peerAS = ntohs(pkt.peerAS);
-		localAS = ntohs(pkt.localAS);
-		interfaceIndex = ntohs(pkt.interfaceIndex);
-		addressFamily = ntohs(pkt.addressFamily);
-		p += sizeof(MRTBgp4MPStateChangePacket);
-	} else {
-		MRTBgp4MPStateChangeAS4Packet pkt;
-		memcpy(&pkt, p, sizeof(MRTBgp4MPStateChangeAS4Packet));
-		peerAS = ntohl(pkt.peerAS);
-		localAS = ntohl(pkt.localAS);
-		uint32_t pt, pb, lt, lb;
-		pt = (uint32_t)((peerAS>>16)&0xffff);
-		pb = (uint32_t)((peerAS)&0xffff);
-		lt = (uint32_t)((localAS>>16)&0xffff);
-		lb = (uint32_t)((localAS)&0xffff);
-		interfaceIndex = ntohs(pkt.interfaceIndex);
-		addressFamily = ntohs(pkt.addressFamily);
-		p += sizeof(MRTBgp4MPStateChangeAS4Packet);
-	}
+	processIPs( input );
+	processStates( input );
+}
 
+void MRTBgp4MPStateChange::processIPs( istream &input )
+{
+	size_t len=0;
+	if( addressFamily == AFI_IPv4 )
+		len=sizeof(peerIP.ipv4);
+	else if( addressFamily == AFI_IPv6 )
+		len=sizeof(peerIP.ipv6);
+	else
+		LOG4CXX_ERROR(Logger,"unsupported address family ["<< addressFamily <<"]" );
 
-	if (addressFamily == AFI_IPv4) {
-		memcpy(&peerIP, p, sizeof(peerIP.ipv4));
-		p += sizeof(peerIP.ipv4);
-		memcpy(&localIP, p, sizeof(localIP.ipv4));
-		p += sizeof(localIP.ipv4);
-	} else if (addressFamily == AFI_IPv6) {
-		memcpy(&peerIP, p, sizeof(peerIP.ipv6));
-		p += sizeof(peerIP.ipv6);
-		memcpy(&localIP, p, sizeof(localIP.ipv6));
-		p += sizeof(localIP.ipv6);
-	} else {
-		Logger->error( str(format("unsupported address family [%u]") % addressFamily) );
-	}
+	io::read( input, reinterpret_cast<char*>(&peerIP),  len );
+	io::read( input, reinterpret_cast<char*>(&localIP), len );
+}
 
-	/* pointer p now points to beginning of old state */
-	memcpy(&oldState, p, sizeof(uint16_t));
-	p += sizeof(uint16_t);
+void MRTBgp4MPStateChange::processStates( istream &input )
+{
+	io::read( input, reinterpret_cast<char*>(&oldState),  sizeof(uint16_t) );
 	oldState = ntohs(oldState);
 
-	memcpy(&newState, p, sizeof(uint16_t));
-	p += sizeof(uint16_t);
+	io::read( input, reinterpret_cast<char*>(&newState),  sizeof(uint16_t) );
 	newState = ntohs(newState);
-
-	/* TODO: increment the pointer to the new location in the file stream */
-	*ptr = p;
 }
 
 MRTBgp4MPStateChange::~MRTBgp4MPStateChange(void) {

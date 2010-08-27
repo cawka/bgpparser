@@ -31,27 +31,24 @@
 #ifndef __BGPKEEPALIVE_H_
 #define __BGPKEEPALIVE_H_
 
-
 #include "BGPCommonHeader.h"
-#include "BGPStructure.h"
-#include <list>
 
 class BGPKeepAlive: public BGPCommonHeader
 {
 public:
-	// This constructor will update what msg is pointing at to point
-	//  to the next octet after the BGP update data.
-	BGPKeepAlive(uint8_t** msg);
+	BGPKeepAlive( BGPCommonHeader &header, std::istream &input );
 	virtual ~BGPKeepAlive();
 	
 	virtual BGP_MESSAGE_TYPE Type()    { return KEEPALIVE;   }
-	virtual string           TypeStr() { return "KEEPALIVE"; };
+	virtual std::string      TypeStr() { return "KEEPALIVE"; };
 	
 	virtual void printMe();
 	virtual void printMeCompact();
 	
 protected:
 
+private:
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif /* __BGPKEEPALIVE_H_ */

@@ -43,13 +43,15 @@ public:
 	virtual ~AttributeTypeClusterList(void);	
 	
 	void setClusterList(uint32_t value) { cluster_list->push_back(value); }
-	list<uint32_t> *getClusterList(void) const { return cluster_list; }
+	std::list<uint32_t> *getClusterList(void) const { return cluster_list; }
 	virtual void printMe();
 	virtual void printMeCompact();
 	virtual AttributeType* clone();
 	
 private:
-	list<uint32_t> *cluster_list;
+	std::list<uint32_t> *cluster_list;
+
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _ATTRIBUTETYPECLUSTERLIST_H_ */

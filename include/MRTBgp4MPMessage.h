@@ -30,6 +30,7 @@
 #define _MRTBGP4MPMESSAGE_H_
 
 #include "MRTCommonHeader.h"
+#include "BGPCommonHeader.h"
 
 #ifdef WIN32
 #include <winsock2.h>
@@ -45,7 +46,7 @@ class MRTBgp4MPMessage :
 	public MRTCommonHeader
 {
 public:
-	MRTBgp4MPMessage(uint8_t **, bool);
+	MRTBgp4MPMessage( MRTCommonHeader &header, std::istream &is );
 	virtual ~MRTBgp4MPMessage(void);
 
 	uint32_t getPeerAS(void) const;
@@ -54,6 +55,13 @@ public:
 	uint16_t getAddressFamily(void) const;
 	IPAddress getPeerIP(void) const;
 	IPAddress getLocalIP(void) const;
+
+	BGPMessagePtr getPayload( ) const { return payload; };
+
+protected:
+	MRTBgp4MPMessage( MRTCommonHeader &header ) : MRTCommonHeader( header ) { ; }
+	void processIPs( std::istream &input );
+	void processMessage( std::istream &input );
 
 protected:
 	uint32_t peerAS;		/* consider making private */
@@ -64,10 +72,14 @@ protected:
 	IPAddress localIP;
 	bool isAS4;
 
+	BGPMessagePtr payload;
+
 private:
 	MRTBgp4MPMessage(void);		/* disable default constructor */
 
-	static LoggerPtr Logger;
+	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<MRTBgp4MPMessage> MRTBgp4MPMessagePtr;
 
 #endif	/* _MRTBGP4MPMESSAGE_H_ */

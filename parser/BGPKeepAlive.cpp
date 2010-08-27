@@ -27,12 +27,17 @@
  */
 
 // Author: Jonathan Park (jpark@cs.ucla.edu)
-#include "BGPKeepAlive.h"
+#include <bgpparser.h>
 
-BGPKeepAlive::BGPKeepAlive(uint8_t** msg)
-			 : BGPCommonHeader(*msg) {
-	PRINT_DBG("BGPKeepAlive::BGPKeepAlive()");
-	*msg += MESSAGE_HEADER_SIZE;
+#include "BGPKeepAlive.h"
+using namespace std;
+
+log4cxx::LoggerPtr BGPKeepAlive::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPKeepAlive" );
+
+BGPKeepAlive::BGPKeepAlive( BGPCommonHeader &header, istream &input )
+			 : BGPCommonHeader(header)
+{
+	LOG4CXX_TRACE(Logger,"BGPKeepAlive::BGPKeepAlive()");
 }
 
 BGPKeepAlive::~BGPKeepAlive() { 

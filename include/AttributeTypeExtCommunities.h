@@ -63,6 +63,8 @@ public:
 
 private:
 	list<ExtCommunityValue>* extCommunityValues;
+
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _ATTRIBUTETYPEEXTCOMMUNITIES_H_ */

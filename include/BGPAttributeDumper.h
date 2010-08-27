@@ -33,8 +33,6 @@
 #include "Dumper.h"
 #include "BGPAttribute.h"
 
-using namespace std;
-
 class BGPAttributeDumper : public Dumper 
 {
 public:
@@ -45,10 +43,12 @@ public:
 	static class BGPAttributeDumper* newDumper(BGPAttribute*);
 
 	xmlNodePtr genXml();
-	string     genAscii();
+	std::string     genAscii();
 
 protected:
     BGPAttribute* bgp_attr;
+
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif /* __BGPATTDUMPER_H_ */

@@ -35,7 +35,6 @@
 #include "AttributeType.h"
 
 #include <list>
-using namespace std;
 
 class AttributeTypeAS4PathSegment :
 	public AttributeType
@@ -61,7 +60,7 @@ public:
 	uint8_t getPathSegmentLength(void) const { return pathSegmentLength; };
 	void setPathSegmentLength(uint32_t pathSegmentLength) { this->pathSegmentLength = pathSegmentLength; };
 
-	list<uint32_t> *getPathSegmentValue(void) const { return pathSegmentValue; };
+	std::list<uint32_t> *getPathSegmentValue(void) const { return pathSegmentValue; };
 	void setPathSegmentValue(uint32_t value) { pathSegmentValue->push_back(value); };
 	
 	virtual void printMe();
@@ -72,7 +71,9 @@ private:
 	uint8_t pathSegmentType;
 	uint8_t pathSegmentLength; // Number of path segments (not octets!)
 
-	list<uint32_t> *pathSegmentValue;
+	std::list<uint32_t> *pathSegmentValue;
+
+	static log4cxx::LoggerPtr Logger;
 };
 
 
@@ -91,10 +92,10 @@ public:
 	uint8_t getPathSegmentLength(void) const { return pathSegmentLength; };
 	void setPathSegmentLength(uint32_t pathSegmentLength) { this->pathSegmentLength = pathSegmentLength; };
 
-	list<uint32_t> *getPathSegmentValue(void) const;
+	std::list<uint32_t> *getPathSegmentValue(void) const;
 	void setAS4PathSegment(AttributeTypeAS4PathSegment as4ps) { pathSegments->push_back(as4ps); };
 
-	list<AttributeTypeAS4PathSegment> *getPathSegments(void) { return pathSegments; }
+	std::list<AttributeTypeAS4PathSegment> *getPathSegments(void) { return pathSegments; }
 	
 	virtual void printMe();
 	virtual void printMeCompact();
@@ -104,7 +105,7 @@ private:
 	uint8_t pathSegmentType;
 	uint8_t pathSegmentLength; // Number of path segments (not octets!)
 
-	list<AttributeTypeAS4PathSegment> *pathSegments;
+	std::list<AttributeTypeAS4PathSegment> *pathSegments;
 };
 
 

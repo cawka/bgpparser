@@ -28,9 +28,11 @@
 
 // Author: Paul Wang, Jason Ryder
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "MRTTblDumpV2RibIPv4Unicast.h"
 
-LoggerPtr MRTTblDumpV2RibIPv4Unicast::Logger = Logger::getLogger( "bgpparser.MRTTblDumpV2RibIPv4Unicast" );
+log4cxx::LoggerPtr MRTTblDumpV2RibIPv4Unicast::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibIPv4Unicast" );
 
 MRTTblDumpV2RibIPv4Unicast::MRTTblDumpV2RibIPv4Unicast(void) {
 	/* nothing */
@@ -38,7 +40,7 @@ MRTTblDumpV2RibIPv4Unicast::MRTTblDumpV2RibIPv4Unicast(void) {
 
 MRTTblDumpV2RibIPv4Unicast::MRTTblDumpV2RibIPv4Unicast(uint8_t **ptr) 
 						   : MRTTblDumpV2RibHeader((const uint8_t **)ptr) {
-	PRINT_DBG("MRTTblDumpV2RibIPv4Unicast::MRTTblDumpV2RibIPv4Unicast(uint8_t **ptr)");
+	LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibIPv4Unicast::MRTTblDumpV2RibIPv4Unicast(uint8_t **ptr)");
 	uint8_t *p;
 
 	/* set AFI and SAFI */
@@ -71,7 +73,7 @@ MRTTblDumpV2RibIPv4Unicast::MRTTblDumpV2RibIPv4Unicast(uint8_t **ptr)
 	
 	/* DONE: increment the pointer to the new location in the file stream */
 	*ptr = p;
-	PRINT_DBG("END MRTTblDumpV2RibIPv4Unicast::MRTTblDumpV2RibIPv4Unicast(uint8_t **ptr)");
+	LOG4CXX_TRACE(Logger,"END MRTTblDumpV2RibIPv4Unicast::MRTTblDumpV2RibIPv4Unicast(uint8_t **ptr)");
 }
 
 
@@ -86,7 +88,7 @@ void MRTTblDumpV2RibIPv4Unicast::printMe() {
 	cout << "SEQUENCE: " << sequenceNumber;
 }
 
-void MRTTblDumpV2RibIPv4Unicast::printMe(MRTTblDumpV2PeerIndexTbl* peerIndexTbl) {
+void MRTTblDumpV2RibIPv4Unicast::printMe(MRTTblDumpV2PeerIndexTblPtr peerIndexTbl) {
 	printMe();
 	cout << endl;
 	// Now continue with infor from the peer index table
@@ -123,7 +125,7 @@ void MRTTblDumpV2RibIPv4Unicast::printMeCompact() {
 	cout << "|" << sequenceNumber << "|";
 }
 
-void MRTTblDumpV2RibIPv4Unicast::printMeCompact(MRTTblDumpV2PeerIndexTbl *tbl) {
+void MRTTblDumpV2RibIPv4Unicast::printMeCompact(MRTTblDumpV2PeerIndexTblPtr tbl) {
 	int i = 0;
 	list<TblDumpV2RibEntry>::iterator iter;
 	list<MRTTblDumpV2PeerIndexTblPeerEntry> *peerEntries = tbl->getPeerEntries();

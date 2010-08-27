@@ -59,6 +59,8 @@ public:
 	
 protected:
 	Origin origin;
+
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _ATTRIBUTETYPEORIGIN_H_ */

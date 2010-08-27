@@ -27,6 +27,8 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "TblDumpV2RibEntry.h"
 
 TblDumpV2RibEntry::TblDumpV2RibEntry(void) {

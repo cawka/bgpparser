@@ -46,7 +46,7 @@ public:
 	static class MRTBgp4MPMessageDumper* newDumper(MRTBgp4MPMessage*);
 
 	xmlNodePtr genXml();
-	string     genAscii();
+	std::string     genAscii();
 
     void setMRTBgp4MPMessagese(MRTBgp4MPMessage* bgp4mp_msg)
     {

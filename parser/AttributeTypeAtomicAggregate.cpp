@@ -28,6 +28,7 @@
 
 // Author: Paul Wang, Jason Ryder
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
 
 #include "AttributeTypeAtomicAggregate.h"
 
@@ -53,6 +54,6 @@ AttributeType *AttributeTypeAtomicAggregate::clone(void) {
 	return atAA;
 }
 
-void AttributeTypeAtomicAggregate::printMe() { cout << "ATOMIC_AGGREGATE"; }
-void AttributeTypeAtomicAggregate::printMeCompact() { cout << "AA: AG"; }
+void AttributeTypeAtomicAggregate::printMe() { std::cout << "ATOMIC_AGGREGATE"; }
+void AttributeTypeAtomicAggregate::printMeCompact() { std::cout << "AA: AG"; }
 

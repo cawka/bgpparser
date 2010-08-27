@@ -31,22 +31,8 @@
 #ifndef _ATTRIBUTETYPE_H_
 #define _ATTRIBUTETYPE_H_
 
-#include <stdint.h>
-
-#ifdef WIN32
-#define _USE_32BIT_TIME_T
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-
-#else
-
-#include <sys/socket.h>
-#include <netinet/in.h>
-
-#endif	/* WIN32 */
-
-#include <cstring>
 #include "BGPStructure.h"
+#include <string>
 
 class AttributeType
 {
@@ -59,7 +45,7 @@ public:
 	
 	// Factory method for creating new attribute
 	static AttributeType* newAttribute(uint8_t type, uint16_t len, uint8_t* msg, bool isAS4);
-	static string getTypeStr(uint8_t attrType);
+	static std::string getTypeStr(uint8_t attrType);
 	static void setEndMsg(uint8_t *_endMsg) { endMsg = _endMsg; }
 	static uint8_t *getEndMsg() { return endMsg; }
 
@@ -101,6 +87,8 @@ protected:
     bool isAS4;
     static uint8_t *endMsg;
 	uint8_t error;
+
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _ATTRIBUTETYPE_H_ */

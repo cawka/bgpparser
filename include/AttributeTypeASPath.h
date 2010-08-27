@@ -36,7 +36,6 @@
 #include "AttributeTypeAS4Path.h"
 
 #include <list>
-using namespace std;
 
 class AttributeTypeASPathSegment :
 	public AttributeType
@@ -64,7 +63,7 @@ public:
 	uint8_t getPathSegmentLength(void) const                 { return pathSegmentLength; };
 	void    setPathSegmentLength(uint32_t pathSegmentLength) { this->pathSegmentLength = pathSegmentLength; };
 
-	list<uint32_t> *getPathSegmentValue(void) const { return pathSegmentValue; };
+	std::list<uint32_t> *getPathSegmentValue(void) const { return pathSegmentValue; };
 	void setPathSegmentValue(uint32_t value) { pathSegmentValue->push_back(value); };
 	
 	virtual void printMe();
@@ -74,7 +73,7 @@ public:
 private:
 	uint8_t pathSegmentType;
 	uint8_t pathSegmentLength; // Number of path segments (not octets!)
-	list<uint32_t> *pathSegmentValue;
+	std::list<uint32_t> *pathSegmentValue;
 };
 
 class AttributeTypeASPath :
@@ -89,16 +88,18 @@ public:
 
 	void genPathSegmentsComplete(AttributeTypeAS4Path*);
 
-	list<AttributeTypeASPathSegment> *getPathSegments(void)         { return pathSegments;         }
-	list<AttributeTypeASPathSegment> *getPathSegmentsComplete(void) { return pathSegmentsComplete; }
+	std::list<AttributeTypeASPathSegment> *getPathSegments(void)         { return pathSegments;         }
+	std::list<AttributeTypeASPathSegment> *getPathSegmentsComplete(void) { return pathSegmentsComplete; }
 	
 	virtual void printMe();
 	virtual void printMeCompact();
 	virtual AttributeType* clone();
 	
 private:
-	list<AttributeTypeASPathSegment> *pathSegments;
-	list<AttributeTypeASPathSegment> *pathSegmentsComplete;
+	std::list<AttributeTypeASPathSegment> *pathSegments;
+	std::list<AttributeTypeASPathSegment> *pathSegmentsComplete;
+
+	static log4cxx::LoggerPtr Logger;
 };
 
 

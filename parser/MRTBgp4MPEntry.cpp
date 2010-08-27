@@ -27,6 +27,8 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "MRTBgp4MPEntry.h"
 
 MRTBgp4MPEntry::MRTBgp4MPEntry(void) {

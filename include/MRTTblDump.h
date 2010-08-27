@@ -83,8 +83,10 @@ protected:
 private:
 	MRTTblDump(void);
 
-	static LoggerPtr Logger;
+	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<MRTTblDump> MRTTblDumpPtr;
 
 #endif	/* _MRTTBLDUMP_H_ */
 

@@ -27,9 +27,11 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu) 
+#include <bgpparser.h>
+
 #include "MRTTblDump.h"
 
-LoggerPtr MRTTblDump::Logger = Logger::getLogger( "bgpparser.MRTTblDump" );
+log4cxx::LoggerPtr MRTTblDump::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDump" );
 
 MRTTblDump::MRTTblDump(void) {
 	attributes = new list<BGPAttribute>();
@@ -61,7 +63,7 @@ MRTTblDump::MRTTblDump(uint8_t **ptr) : MRTCommonHeader((const uint8_t **)ptr) {
 		memcpy(&(prefix.ipv6), p, sizeof(prefix.ipv6));
 		p += sizeof(prefix.ipv6);
 	} else {
-		Logger->error( str(format("unsupported subtype [%u] for table-dump.") % getSubType()) );
+		LOG4CXX_ERROR(Logger,"unsupported subtype ["<< getSubType() <<"] for table-dump." );
 	}
 
 	/* copy out the prefix length and increment the pointer */
@@ -85,7 +87,7 @@ MRTTblDump::MRTTblDump(uint8_t **ptr) : MRTCommonHeader((const uint8_t **)ptr) {
 		memcpy(&(peerIP.ipv6), p, sizeof(peerIP.ipv6));
 		p += sizeof(peerIP.ipv6);
 	} else {
-		Logger->error( str(format("unsupported subtype [%u] for table-dump.") % getSubType()) );
+		LOG4CXX_ERROR(Logger,"unsupported subtype ["<< getSubType() <<"] for table-dump." );
 	}
 
 	/* copy out the peer AS, increment the pointer and convert to host order */

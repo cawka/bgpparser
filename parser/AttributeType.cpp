@@ -28,6 +28,8 @@
 
 // Author: Jason Ryder, Paul Wang
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "AttributeType.h"
 
 #include "AttributeTypeAggregator.h"
@@ -46,6 +48,8 @@
 #include "AttributeTypeMPReachNLRI.h"
 #include "AttributeTypeMPUnreachNLRI.h"
 
+log4cxx::LoggerPtr AttributeType::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeType" );
+
 uint8_t *AttributeType::endMsg = NULL;
 
 AttributeType::AttributeType(void) {
@@ -55,8 +59,8 @@ AttributeType::AttributeType(void) {
 }
 
 AttributeType::AttributeType(uint16_t len, uint8_t* msg, bool isAS4) {
-	PRINT_DBG("AttributeType::AttributeType()");
-	PRINT_DBG2("  length = ", len);
+	LOG4CXX_TRACE(Logger,"AttributeType::AttributeType()");
+	LOG4CXX_TRACE(Logger,"  length = " << len);
 	length = len;
 	value = (uint8_t*)malloc(length);
 	memcpy(value, msg, length);
@@ -65,8 +69,8 @@ AttributeType::AttributeType(uint16_t len, uint8_t* msg, bool isAS4) {
 }
 
 AttributeType::AttributeType(uint16_t len, uint8_t* msg) {
-	PRINT_DBG("AttributeType::AttributeType()");
-	PRINT_DBG2("  length = ", len);
+	LOG4CXX_TRACE(Logger,"AttributeType::AttributeType()");
+	LOG4CXX_TRACE(Logger,"  length = " << len);
 	length = len;
 	value = (uint8_t*)malloc(length);
 	memcpy(value, msg, length);
@@ -80,7 +84,7 @@ AttributeType::AttributeType(const AttributeType& attr) {
 	if (attr.value)
 	{
 		value = (uint8_t*)malloc(length);
-		PRINT_DBG("  Creating AttributeType Copy");
+		LOG4CXX_TRACE(Logger,"Creating AttributeType Copy");
 		memcpy(value, attr.value, length);
 	} else {
 		value = NULL;
@@ -99,7 +103,7 @@ AttributeType* AttributeType::newAttribute(uint8_t attrType, uint16_t len, uint8
     AttributeType* attr = NULL;
 
 	switch(attrType) {
-        PRINT_DBG("  Creating new Attribute(len, msg);");
+	LOG4CXX_TRACE(Logger,"Creating new Attribute(len, msg);");
 		case ORIGIN:           { attr =  new AttributeTypeOrigin(len, msg);           break; }
 		case AS_PATH:          { attr =  new AttributeTypeASPath(len, msg, isAS4);    break; }
 		case NEXT_HOP:         { attr =  new AttributeTypeNextHop(len, msg);          break; }
@@ -118,7 +122,7 @@ AttributeType* AttributeType::newAttribute(uint8_t attrType, uint16_t len, uint8
 		// ADD MORE ATTRIBUTES HERE
 
 		default: {
-			PRINT_INFO("  Unhandled attribute type code");
+			LOG4CXX_INFO(Logger,"  Unhandled attribute type code");
 			attr =  new AttributeType(len, msg, isAS4);
 			break;
 		}
@@ -126,7 +130,7 @@ AttributeType* AttributeType::newAttribute(uint8_t attrType, uint16_t len, uint8
     return attr;
 }
 
-string AttributeType::getTypeStr(uint8_t attrType) {
+std::string AttributeType::getTypeStr(uint8_t attrType) {
 	switch(attrType) {
 		case ORIGIN:           { return "ORIGIN";           break; }
 		case AS_PATH:          { return "AS_PATH";          break; }
@@ -150,5 +154,3 @@ string AttributeType::getTypeStr(uint8_t attrType) {
 	}
 	return "";
 }
-
-// vim: sw=4 ts=4 sts=4 expandtab

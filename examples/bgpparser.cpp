@@ -52,7 +52,7 @@
 #include <AttributeType.h>
 #include <AttributeTypeOrigin.h>
 
-#include <log4cxx/Logger.h>
+#include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/defaultconfigurator.h>
@@ -215,19 +215,20 @@ int main(int argc, char** argv)
 	else
 		BasicConfigurator::configure( );
 
-	_log->info( "Parsing started" );
+//	_log->info( "Parsing started" );
 
 	// Set any flags
-	if( string(argv[1])=="-" )
-	{
-		unFlags = 0x80000000;
-		char* pchFlagVals = argv[1];
-		while(*(++pchFlagVals) != '\0')
-			unFlags |= rnFlags[(uint32_t)*pchFlagVals];
-	}
+//	if( string(argv[1])=="--" )
+//	{
+//		unFlags = 0x80000000;
+//		char* pchFlagVals = argv[1];
+//		while(*(++pchFlagVals) != '\0')
+//			unFlags |= rnFlags[(uint32_t)*pchFlagVals];
+//	}
 
 	//printf("flags = 0x%08x\n", unFlags);
 	pchFileName = (unFlags == 0 ? argv[1] : argv[2]);
+	_log->info( str(format("Parsing file [%1%]") % pchFileName) );
 	//cout << "File: " << pchFileName << endl;
     MRTTblDumpV2PeerIndexTbl* peerIndexTbl = NULL; 
 

@@ -48,11 +48,11 @@ public:
 	~MRTBgp4MPSnapshot(void);
 
 	uint16_t getViewNumber(void) const;
-	string getFileName(void) const;
+	std::string getFileName(void) const;
 
 protected:
 	uint16_t viewNumber;
-	string fileName;
+	std::string fileName;
 
 private:
 	MRTBgp4MPSnapshot(void);

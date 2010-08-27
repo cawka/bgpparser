@@ -27,6 +27,8 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "MRTTblDumpV2RibIPv4Multicast.h"
 
 MRTTblDumpV2RibIPv4Multicast::MRTTblDumpV2RibIPv4Multicast(void) {
@@ -81,7 +83,7 @@ void MRTTblDumpV2RibIPv4Multicast::printMe() {
 	cout << "SEQUENCE: " << sequenceNumber;
 }
 
-void MRTTblDumpV2RibIPv4Multicast::printMe(MRTTblDumpV2PeerIndexTbl *peerIndexTbl) {
+void MRTTblDumpV2RibIPv4Multicast::printMe(MRTTblDumpV2PeerIndexTblPtr peerIndexTbl) {
 	printMe();
 	cout << endl;
 	// Now continue with infor from the peer index table
@@ -117,7 +119,7 @@ void MRTTblDumpV2RibIPv4Multicast::printMeCompact() {
 	cout << "|" << sequenceNumber << "|";
 }
 
-void MRTTblDumpV2RibIPv4Multicast::printMeCompact(MRTTblDumpV2PeerIndexTbl *tbl) {
+void MRTTblDumpV2RibIPv4Multicast::printMeCompact(MRTTblDumpV2PeerIndexTblPtr tbl) {
 	int i = 0;
 	list<TblDumpV2RibEntry>::iterator iter;
 	list<MRTTblDumpV2PeerIndexTblPeerEntry> *peerEntries = tbl->getPeerEntries();

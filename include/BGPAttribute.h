@@ -45,9 +45,6 @@
 #include "BGPStructure.h"
 #include "AttributeType.h"
 
-#include <list>
-using namespace std;
-
 class BGPAttribute
 {
 public:
@@ -64,7 +61,7 @@ public:
 	uint8_t getAttributeTypeCode(void) const { return attributeTypeCode; };
 	void setAttributeTypeCode(uint8_t attributeTypeCode) { this->attributeTypeCode = attributeTypeCode; };
 
-	string getAttributeTypeStr(void) const { return AttributeType::getTypeStr(attributeTypeCode); };
+	std::string getAttributeTypeStr(void) const { return AttributeType::getTypeStr(attributeTypeCode); };
 	
 	uint16_t getAttributeLength(void) const 
 		{ return isExtendedLength() ? attributeLength.twoOctet : BITMASK_8 & attributeLength.oneOctet; };
@@ -103,6 +100,8 @@ protected:
 
 	/* define an attribute value class here */
 	AttributeType *value;
+
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _BGPATTRIBUTE_H_ */

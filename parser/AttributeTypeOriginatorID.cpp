@@ -27,7 +27,11 @@
  */
 
 // Author: Jonathan Park
+#include <bgpparser.h>
+
 #include "AttributeTypeOriginatorID.h"
+
+log4cxx::LoggerPtr AttributeTypeOriginatorID::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeOriginatorID" );
 
 AttributeTypeOriginatorID::AttributeTypeOriginatorID(void) {
 	/* nothing */
@@ -35,7 +39,7 @@ AttributeTypeOriginatorID::AttributeTypeOriginatorID(void) {
 
 AttributeTypeOriginatorID::AttributeTypeOriginatorID(uint16_t len, uint8_t* msg)
 					: AttributeType(len, msg) {
-	PRINT_DBG("AttributeTypeOriginatorID::AttributeTypeOriginatorID()");
+	LOG4CXX_TRACE(Logger,"AttributeTypeOriginatorID::AttributeTypeOriginatorID()");
 	memcpy(&originator_id,msg,sizeof(uint32_t));
 }
 
@@ -63,13 +67,13 @@ AttributeTypeOriginatorID::~AttributeTypeOriginatorID(void) {
 void AttributeTypeOriginatorID::printMe() { 
 	IPAddress addr;
 	memcpy(&addr,&originator_id,sizeof(uint32_t));
-	cout << "ORIGINATOR-ID: ";
+	std::cout << "ORIGINATOR-ID: ";
 	PRINT_IP_ADDR(addr.ipv4);
 }
 
 void AttributeTypeOriginatorID::printMeCompact() { 
 	IPAddress addr;
 	memcpy(&addr,&originator_id,sizeof(uint32_t));
-	cout << "ORIGINATOR-ID: ";
+	std::cout << "ORIGINATOR-ID: ";
 	PRINT_IP_ADDR(addr.ipv4);
 }

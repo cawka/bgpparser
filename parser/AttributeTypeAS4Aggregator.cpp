@@ -27,7 +27,12 @@
  */
 
 // Author: Pei-chun Cheng
+#include <bgpparser.h>
+
 #include "AttributeTypeAS4Aggregator.h"
+#include <iostream>
+
+using namespace std;
 
 AttributeTypeAS4Aggregator::AttributeTypeAS4Aggregator(void) {
 	/* nothing */

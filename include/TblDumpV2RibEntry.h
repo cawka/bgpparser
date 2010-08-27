@@ -59,7 +59,7 @@ public:
 	uint16_t getAttributeLength(void) const { return attributeLength; };
 	void setAttributeLength(uint16_t attributeLength) { this->attributeLength = attributeLength; };
 
-	list<BGPAttribute> *getAttributes(void) const { return attributes; };
+	std::list<BGPAttribute> *getAttributes(void) const { return attributes; };
 	
 	virtual void printMe();
 	virtual void printMe(MRTTblDumpV2PeerIndexTbl*);
@@ -72,7 +72,7 @@ protected:
 	uint16_t attributeLength;		/* consider removing attribute length field */
 	
 	/* add list of BGPAttributes */
-	list<BGPAttribute> *attributes;
+	std::list<BGPAttribute> *attributes;
 };
 
 #endif	/* _TBLDUMPV2RIBENTRY_H_ */

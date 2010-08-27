@@ -56,9 +56,9 @@ public:
 	IPAddress getNextHopAddressLocal(void) const { return nextHopAddressLocal; };
 
 	void addNLRI(NLRIReachable &nlri) { this->nlri->push_back(nlri); };
-	list<NLRIReachable> *getNLRI(void) const { return nlri; };
+	std::list<NLRIReachable> *getNLRI(void) const { return nlri; };
 	void addSNPA(NLRIReachable &snpa) { this->snpa->push_back(snpa); };
-	list<NLRIReachable> *getSNPA(void) const { return snpa; };
+	std::list<NLRIReachable> *getSNPA(void) const { return snpa; };
 	
 	virtual void printMe();
 	virtual void printMeCompact();
@@ -75,12 +75,12 @@ protected:
 	IPAddress nextHopAddressLocal;
 	
 	//uint8_t snpaLength; // Number of snpa (not octets!)
-	list<NLRIReachable> *snpa;
-	list<NLRIReachable> *nlri;
+	std::list<NLRIReachable> *snpa;
+	std::list<NLRIReachable> *nlri;
 	
 	bool corrupt;
 
-	static LoggerPtr Logger;
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _ATTRIBUTETYPEMPREACHNLRI_H_ */

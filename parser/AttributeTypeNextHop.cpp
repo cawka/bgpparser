@@ -28,7 +28,11 @@
 
 // Author: Jason Ryder, Paul Wang
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "AttributeTypeNextHop.h"
+
+log4cxx::LoggerPtr AttributeTypeNextHop::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeNextHop" );
 
 AttributeTypeNextHop::AttributeTypeNextHop(void) {
 	/* nothing */
@@ -41,7 +45,7 @@ AttributeTypeNextHop::AttributeTypeNextHop(const AttributeTypeNextHop& attrNextH
 
 AttributeTypeNextHop::AttributeTypeNextHop(uint16_t len, uint8_t* msg)
 					 : AttributeType(len, msg) {
-	PRINT_DBG("AttributeTypeNextHop::AttributeTypeNextHop()");
+	LOG4CXX_TRACE(Logger,"AttributeTypeNextHop::AttributeTypeNextHop()");
 	if (len > 0) {
 		if (len == 4) {
 			afi = AFI_IPv4;
@@ -59,7 +63,7 @@ AttributeTypeNextHop::~AttributeTypeNextHop(void) {
 }
 
 void AttributeTypeNextHop::printMeCompact() {
-	cout << "NEXT_HOP: ";
+	std::cout << "NEXT_HOP: ";
 	switch(afi) {
 		case AFI_IPv4: PRINT_IP_ADDR(nextHop.ipv4); break;
 		case AFI_IPv6: PRINT_IPv6_ADDR(nextHop.ipv6); break;
@@ -67,7 +71,7 @@ void AttributeTypeNextHop::printMeCompact() {
 }
 
 void AttributeTypeNextHop::printMe() {
-	cout << "NEXT_HOP: ";
+	std::cout << "NEXT_HOP: ";
 	switch(afi) {
 		case AFI_IPv4: PRINT_IP_ADDR(nextHop.ipv4); break;
 		case AFI_IPv6: PRINT_IPv6_ADDR(nextHop.ipv6); break;

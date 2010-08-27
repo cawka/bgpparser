@@ -27,22 +27,32 @@
  */
 
 // Author: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "BGPOpen.h"
 
-BGPOpen::BGPOpen(uint8_t** msg)
-		: BGPCommonHeader(*msg) {
-	PRINT_DBG("BGPOpen::BGPOpen()");
-	*msg += MESSAGE_HEADER_SIZE;
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
 
-	memcpy(&version,*msg,sizeof(uint8_t)); *msg += sizeof(uint8_t);
-	memcpy(&myAS,*msg,sizeof(uint16_t)); *msg += sizeof(uint16_t);
+log4cxx::LoggerPtr BGPOpen::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPOpen" );
+
+BGPOpen::BGPOpen( BGPCommonHeader &header, std::istream &input )
+		: BGPCommonHeader( header )
+{
+	LOG4CXX_TRACE(Logger,"BGPOpen::BGPOpen()");
+
+	io::read( input, reinterpret_cast<char*>(&version), sizeof(uint8_t) );
+
+	io::read( input, reinterpret_cast<char*>(&myAS), sizeof(uint16_t) );
 	myAS = ntohs(myAS);
-	memcpy(&holdTime,*msg,sizeof(uint16_t)); *msg += sizeof(uint16_t);
+
+	io::read( input, reinterpret_cast<char*>(&holdTime), sizeof(uint16_t) );
 	holdTime = ntohs(holdTime);
-	memcpy(&bgpId,*msg,sizeof(uint32_t)); *msg += sizeof(uint32_t);
+
+	io::read( input, reinterpret_cast<char*>(&bgpId), sizeof(uint32_t) );
 	bgpId = ntohl(bgpId);
-	memcpy(&optParmLen,*msg,sizeof(uint8_t)); *msg += sizeof(uint8_t);
-	*msg += optParmLen;
+
+	io::read( input, reinterpret_cast<char*>(&optParmLen), sizeof(uint8_t) );
 }
 
 BGPOpen::~BGPOpen() { 

@@ -32,6 +32,7 @@ MRTBgp4MPEntry.cpp \
 MRTBgp4MPMessage.cpp \
 MRTBgp4MPSnapshot.cpp \
 MRTBgp4MPStateChange.cpp \
+MRTBgp4MPStateChangeAS4.cpp \
 MRTCommonHeader.cpp \
 MRTTblDump.cpp \
 MRTTblDumpV2PeerIndexTbl.cpp \
@@ -44,7 +45,7 @@ MRTTblDumpV2RibIPv6Unicast.cpp \
 TblDumpV2RibEntry.cpp
 
 libbgpparser_la_HEADERS = \
-../include/Logger.h \
+../include/bgpparser.h \
 ../include/AttributeType.h \
 ../include/AttributeTypeAS4Aggregator.h \
 ../include/AttributeTypeAS4Path.h \
@@ -80,6 +81,7 @@ libbgpparser_la_HEADERS = \
 ../include/MRTBgp4MPMessageDumper.h \
 ../include/MRTBgp4MPSnapshot.h \
 ../include/MRTBgp4MPStateChange.h \
+../include/MRTBgp4MPStateChangeAS4.h \
 ../include/MRTBgp4MPStateChangeDumper.h \
 ../include/MRTCommonHeader.h \
 ../include/MRTStructure.h \

@@ -27,9 +27,11 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "MRTTblDumpV2RibIPv6Unicast.h"
 
-LoggerPtr MRTTblDumpV2RibIPv6Unicast::Logger = Logger::getLogger( "bgpparser.MRTTblDumpV2RibIPv6Unicast" );
+log4cxx::LoggerPtr MRTTblDumpV2RibIPv6Unicast::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibIPv6Unicast" );
 
 MRTTblDumpV2RibIPv6Unicast::MRTTblDumpV2RibIPv6Unicast(void) {
 	/* nothing */
@@ -83,7 +85,7 @@ void MRTTblDumpV2RibIPv6Unicast::printMe() {
 	cout << "SEQUENCE: " << sequenceNumber;
 }
 
-void MRTTblDumpV2RibIPv6Unicast::printMe(MRTTblDumpV2PeerIndexTbl* peerIndexTbl) {
+void MRTTblDumpV2RibIPv6Unicast::printMe(MRTTblDumpV2PeerIndexTblPtr peerIndexTbl) {
 	printMe();
 	cout << endl;
 	// Now continue with infor from the peer index table
@@ -125,7 +127,7 @@ void MRTTblDumpV2RibIPv6Unicast::printMeCompact() {
 	cout << "|" << sequenceNumber;
 }
 
-void MRTTblDumpV2RibIPv6Unicast::printMeCompact(MRTTblDumpV2PeerIndexTbl* peerIndexTbl) {
+void MRTTblDumpV2RibIPv6Unicast::printMeCompact(MRTTblDumpV2PeerIndexTblPtr peerIndexTbl) {
 	cout << "ENTRY_CNT: " << entryCount << endl;
 	// Now continue with infor from the peer index table
 	list<TblDumpV2RibEntry>::iterator iter;

@@ -28,7 +28,12 @@
 
 // Author: Jason Ryder, Paul Wang
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "AttributeTypeAggregator.h"
+#include <iostream>
+
+using namespace std;
 
 AttributeTypeAggregator::AttributeTypeAggregator(void) {
 	/* nothing */
