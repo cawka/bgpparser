@@ -31,54 +31,40 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeExtCommunities.h"
+#include "Exceptions.h"
+using namespace std;
+
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr AttributeTypeExtCommunities::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeExtCommunities" );
 
-AttributeTypeExtCommunities::AttributeTypeExtCommunities(void) {
-	extCommunityValues = new list<ExtCommunityValue>();
-}
-
-AttributeTypeExtCommunities::AttributeTypeExtCommunities(uint16_t len, uint8_t* msg)
-							: AttributeType(len, msg) {
-	LOG4CXX_DEBUG(Logger,"AttributeTypeExtCommunities::AttributeTypeExtCommunities()");
-	extCommunityValues = new list<ExtCommunityValue>();
-	uint8_t* ptr = msg;
+AttributeTypeExtCommunities::AttributeTypeExtCommunities( AttributeType &header, std::istream &input )
+							: AttributeType(header)
+{
+	LOG4CXX_DEBUG( Logger,"" );
 	
-	while (ptr < msg + len) {
-		ExtCommunityValue ExtCommunity;
-		uint16_t unTypeHigh, unTypeLow;
+	while( input.peek()!=-1 )
+	{
+		ExtCommunityValue extCommunity;
+		io::read( input, reinterpret_cast<char*>(&extCommunity), sizeof(ExtCommunityValue) );
 
-		memcpy(&unTypeHigh, ptr, sizeof(uint16_t));
-		ptr += sizeof(uint16_t);
-		unTypeHigh = ntohs(unTypeHigh);
+		extCommunity.typeHigh = ntohs( extCommunity.typeHigh );
+		extCommunity.typeLow = 	ntohs( extCommunity.typeLow );
 
-		memcpy(&unTypeLow, ptr, sizeof(uint16_t));
-		ptr += sizeof(uint16_t);
-		unTypeLow = ntohs(unTypeLow);
-
-		ExtCommunity.typeHigh = unTypeHigh;
-		ExtCommunity.typeLow = unTypeLow;
-
-		memcpy(ExtCommunity.rchValue, ptr, sizeof(ExtCommunity.rchValue));
-		ptr += sizeof(ExtCommunity.rchValue);
-		
-		extCommunityValues->push_back(ExtCommunity);
+		extCommunityValues.push_back( extCommunity );
 	}
 }
 
-AttributeTypeExtCommunities::AttributeTypeExtCommunities(const AttributeTypeExtCommunities& attr) {
-	extCommunityValues = new list<ExtCommunityValue>(extCommunityValues->begin(),extCommunityValues->end());
-}
-
-AttributeTypeExtCommunities::~AttributeTypeExtCommunities(void) {
-	delete extCommunityValues;
+AttributeTypeExtCommunities::~AttributeTypeExtCommunities(void)
+{
 }
 
 void AttributeTypeExtCommunities::printMe() {
 	cout << "EXTENDED_COMMUNITIES:";
 	list<ExtCommunityValue>::iterator iter;
 
-	for(iter = extCommunityValues->begin(); iter != extCommunityValues->end(); iter++) {
+	for(iter = extCommunityValues.begin(); iter != extCommunityValues.end(); iter++) {
 		cout << " " << (*iter).typeHigh << ":" << (*iter).typeLow << ":"; 
 		printf("%02x%02x%02x%02x%02x%02x", 
 					(*iter).rchValue[0], (*iter).rchValue[1], (*iter).rchValue[2],
@@ -90,20 +76,11 @@ void AttributeTypeExtCommunities::printMeCompact() {
 	cout << "EXTENDED_COMMUNITIES: ";
 	list<ExtCommunityValue>::iterator iter;
 	bool isFirstLoop = true;
-	for(iter = extCommunityValues->begin(); iter != extCommunityValues->end(); iter++) {
+	for(iter = extCommunityValues.begin(); iter != extCommunityValues.end(); iter++) {
 		cout << (isFirstLoop ? "" : " ") << (*iter).typeHigh << ":" << (*iter).typeLow << ":";
 		printf("%02x%02x%02x%02x%02x%02x", 
 					(*iter).rchValue[0], (*iter).rchValue[1], (*iter).rchValue[2],
 					(*iter).rchValue[3], (*iter).rchValue[4], (*iter).rchValue[5] );
 		isFirstLoop = false;
 	}
-}
-
-AttributeType* AttributeTypeExtCommunities::clone() {
-	AttributeTypeExtCommunities *atExtComm = new AttributeTypeExtCommunities();
-	list<ExtCommunityValue>::iterator it;
-	for(it = extCommunityValues->begin(); it != extCommunityValues->end(); it++) {
-		atExtComm->setExtCommunityValue(*it);
-	}
-	return atExtComm;
 }

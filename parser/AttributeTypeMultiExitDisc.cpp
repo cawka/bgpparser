@@ -31,22 +31,19 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeMultiExitDisc.h"
+using namespace std;
+
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr AttributeTypeMultiExitDisc::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeMultiExitDisc" );
 
-AttributeTypeMultiExitDisc::AttributeTypeMultiExitDisc(void) {
-	/* nothing */
-}
+AttributeTypeMultiExitDisc::AttributeTypeMultiExitDisc(AttributeType &header, istream &input)
+						   : AttributeType(header) {
+	LOG4CXX_TRACE(Logger,"");
 
-AttributeTypeMultiExitDisc::AttributeTypeMultiExitDisc(uint16_t len, uint8_t* msg)
-						   : AttributeType(len, msg) {
-	LOG4CXX_TRACE(Logger,"AttributeTypeMultiExitDisc::AttributeTypeMultiExitDisc()");
-	memcpy(&discriminator, msg, len);
+	io::read( input, reinterpret_cast<char*>(&discriminator), sizeof(discriminator) );
 	discriminator = ntohl(discriminator);
-}
-
-AttributeTypeMultiExitDisc::AttributeTypeMultiExitDisc(const AttributeTypeMultiExitDisc& attr) {
-	this->discriminator = attr.discriminator;
 }
 
 AttributeTypeMultiExitDisc::~AttributeTypeMultiExitDisc(void) {
@@ -59,10 +56,4 @@ void AttributeTypeMultiExitDisc::printMeCompact() {
 
 void AttributeTypeMultiExitDisc::printMe() {
 	std::cout << "MULTI_EXIT_DISC: " << discriminator;
-}
-
-AttributeType* AttributeTypeMultiExitDisc::clone() {
-	AttributeTypeMultiExitDisc *atMED = new AttributeTypeMultiExitDisc();
-	atMED->setMultiExitDiscValue(getMultiExitDiscValue());
-	return atMED;
 }

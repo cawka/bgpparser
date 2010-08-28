@@ -35,105 +35,103 @@
 #include "AttributeTypeAS4Path.h"
 #include "AttributeTypeAggregator.h"
 #include "AttributeTypeAS4Aggregator.h"
+#include "Exceptions.h"
 using namespace std;
+
+#include <boost/iostreams/read.hpp>
+#include <boost/iostreams/skip.hpp>
+namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr BGPUpdate::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPUpdate" );
 
-BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4, uint16_t maxLen)
+BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4 )
 		 : BGPCommonHeader(header)
 {
-	uint8_t* ptr = *msg + MESSAGE_HEADER_SIZE; // 19
-	uint32_t one = (uint32_t)maxLen;
-	uint32_t two = (uint32_t)getLength();
-	uint8_t* maxptr = *msg;
-	// use whichever smaller (mrt length vs bgp length) as the end-of-msg indicator
-	if( one > two ) { maxptr += two; } else { maxptr += one; }
 	withdrawnRoutesLength = pathAttributesLength = nlriLength = 0;   
 	
-	withdrawnRoutes = new list<Route>();
-	pathAttributes = new list<BGPAttribute>();
-	announcedRoutes = new list<Route>();
-	
-	memcpy(&withdrawnRoutesLength, ptr, sizeof(withdrawnRoutesLength));
+	io::read( input, reinterpret_cast<char*>(&withdrawnRoutesLength), sizeof(uint16_t) );
 	withdrawnRoutesLength = ntohs(withdrawnRoutesLength);
-	ptr += sizeof(withdrawnRoutesLength);
-	uint8_t* p = ptr;
-	
-	while (p < ptr + withdrawnRoutesLength && p <= maxptr) {
-		uint8_t prefixLen = *p;
-		if( prefixLen > sizeof(IPAddress)*8 ) {
-			*msg = maxptr;
-			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< prefixLen <<"]. skip this record." );
-			return;
-		}
-		Route wRoute(prefixLen, ++p);
-		if( p+wRoute.getNumOctets() > maxptr ) {
-			*msg = maxptr;
-			LOG4CXX_ERROR(Logger,"message truncated! need to read ["<< wRoute.getNumOctets()
-					<<"], but only have ["<< (int)(maxptr-p) <<"] bytes.");
-			return;
-		}
-		withdrawnRoutes->push_back(wRoute);
-		p += wRoute.getNumOctets(); 
-	}
-	
-	ptr += withdrawnRoutesLength;
-	
-	memcpy(&pathAttributesLength, ptr, sizeof(pathAttributesLength));
-	ptr += sizeof(pathAttributesLength);
-	pathAttributesLength = ntohs(pathAttributesLength);
-	p = ptr;
-	
-	while (p < ptr + pathAttributesLength && p <= maxptr)
-	{
-		BGPAttribute attrib(p,isAS4,maxptr);
-		//if( p+attrib.totalSize() > maxptr ) {
-			/* error message is already diplayed by BGPAttribute object */
-		//	*msg = maxptr;
-		//	return;
-		//}
-		if( attrib.getAttributeValue() == NULL ) {
-			LOG4CXX_ERROR(Logger,"malformed attribute. skip.");
-			return;
-		}
-		pathAttributes->push_back(attrib);
-		p += attrib.totalSize();
-	}
-	ptr += pathAttributesLength;
 
-	// Post processing
-	// 1. Merge AS_PATH and AS4_PATH
-        list<BGPAttribute>::iterator attrIter;
-	AttributeTypeASPath*  as_path_attr  = NULL;
-	AttributeTypeAS4Path* as4_path_attr = NULL;
-        for (attrIter = pathAttributes->begin(); attrIter != pathAttributes->end(); attrIter++)
-        {
-            if (attrIter->getAttributeTypeCode() == AttributeType::AS_PATH)     { as_path_attr  = (AttributeTypeASPath*)attrIter->getAttributeValueMutable();  }
-            if (attrIter->getAttributeTypeCode() == AttributeType::NEW_AS_PATH) { as4_path_attr = (AttributeTypeAS4Path*)attrIter->getAttributeValueMutable(); }
-        }
-	if (as_path_attr != NULL)
+	uint16_t left=withdrawnRoutesLength;
+	while( left>0 )
 	{
-		as_path_attr->genPathSegmentsComplete(as4_path_attr);
-		if( as_path_attr->hasError() == 1 ) {
-			LOG4CXX_ERROR(Logger,"Inconsistent as-path information between AS_PATH and AS4_PATH attributes.");
-			error = 1;
-			return;
+		uint8_t prefixLen = input.get( );
+
+		if( prefixLen > sizeof(IPAddress) * 8 )
+		{
+			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< prefixLen <<"]. skip this record." );
+			throw BGPError( );
 		}
-	}
-	// 2. Merge AGGREGATOR and AS4_AGGREGATOR
-	AttributeTypeAggregator*    agg_attr     = NULL;
-	AttributeTypeAS4Aggregator* as4_agg_attr = NULL;
-        for (attrIter = pathAttributes->begin(); attrIter != pathAttributes->end(); attrIter++)
-        {
-            if (attrIter->getAttributeTypeCode() == AttributeType::AGGREGATOR)     { agg_attr     = (AttributeTypeAggregator*)attrIter->getAttributeValueMutable();    }
-            if (attrIter->getAttributeTypeCode() == AttributeType::NEW_AGGREGATOR) { as4_agg_attr = (AttributeTypeAS4Aggregator*)attrIter->getAttributeValueMutable(); }
-        }
-	if (agg_attr != NULL)
-	{
-		uint32_t as = (as4_agg_attr != NULL) ? as4_agg_attr->getAggregatorLastAS() : agg_attr->getAggregatorLastAS();
-		agg_attr->setAggregatorLastASComplete(as);
+
+		boost::shared_ptr<Route> wRoute=boost::shared_ptr<Route>( new Route( prefixLen, input ) );
+		withdrawnRoutes.push_back( wRoute );
+
+		left -= 1+wRoute->getNumOctets( );
 	}
 	
+	io::read( input, reinterpret_cast<char*>(&pathAttributesLength), sizeof(pathAttributesLength) );
+	pathAttributesLength = ntohs(pathAttributesLength);
+
+	left=pathAttributesLength;
+	while( left>0 )
+	{
+		boost::shared_ptr<BGPAttribute> attrib = boost::shared_ptr<BGPAttribute>( new BGPAttribute(input, isAS4) );
+
+		if( attrib->getAttributeValue( ).get() == NULL )
+		{
+			LOG4CXX_ERROR(Logger,"malformed attribute. skip.");
+			throw BGPError( );
+		}
+		pathAttributes.push_back( attrib );
+
+		left-=attrib->totalSize( );
+	}
+
+	if( !isAS4 ) //if AS4 supported, AS4_PATH should be ignored
+	{
+		// Post processing
+		// 1. Merge AS_PATH and AS4_PATH
+
+		std::list<BGPAttributePtr>::iterator as_path=
+			find_if( pathAttributes.begin(), pathAttributes.end(), findByType(AttributeType::AS_PATH) );
+		
+		std::list<BGPAttributePtr>::iterator as4_path=
+			find_if( pathAttributes.begin(), pathAttributes.end(), findByType(AttributeType::NEW_AS_PATH) );
+
+		if( as_path!=pathAttributes.end() && as4_path!=pathAttributes.end() )
+		{
+			AttributeTypeASPathPtr  as=
+					boost::dynamic_pointer_cast<AttributeTypeASPath>( (*as_path)->getAttributeValueMutable() );
+			AttributeTypeAS4PathPtr as4=
+					boost::dynamic_pointer_cast<AttributeTypeAS4Path>( (*as4_path)->getAttributeValue() );
+
+			as->genPathSegmentsComplete( *as4 );
+		}
+		else if( as_path!=pathAttributes.end() )
+			boost::dynamic_pointer_cast<AttributeTypeASPath>( (*as_path)->getAttributeValueMutable() )
+				->genPathSegmentsComplete( );
+
+		// 2. Merge AGGREGATOR and AS4_AGGREGATOR
+		std::list<BGPAttributePtr>::iterator agg2=
+				find_if( pathAttributes.begin(), pathAttributes.end(), findByType(AttributeType::AGGREGATOR) );
+
+		std::list<BGPAttributePtr>::iterator agg4=
+				find_if( pathAttributes.begin(), pathAttributes.end(), findByType(AttributeType::NEW_AGGREGATOR) );
+
+		if( agg2!=pathAttributes.end() && agg4!=pathAttributes.end() )
+		{
+			AttributeTypeAggregatorPtr    agg_attr     =
+					boost::dynamic_pointer_cast<AttributeTypeAggregator>( (*agg2)->getAttributeValueMutable() );
+
+			AttributeTypeAS4AggregatorPtr as4_agg_attr =
+					boost::dynamic_pointer_cast<AttributeTypeAS4Aggregator>( (*agg4)->getAttributeValueMutable() );
+
+			uint32_t as = (as4_agg_attr != NULL) ? as4_agg_attr->getAggregatorLastAS() : agg_attr->getAggregatorLastAS();
+			agg_attr->setAggregatorLastASComplete(as);
+		}
+
+	}
+
 	// This information is not part of the BGP message.
 	nlriLength = length 
 				 - MESSAGE_HEADER_SIZE
@@ -142,31 +140,22 @@ BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4, uint16
 				 - withdrawnRoutesLength 
 				 - pathAttributesLength;
 	//DONE: Get NRLI information
-	p = ptr;
-	while (p < ptr + nlriLength && p <= maxptr) {
-		uint8_t prefixLen; // = BITMASK_8 & *p;
-		memcpy(&prefixLen, p, sizeof(uint8_t));
-		if( prefixLen > sizeof(IPAddress)*8 ) {
-			*msg = maxptr;
+	left=nlriLength;
+	while( left>0 )
+	{
+		uint8_t prefixLen = input.get( );
+
+		if( prefixLen > sizeof(IPAddress) * 8 )
+		{
 			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< prefixLen <<"]. skip this record." );
-			return;
+			throw BGPError( );
 		}
-		Route aRoute(prefixLen, ++p);
-		if( p+aRoute.getNumOctets() > maxptr ) {
-			nlriLength = maxptr - ptr;
-			*msg = maxptr;
-			LOG4CXX_ERROR(Logger,"message truncated! need to read ["<< aRoute.getNumOctets()
-					<<"], but only have ["<< (int)(maxptr-p) <<"] bytes.");
-			return;
-		}
-		announcedRoutes->push_back(aRoute);
-		p += aRoute.getNumOctets(); 
-		IPAddress ipaddr = aRoute.getPrefix();
+
+		boost::shared_ptr<Route> aRoute=boost::shared_ptr<Route>( new Route( prefixLen, input ) );
+		announcedRoutes.push_back( aRoute );
+
+		left -= 1+aRoute->getNumOctets( );
 	}
-	ptr += nlriLength;
-	
-	// Set *msg to the value reached by ptr.
-	*msg = ptr;
 }
 
 //BGPUpdate::BGPUpdate(bool isAS4)
@@ -180,40 +169,37 @@ BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4, uint16
 //}
 
 BGPUpdate::~BGPUpdate() { 
-	delete withdrawnRoutes; withdrawnRoutes = NULL;
-	delete pathAttributes;  pathAttributes  = NULL;
-	delete announcedRoutes; announcedRoutes = NULL;
 }
 
-void BGPUpdate::printMe() {
-	list<Route>::iterator routeIter;
-
-	if (withdrawnRoutes->size() > 0) {
+void BGPUpdate::printMe()
+{
+	if (withdrawnRoutes.size() > 0)
+	{
 		cout << "WITHDRAWN:" << endl;
-		for (routeIter = withdrawnRoutes->begin(); routeIter != withdrawnRoutes->end(); routeIter++) {
-			Route rt = *routeIter;
+		for( std::list<RoutePtr>::iterator routeIter = withdrawnRoutes.begin( );
+				routeIter != withdrawnRoutes.end( ); routeIter++ )
+		{
 			cout << "  ";
-			rt.printMe();
+			(*routeIter)->printMe( );
 			cout << endl;
 		}
 	}
 	
-	list<BGPAttribute>* pathAttrs = this->getPathAttributes();
-	list<BGPAttribute>::iterator attrIter;
-	for (attrIter = pathAttrs->begin(); attrIter != pathAttrs->end(); attrIter++) {
-		BGPAttribute attr = *attrIter;
-		attr.printMe();
+	for( std::list<BGPAttributePtr>::iterator attrIter = pathAttributes.begin( );
+			attrIter != pathAttributes.end( ); attrIter++ )
+	{
+		(*attrIter)->printMe( );
 		cout << endl;
 	}
 	
-	if (announcedRoutes->size() > 0) {
+	if( announcedRoutes.size( ) > 0 )
+	{
 		cout << "ANNOUNCED:" << endl;
-		for( routeIter = announcedRoutes->begin(); 
-			 routeIter != announcedRoutes->end(); 
-			 routeIter++) {
-			Route rt = *routeIter;
+		for( std::list<RoutePtr>::iterator routeIter = announcedRoutes.begin( );
+				routeIter != announcedRoutes.end( ); routeIter++ )
+		{
 			cout << "  ";
-			rt.printMe();
+			(*routeIter)->printMe( );
 			cout << endl;
 		}
 	}
@@ -221,32 +207,32 @@ void BGPUpdate::printMe() {
 
 void BGPUpdate::printMeCompact()
 {
-	list<Route>::iterator routeIter;
 	bool isFirstLoop = true;
-	cout << "WITH_CNT: " << withdrawnRoutes->size() << "|";
-	for (routeIter = withdrawnRoutes->begin(); routeIter != withdrawnRoutes->end(); routeIter++) {
-		Route rt = *routeIter;
+	cout << "WITH_CNT: " << withdrawnRoutes.size() << "|";
+	for( std::list<RoutePtr>::iterator routeIter = withdrawnRoutes.begin( );
+					routeIter != withdrawnRoutes.end( ); routeIter++ )
+	{
 		isFirstLoop ? isFirstLoop = false : cout << " ";
-		rt.printMe();
+		(*routeIter)->printMe( );
 	}
 	cout << "|";
 	
-	list<BGPAttribute>* pathAttrs = this->getPathAttributes();
-	cout << "ATTR_CNT: " << pathAttrs->size() << "|";
+	cout << "ATTR_CNT: " << pathAttributes.size() << "|";
 
-	list<BGPAttribute>::iterator attrIter;
-	for (attrIter = pathAttrs->begin(); attrIter != pathAttrs->end(); attrIter++) {
-		BGPAttribute attr = *attrIter;
-		attr.printMeCompact();
+	for( std::list<BGPAttributePtr>::iterator attrIter = pathAttributes.begin( );
+				attrIter != pathAttributes.end( ); attrIter++ )
+	{
+		(*attrIter)->printMeCompact();
 		cout << "|";
 	}
 	
 	isFirstLoop = true;
-	cout << "ANN_CNT: " << announcedRoutes->size() << "|";
-	for (routeIter = announcedRoutes->begin(); routeIter != announcedRoutes->end(); routeIter++) {
-		Route rt = *routeIter;
+	cout << "ANN_CNT: " << announcedRoutes.size() << "|";
+	for( std::list<RoutePtr>::iterator routeIter = announcedRoutes.begin( );
+					routeIter != announcedRoutes.end( ); routeIter++ )
+	{
 		isFirstLoop ? isFirstLoop = false : cout << " ";
-		rt.printMe();
+		(*routeIter)->printMe( );
 	}
 	cout << "|";
 }

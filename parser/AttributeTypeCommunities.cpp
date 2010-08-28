@@ -31,48 +31,40 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeCommunities.h"
+#include "Exceptions.h"
+using namespace std;
 
-AttributeTypeCommunities::AttributeTypeCommunities(void) {
-	communityValues = new list<CommunityValue>();
-}
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
 
-AttributeTypeCommunities::AttributeTypeCommunities(const AttributeTypeCommunities& attr) {
-	this->communityValues = new list<CommunityValue>(attr.communityValues->begin(),attr.communityValues->end());
-}
+log4cxx::LoggerPtr AttributeTypeCommunities::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeCommunities" );
 
-AttributeTypeCommunities::AttributeTypeCommunities(uint16_t len, uint8_t* msg)
-						 : AttributeType(len, msg) {
-	communityValues = new list<CommunityValue>();
-	uint8_t* ptr = msg;
-	
-	while (ptr < msg + len) {
+AttributeTypeCommunities::AttributeTypeCommunities( AttributeType &header, std::istream &input )
+						 : AttributeType(header)
+{
+	LOG4CXX_TRACE(Logger,"");
+	while( input.peek()!=-1 )
+	{
 		CommunityValue community;
-		uint16_t asNum, commInfo;
+		int len=io::read( input, reinterpret_cast<char*>(&community), sizeof(CommunityValue) );
+		if( len!=sizeof(CommunityValue) ) throw BGPError( );
 
-		memcpy(&asNum, ptr, sizeof(uint16_t));
-		ptr += sizeof(uint16_t);
-		asNum = ntohs(asNum);
-
-		memcpy(&commInfo, ptr, sizeof(uint16_t));
-		ptr += sizeof(uint16_t);
-		commInfo = ntohs(commInfo);
-
-		community.ASnum = asNum;
-		community.info = commInfo;
+		community.ASnum = ntohs(community.ASnum);
+		community.info =  ntohs(community.info);
 		
-		communityValues->push_back(community);
+		communityValues.push_back(community);
 	}
+	LOG4CXX_TRACE(Logger,"count = " << communityValues.size() );
 }
 
 AttributeTypeCommunities::~AttributeTypeCommunities(void) {
-	delete communityValues;
 }
 
 void AttributeTypeCommunities::printMe() {
 	cout << "COMMUNITIES:";
 	list<CommunityValue>::iterator iter;
 
-	for(iter = communityValues->begin(); iter != communityValues->end(); iter++) {
+	for(iter = communityValues.begin(); iter != communityValues.end(); iter++) {
 		cout << " " << (*iter).ASnum << ":" << (*iter).info;
 	}
 }
@@ -81,7 +73,7 @@ void AttributeTypeCommunities::printMeCompact() {
 	cout << "COMMUNITIES: ";
 	list<CommunityValue>::iterator iter;
 	bool isFirstLoop = true;
-	for(iter = communityValues->begin(); iter != communityValues->end(); iter++) {
+	for(iter = communityValues.begin(); iter != communityValues.end(); iter++) {
 		cout << (isFirstLoop ? "" : " ");
 		uint32_t combVal = (uint32_t)((*iter).ASnum << 16) | (*iter).info;
 		switch(combVal) {
@@ -103,15 +95,6 @@ void AttributeTypeCommunities::printMeCompact() {
 		}
 		isFirstLoop = false;
 	}
-}
-
-AttributeType* AttributeTypeCommunities::clone() {
-	AttributeTypeCommunities *atComm = new AttributeTypeCommunities();
-	list<CommunityValue>::iterator it;
-	for(it = communityValues->begin(); it != communityValues->end(); it++) {
-		atComm->setCommunityValue(*it);
-	}
-	return atComm;
 }
 
 

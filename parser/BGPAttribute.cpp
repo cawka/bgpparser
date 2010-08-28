@@ -31,64 +31,64 @@
 #include <bgpparser.h>
 
 #include "BGPAttribute.h"
+using namespace std;
+
+#include <boost/iostreams/read.hpp>
+#include <boost/iostreams/skip.hpp>
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
+namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr BGPAttribute::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPAttribute" );
 
-BGPAttribute::BGPAttribute(void) {
-	value = NULL;
-}
+BGPAttribute::BGPAttribute( istream &input, bool isAS4 )
+{
+	attributeFlags 	  = input.get( );
+	attributeTypeCode = input.get( );
 
-BGPAttribute::BGPAttribute(uint8_t* msg, bool isAS4, uint8_t *maxptr) {
-	attributeFlags = *msg;
-	msg += sizeof(attributeFlags);
-	attributeTypeCode = *(msg);
-	msg += sizeof(attributeTypeCode);
 	uint16_t len = 0;
-	uint8_t len_8;
 	// This methods handles endianess conversion in a generic way. If they were to
 	//  change network byte order to little endian, this code would still be semantically
 	//  correct.
-	if (isExtendedLength()) {
-		memcpy(&len, msg, sizeof(uint16_t));
+	if( isExtendedLength( ) )
+	{
+		io::read( input, reinterpret_cast<char*>(&len), sizeof(uint16_t) );
 		len = ntohs(len);
-		msg += 2;
-	}	else {
-		memcpy(&len_8, msg, sizeof(uint8_t));
-		len = len_8;
-		msg += 1;
 	}
+	else
+		len=input.get( );
 
-	setAttributeLength(len);
-	
-	// TODO: Set attribute value
-	AttributeType::setEndMsg(maxptr);
-	value = AttributeType::newAttribute(attributeTypeCode, len, msg, isAS4);
+	setAttributeLength( len );
+
+	data=boost::shared_ptr<char>( new char[len] );
+	io::read( input, data.get(), len );
+
+	io::stream<io::array_source> in( data.get(), len );
+	value = AttributeType::newAttribute( attributeTypeCode, len, in, isAS4 );
 }
 
-// Copy constructor
-BGPAttribute::BGPAttribute(const BGPAttribute& bgpA) {
-	attributeFlags = bgpA.attributeFlags;
-	attributeTypeCode = bgpA.attributeTypeCode;
-	attributeLength = bgpA.attributeLength;
+//// Copy constructor
+//BGPAttribute::BGPAttribute( const BGPAttribute& bgpA )
+//{
+////	attributeFlags = bgpA.attributeFlags;
+////	attributeTypeCode = bgpA.attributeTypeCode;
+////	attributeLength = bgpA.attributeLength;
+////
+////	/* define an attribute value class here */
+////	LOG4CXX_TRACE(Logger,"Attempting copy value");
+////	//AttributeType* val = bgpA.value; // Hopefully uses copy constructor
+////	//value = val; // Uses assignment, not copy constructor
+////	//value = new AttributeType(*bgpA.value);
+////	//value = bgpA.value;
+////	if (bgpA.value != NULL) {
+////		value = bgpA.value->clone();
+////	} else {
+////		value = NULL;
+////	}
+//}
 
-	/* define an attribute value class here */
-	LOG4CXX_TRACE(Logger,"Attempting copy value");
-	//AttributeType* val = bgpA.value; // Hopefully uses copy constructor
-	//value = val; // Uses assignment, not copy constructor
-	//value = new AttributeType(*bgpA.value);
-	//value = bgpA.value;
-	if (bgpA.value != NULL) {
-		value = bgpA.value->clone();
-	} else {
-		value = NULL;
-	}
-}
-
-BGPAttribute::~BGPAttribute(void) {
-	if (value != NULL) {
-		delete value;
-		value = NULL;
-	}
+BGPAttribute::~BGPAttribute(void)
+{
 }
 
 

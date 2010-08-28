@@ -51,4 +51,6 @@ private:
 	static log4cxx::LoggerPtr Logger;
 };
 
+typedef boost::shared_ptr<BGPKeepAlive> BGPKeepAlivePtr;
+
 #endif /* __BGPKEEPALIVE_H_ */

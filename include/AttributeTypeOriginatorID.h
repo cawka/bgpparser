@@ -35,18 +35,13 @@
 class AttributeTypeOriginatorID : public AttributeType
 {
 public:
-	AttributeTypeOriginatorID(void);
-	AttributeTypeOriginatorID(uint16_t len, uint8_t* msg);
-	AttributeTypeOriginatorID(uint16_t len, uint32_t oid, uint8_t* msg);
-	AttributeTypeOriginatorID(const AttributeTypeOriginatorID& attr);
-	
+	AttributeTypeOriginatorID(AttributeType &header, std::istream &input);
 	virtual ~AttributeTypeOriginatorID(void);	
 	
 	void setOrigin(uint32_t oid) { originator_id = oid; }
 	uint32_t getOrigin() { return originator_id; }
 	virtual void printMe();
 	virtual void printMeCompact();
-	virtual AttributeType* clone() { return new AttributeTypeOriginatorID(length, originator_id, value); }
 	
 protected:
 	uint32_t originator_id;

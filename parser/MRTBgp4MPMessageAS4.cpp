@@ -28,13 +28,14 @@
 #include <bgpparser.h>
 
 #include "MRTBgp4MPMessageAS4.h"
+using namespace std;
 
 #include <boost/iostreams/read.hpp>
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr MRTBgp4MPMessageAS4::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTBgp4MPMessageAS4" );
 
-MRTBgp4MPMessageAS4::MRTBgp4MPMessageAS4( MRTCommonHeader &header, uint8_t **ptr )
+MRTBgp4MPMessageAS4::MRTBgp4MPMessageAS4( MRTCommonHeader &header, istream &input )
 : MRTBgp4MPMessage( header )
 {
 	MRTBgp4MPMessageAS4Packet pkt;

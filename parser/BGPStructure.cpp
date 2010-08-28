@@ -31,18 +31,60 @@
 #include <bgpparser.h>
 
 #include "BGPStructure.h"
-#include <iostreams>
+#include "Exceptions.h"
+
+#include <sstream>
+using namespace std;
+
+#include <boost/iostreams/read.hpp>
+#include <boost/iostreams/skip.hpp>
+namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr Route::Logger=log4cxx::Logger::getLogger( "bgpparser.Route" );
 
-void Route::printMe( )
+Route::Route( uint8_t aLength, istream &input )
 {
+	LOG4CXX_TRACE(Logger,"");
+
+	length = aLength;
+	numOctets = aLength / 8 + ((aLength % 8) ? 1 : 0);
+
+	LOG4CXX_TRACE(Logger,"length = "<< (int)length << ", numOctets = " << (int)numOctets);
+
+	memset( &prefix, 0, sizeof(prefix) );
+	if( numOctets>0 )
+	{
+		int len=io::read( input, reinterpret_cast<char*>(&prefix), numOctets );
+		if( len!=numOctets )
+		{
+			LOG4CXX_ERROR(Logger,"message truncated! need to read ["<< getNumOctets()
+					<<"], but only have ["<< len <<"] bytes.");
+			throw BGPError( );
+		}
+	}
 }
 
-void Route::printMeCompact( )
+void Route::printMe( )
 {
 	PRINT_IP_ADDR(prefix.ipv4);
 	cout << "/";
 	printf("%i", length);
 }
 
+void Route::printMeCompact( )
+{
+	printMe( );
+}
+
+string Route::toString( uint16_t afi )
+{
+	ostringstream os;
+
+	if (afi == AFI_IPv4)      { os << FORMAT_IPv4_ADDRESS(prefix.ipv4);   }
+	else if (afi == AFI_IPv6) { os << FORMAT_IPv6_ADDRESS(prefix.ipv6);   }
+	else                      { os << FORMAT_IPv4_ADDRESS(prefix.ipv4);   }
+
+	os << "/" << length;
+
+	return os.str( );
+}

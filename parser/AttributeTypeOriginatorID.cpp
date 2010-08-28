@@ -30,35 +30,19 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeOriginatorID.h"
+using namespace std;
+
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr AttributeTypeOriginatorID::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeOriginatorID" );
 
-AttributeTypeOriginatorID::AttributeTypeOriginatorID(void) {
-	/* nothing */
-}
+AttributeTypeOriginatorID::AttributeTypeOriginatorID( AttributeType &header, istream &input )
+					: AttributeType(header) {
+	LOG4CXX_TRACE(Logger,"");
 
-AttributeTypeOriginatorID::AttributeTypeOriginatorID(uint16_t len, uint8_t* msg)
-					: AttributeType(len, msg) {
-	LOG4CXX_TRACE(Logger,"AttributeTypeOriginatorID::AttributeTypeOriginatorID()");
-	memcpy(&originator_id,msg,sizeof(uint32_t));
+	io::read( input, reinterpret_cast<char*>(&originator_id), sizeof(originator_id) );
 }
-
-AttributeTypeOriginatorID::AttributeTypeOriginatorID(uint16_t len, uint32_t oid, uint8_t* msg)
-					: AttributeType(len, msg) {
-	originator_id = oid;
-}
-
-AttributeTypeOriginatorID::AttributeTypeOriginatorID(const AttributeTypeOriginatorID& attr) {
-	length = attr.length;
-	originator_id = attr.originator_id;
-	if (attr.value) {
-		value = (uint8_t*)malloc(length);
-		memcpy(value, attr.value, length);
-	} else {
-		value = NULL;
-	}
-}
-
 
 AttributeTypeOriginatorID::~AttributeTypeOriginatorID(void) {
 	/* nothing */

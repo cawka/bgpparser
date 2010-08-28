@@ -33,7 +33,11 @@
 
 class MRTBgp4MPMessageAS4 : public MRTBgp4MPMessage
 {
+public:
 	MRTBgp4MPMessageAS4( MRTCommonHeader &header, std::istream &is );
+
+private:
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif

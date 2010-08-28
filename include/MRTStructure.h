@@ -224,14 +224,22 @@ typedef struct _MRTCommonHeaderPacket {
 
 
 /* Peer entry for a TABLE_DUMP_V2 PEER_INDEXT_TABLE subtype */
-typedef struct _MRTTblDumpV2PeerIndexTblPeerEntry {
+struct MRTTblDumpV2PeerIndexTblPeerEntry
+{
+	MRTTblDumpV2PeerIndexTblPeerEntry( )
+	:IPType(0), isAS4(false), peerBGPId(0),peerAS(0)
+	{
+		memset( &peerIP, 0, sizeof(peerIP) );
+	}
+
 	uint16_t IPType;
 	bool isAS4;
 	uint32_t peerBGPId;
 	IPAddress peerIP;
 	uint32_t peerAS;
-} MRTTblDumpV2PeerIndexTblPeerEntry;
+};
 
+typedef boost::shared_ptr<MRTTblDumpV2PeerIndexTblPeerEntry> MRTTblDumpV2PeerIndexTblPeerEntryPtr;
 
 /* RIB entry for a TABLE_DUMP_V2 RIB_IPV4_UNICAST subtype */
 /*

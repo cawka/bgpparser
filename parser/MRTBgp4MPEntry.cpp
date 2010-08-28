@@ -30,21 +30,16 @@
 #include <bgpparser.h>
 
 #include "MRTBgp4MPEntry.h"
+using namespace std;
 
-MRTBgp4MPEntry::MRTBgp4MPEntry(void) {
-	/* nothing */
-}
+#include <boost/iostreams/read.hpp>
+#include <boost/iostreams/skip.hpp>
+namespace io = boost::iostreams;
 
-MRTBgp4MPEntry::MRTBgp4MPEntry(uint8_t **ptr) : MRTCommonHeader((const uint8_t **)ptr) {
-	uint8_t *p;
-	uint8_t prefixLength;
-	int bytes;
+MRTBgp4MPEntry::MRTBgp4MPEntry( MRTCommonHeader &header, istream &input ) : MRTCommonHeader(header)
+{
 	MRTBgp4MPEntryPacket pkt;
-
-	/* add sizeof(MRTCommonHeaderPacket) to ptr since ptr points to base of message */
-	p = const_cast<uint8_t *>(*ptr) + sizeof(MRTCommonHeaderPacket);
-
-	memcpy(&pkt, p, sizeof(MRTBgp4MPEntryPacket));
+	io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPEntryPacket) );
 
 	viewNumber = ntohs(pkt.viewNumber);
 	status = ntohs(pkt.status);
@@ -52,26 +47,17 @@ MRTBgp4MPEntry::MRTBgp4MPEntry(uint8_t **ptr) : MRTCommonHeader((const uint8_t *
 	addressFamily = ntohs(pkt.addressFamily);
 	safi = pkt.safi;
 
-	/* what does this field define */
-	//pkt.nextHopLength;
-
-	/* move pointer p to beginning of variable length next hop address field */
-	p += sizeof(MRTBgp4MPEntryPacket);
-
 	/* how to extract out next hop address based on next hop length? */
 
 	/* move pointer p to beginning of prefix length field assuming next hop len field is in bytes */
-	p += pkt.nextHopLength;
+	io::detail::skip( input, pkt.nextHopLength, boost::mpl::false_() );
 
 	/* set prefix length and increment pointer p to beginning of variable length address prefix field */
-	prefixLength = *p++;
+	prefixLength = input.get( );
 
-	bytes = ((uint32_t)prefixLength + ((uint32_t)prefixLength % sizeof(uint8_t))) % sizeof(uint8_t);
-
-	/* TODO: this message format has been deprecated and is no longer supported */
+	/* TODO: this message format has been _deprecated_ and is no longer supported */
 	
 	/* TODO: increment the pointer to the new location in the file stream */
-	*ptr = p;
 }
 
 MRTBgp4MPEntry::~MRTBgp4MPEntry(void) {

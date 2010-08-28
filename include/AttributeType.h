@@ -34,30 +34,28 @@
 #include "BGPStructure.h"
 #include <string>
 
+class AttributeType;
+typedef boost::shared_ptr<AttributeType> AttributeTypePtr;
+
 class AttributeType
 {
 public:
-	AttributeType(void);
-	AttributeType(uint16_t len, uint8_t* msg);
-	AttributeType(uint16_t len, uint8_t* msg, bool isAS4);
-	AttributeType(const AttributeType&);
 	virtual ~AttributeType(void);
 	
 	// Factory method for creating new attribute
-	static AttributeType* newAttribute(uint8_t type, uint16_t len, uint8_t* msg, bool isAS4);
+	static AttributeTypePtr newAttribute(uint8_t type, uint16_t len, std::istream &input, bool isAS4);
 	static std::string getTypeStr(uint8_t attrType);
-	static void setEndMsg(uint8_t *_endMsg) { endMsg = _endMsg; }
-	static uint8_t *getEndMsg() { return endMsg; }
 
 	uint16_t getLength() { return length; }
-	uint8_t* getValue() { return value; }
-	uint8_t hasError() { return error; }
-	void setValue(uint8_t* value) { this->value = value; };
+//	uint8_t* getValue() { return value; }
+//	uint8_t hasError() { return error; }
+//	void setValue(uint8_t* value) { this->value = value; };
 	bool getAS4() { return isAS4; }
 	void setAS4(bool isAS4) { this->isAS4 = isAS4; };
 	virtual void printMe() { /*cout << "AttributeType Default";*/ };
 	virtual void printMeCompact() { /*cout << "AttributeType Default";*/ };
-	virtual AttributeType* clone() { /*cout << "Cloning AttributeType" << endl;*/ return new AttributeType(length, value, isAS4); }
+//	virtual AttributeType* clone() { /*cout << "Cloning AttributeType" << endl;*/ return new AttributeType(length, value, isAS4); }
+
 	enum AttributeTypeCode
 	{
 		ORIGIN = 1,
@@ -80,13 +78,13 @@ public:
 		NEW_AGGREGATOR
 	};
 	
+private:
+	AttributeType(uint16_t len, std::istream &input, bool isAS4=false);
+	AttributeType( ) { }
+
 protected:
-	uint16_t length; // Length of attribute data in octets -- having length is useful in
-					 //  the copy constructor and other places.
-	uint8_t* value;
+	uint16_t length;
     bool isAS4;
-    static uint8_t *endMsg;
-	uint8_t error;
 
 	static log4cxx::LoggerPtr Logger;
 };

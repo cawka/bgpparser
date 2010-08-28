@@ -37,11 +37,7 @@ namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr MRTBgp4MPStateChange::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTBgp4MPStateChange" );
 
-MRTBgp4MPStateChange::MRTBgp4MPStateChange(void) {
-	/* nothing */
-}
-
-MRTBgp4MPStateChange::MRTBgp4MPStateChange( MRTCommonHeader &header, istream &input, bool isAS4 )
+MRTBgp4MPStateChange::MRTBgp4MPStateChange( MRTCommonHeader &header, istream &input )
 : MRTCommonHeader( header )
 {
 	MRTBgp4MPStateChangePacket pkt;

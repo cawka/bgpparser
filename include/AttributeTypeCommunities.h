@@ -32,7 +32,6 @@
 #define _ATTRIBUTETYPECOMMUNITIES_H_
 
 #include "AttributeType.h"
-#include "MRTStructure.h"
 
 #include <list>
 
@@ -41,32 +40,29 @@
 #define COMMUNITY_NO_EXPORT_SUBCONFED   0xFFFFFF03
 #define COMMUNITY_LOCAL_AS              0xFFFFFF03
 
-using namespace std;
-
-typedef struct CommunityValue
+struct CommunityValue
 {
 	uint16_t ASnum;
 	uint16_t info;
-} CommunityValue;
+};
 
 class AttributeTypeCommunities :
 	public AttributeType
 {
 public:
-	AttributeTypeCommunities(void);
-	AttributeTypeCommunities(uint16_t len, uint8_t* msg);
-	AttributeTypeCommunities(const AttributeTypeCommunities&);
+	AttributeTypeCommunities(AttributeType &header, std::istream &input);
 	virtual ~AttributeTypeCommunities(void);
 
-	list<CommunityValue>* getCommunityValue(void) const { return communityValues; };
-	void setCommunityValue(CommunityValue communityVal) { this->communityValues->push_back(communityVal); };
+	const std::list<CommunityValue>& getCommunityValue(void) const { return communityValues; };
+//	void setCommunityValue(CommunityValue communityVal) { this->communityValues->push_back(communityVal); };
 
 	void printMe();
 	void printMeCompact();
-	AttributeType* clone();
 
 private:
-	list<CommunityValue>* communityValues;
+	std::list<CommunityValue> communityValues;
+
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _ATTRIBUTETYPECOMMUNITIES_H_ */

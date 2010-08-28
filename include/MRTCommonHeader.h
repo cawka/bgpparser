@@ -40,8 +40,6 @@ typedef class boost::shared_ptr<MRTCommonHeader> MRTMessagePtr;
 class MRTCommonHeader
 {
 public:
-	MRTCommonHeader( std::istream &input );
-	MRTCommonHeader( const uint8_t **input );
 	virtual ~MRTCommonHeader(void);
 
 	time_t getTimestamp(void) const;
@@ -52,6 +50,9 @@ public:
 	/* static interface... uint8_t pointer will be updated to new location in file after call */
 	static MRTMessagePtr newMessage( std::istream &input );
 
+protected:
+	MRTCommonHeader( std::istream &input );
+
 private:
 	MRTCommonHeader( );	/* disable default constructor */
 
@@ -60,6 +61,8 @@ protected:
 	uint16_t type;	/* type of message in MRT payload */
 	uint16_t subtype;	/* subtype of message in MRT payload */
 	uint32_t length;	/* length of payload in MRT */
+
+	boost::shared_ptr<char> data;
 
 private:
 	static log4cxx::LoggerPtr Logger;

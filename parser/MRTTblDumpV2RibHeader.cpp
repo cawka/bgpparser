@@ -33,20 +33,30 @@
 #include "MRTTblDumpV2RibHeader.h"
 #include "MRTTblDumpV2PeerIndexTbl.h"
 
-MRTTblDumpV2PeerIndexTbl* MRTTblDumpV2RibHeader::_peerIndexTbl = NULL;
+//#include "TblDumpV2RibEntry.h"
+//#include "AttributeType.h"
+//#include "AttributeTypeOrigin.h"
+#include "AttributeTypeASPath.h"
+#include "AttributeTypeAS4Path.h"
+//#include "AttributeTypeNextHop.h"
+//#include "AttributeTypeMultiExitDisc.h"
+//#include "AttributeTypeLocalPref.h"
+//#include "AttributeTypeAtomicAggregate.h"
+//#include "AttributeTypeAggregator.h"
+//#include "AttributeTypeCommunities.h"
+//#include "AttributeTypeMPReachNLRI.h"
+//#include "AttributeTypeMPUnreachNLRI.h"
 
-MRTTblDumpV2RibHeader::MRTTblDumpV2RibHeader(void) {
-	/* nothing */
-}
+log4cxx::LoggerPtr MRTTblDumpV2RibHeader::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibHeader" );
 
-MRTTblDumpV2RibHeader::MRTTblDumpV2RibHeader(const uint8_t **ptr) : MRTCommonHeader(ptr) {
-	ribs = new list<TblDumpV2RibEntry>();
+MRTTblDumpV2PeerIndexTblPtr MRTTblDumpV2RibHeader::_peerIndexTbl;
+
+MRTTblDumpV2RibHeader::MRTTblDumpV2RibHeader( MRTCommonHeader &header )
+: MRTCommonHeader(header)
+{
 }
 
 MRTTblDumpV2RibHeader::~MRTTblDumpV2RibHeader(void) {
-	// This frees each object in the list as well as the list object
-	delete ribs;
-	ribs = NULL;
 }
 
 uint32_t MRTTblDumpV2RibHeader::getSequenceNumber(void) const {
@@ -73,110 +83,141 @@ uint16_t MRTTblDumpV2RibHeader::getSAFI(void) const {
 	return safi;
 }
 
-list<TblDumpV2RibEntry> *MRTTblDumpV2RibHeader::getRibEntries(void) const {
-	return ribs;
-}
-
-void MRTTblDumpV2RibHeader::parseRibEntry(list<TblDumpV2RibEntry> *ribs, uint16_t entryCount, uint8_t **ptr) {
-	LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibHeader::parseRibEntry");
-	uint8_t *p;
-	TblDumpV2RibEntry* pRib;
-	uint16_t peerIndex;
-	uint32_t originatedTime;
-	uint16_t attributeLength;
-	int ii;
-
-	/* cast away the const of ptr */
-	p = const_cast<uint8_t *>(*ptr);
-
-	/* TODO: parse each RIB entry... consider moving to parent class */
-	for (int i = 0; i < entryCount; i++) {
-		pRib = new TblDumpV2RibEntry();
-		TblDumpV2RibEntry& rib = *pRib;
-		memcpy(&peerIndex, p, sizeof(uint16_t));
-		p += sizeof(uint16_t);
-		peerIndex = ntohs(peerIndex);
-		rib.setPeerIndex(peerIndex);
-		LOG4CXX_TRACE(Logger,"set peer index to " << (uint32_t)peerIndex);
-
-		MRTTblDumpV2PeerIndexTbl* peerIndexTbl = MRTTblDumpV2RibHeader::getPeerIndexTbl();
-		list<MRTTblDumpV2PeerIndexTblPeerEntry>::iterator myPeerEntry;
-		for (ii = 0, myPeerEntry = peerIndexTbl->getPeerEntries()->begin(); 
-			(ii < peerIndex) && (myPeerEntry != peerIndexTbl->getPeerEntries()->end()); 
-			myPeerEntry++, ii++) { }
-
-		memcpy(&originatedTime, p, sizeof(uint32_t));
-		p += sizeof(uint32_t);
-		originatedTime = ntohl(originatedTime);
-		rib.setOriginatedTime(originatedTime);
-		LOG4CXX_TRACE(Logger,"set originated time to " << (uint32_t)originatedTime);
-
-		memcpy(&attributeLength, p, sizeof(uint16_t));
-		p += sizeof(uint16_t);
-		attributeLength = ntohs(attributeLength);
-		rib.setAttributeLength(attributeLength);
-		LOG4CXX_TRACE(Logger,"set attribute length to " << (uint32_t)attributeLength);
-		
-		/* TODO: dynamically allocate attributes array... */
-		/* TODO: is attribute lenght in bytes or number of attributes? */
-		uint8_t *pattr;
-		uint8_t *attributes = (uint8_t *)malloc(sizeof(uint8_t) * rib.getAttributeLength());
-
-		memcpy(attributes, p, sizeof(uint8_t) * rib.getAttributeLength());
-		/* p now points to next entry */
-		p = p + (0x0000FFFF & rib.getAttributeLength());
-		/* create a pointer to dynamically allocated memory */
-		pattr = attributes;
-		
-		/* TODO: parse each BGP attribute? */
-		list<BGPAttribute> *attrs = rib.getAttributes();
-		MRTTblDumpV2RibHeader::processAttributes(attrs, pattr, pattr + rib.getAttributeLength(), myPeerEntry->isAS4);
-	
-		/* free dynamically allocated memory */
-		free(attributes);
-
-		/* add RIB entry to list */
-		ribs->push_back(rib);
-		delete pRib;
-	}
-
-	/* DONE: update ptr */
-	*ptr = p;
-	LOG4CXX_TRACE(Logger,"END MRTTblDumpV2RibHeader::parseRibEntry(...)");
-}
-
-
-void MRTTblDumpV2RibHeader::processAttributes(
-	list<BGPAttribute> *attributes, 
-	uint8_t *ptr, 
-	const uint8_t * const endptr, 
-	bool isAS4) {
+/* static */void MRTTblDumpV2RibHeader::processAttributes(
+		list<BGPAttributePtr> &attributes, istream &input, int len, bool isAS4 )
+{
 
 	LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibHeader::processAttributes(...)");
-	uint8_t *p;
-	BGPAttribute attr;
 
-	p = (uint8_t*)ptr;
-	while (p < (uint8_t*)endptr) {
-		BGPAttribute attrib(p,isAS4,0);
-		attributes->push_back(attrib);
-		p += attrib.totalSize();
-	}
-	LOG4CXX_TRACE(Logger,"END MRTTblDumpV2RibHeader::processAttributes(...)");
-
-	// Post processing
-        list<BGPAttribute>::iterator attrIter;
-	AttributeTypeASPath*  as_path_attr  = NULL;
-	AttributeTypeAS4Path* as4_path_attr = NULL;
-        for (attrIter = attributes->begin(); attrIter != attributes->end(); attrIter++)
-        {
-            if (attrIter->getAttributeTypeCode() == AttributeType::AS_PATH)     { as_path_attr  = (AttributeTypeASPath*)attrIter->getAttributeValueMutable();  }
-            if (attrIter->getAttributeTypeCode() == AttributeType::NEW_AS_PATH) { as4_path_attr = (AttributeTypeAS4Path*)attrIter->getAttributeValueMutable(); }
-        }
-	if (as_path_attr != NULL)
+	int left=len;
+	while( left>0 )
 	{
-		as_path_attr->genPathSegmentsComplete(as4_path_attr);
+		/**
+		 * http://tools.ietf.org/id/draft-ietf-grow-mrt-09.txt
+		 *
+		 * There is one exception to the encoding of BGP attributes for the BGP
+		 * MP_REACH_NLRI attribute (BGP Type Code 14) [RFC 4760].  Since the
+		 * AFI, SAFI, and NLRI information is already encoded in the
+		 * MULTIPROTOCOL header, only the Next Hop Address Length and Next Hop
+		 * Address fields are included.  The Reserved field is omitted.  The
+		 * attribute length is also adjusted to reflect only the length of the
+		 * Next Hop Address Length and Next Hop Address fields.
+		 *
+         */
+		boost::shared_ptr<BGPAttribute> attrib = boost::shared_ptr<BGPAttribute>( new BGPAttribute(input, isAS4) );
+		attributes.push_back( attrib );
+		left-=attrib->totalSize( );
+	}
+
+	if( !isAS4 )
+	{
+		// Post processing
+
+		std::list<BGPAttributePtr>::iterator as_path=
+			find_if( attributes.begin(), attributes.end(), findByType(AttributeType::AS_PATH) );
+
+		std::list<BGPAttributePtr>::iterator as4_path=
+			find_if( attributes.begin(), attributes.end(), findByType(AttributeType::NEW_AS_PATH) );
+
+		if( as_path!=attributes.end() && as4_path!=attributes.end() )
+		{
+			AttributeTypeASPathPtr  as=
+					boost::dynamic_pointer_cast<AttributeTypeASPath>( (*as_path)->getAttributeValueMutable() );
+			AttributeTypeAS4PathPtr as4=
+					boost::dynamic_pointer_cast<AttributeTypeAS4Path>( (*as4_path)->getAttributeValue() );
+
+			as->genPathSegmentsComplete( *as4 );
+		}
+		else if( as_path!=attributes.end() )
+			boost::dynamic_pointer_cast<AttributeTypeASPath>( (*as_path)->getAttributeValueMutable() )
+				->genPathSegmentsComplete( );
+	}
+
+	LOG4CXX_TRACE(Logger,"END MRTTblDumpV2RibHeader::processAttributes(...)");
+}
+
+
+void MRTTblDumpV2RibHeader::printMe()
+{
+	cout << "PREFIX: ";
+	if( afi==AFI_IPv4 )
+	{
+		PRINT_IP_ADDR(prefix.ipv4);
+	}
+	else
+	{
+		PRINT_IPv6_ADDR(prefix.ipv6);
+	}
+	cout << "/" << (int)(prefixLength & BITMASK_8) << endl;
+	cout << "SEQUENCE: " << sequenceNumber;
+}
+
+void MRTTblDumpV2RibHeader::printMe( const MRTTblDumpV2PeerIndexTblPtr &peerIndexTbl )
+{
+	printMe();
+	cout << endl;
+	// Now continue with information from the peer index table
+	list<TblDumpV2RibEntryPtr>::iterator iter;
+	for (iter = ribs.begin(); iter != ribs.end(); iter++)
+	{
+		int peerIndex = (*iter)->getPeerIndex();
+
+		const MRTTblDumpV2PeerIndexTblPeerEntryPtr &peer=peerIndexTbl->getPeer( peerIndex );
+		cout << "FROM: ";
+		// print from IP
+		if (peer->IPType == AFI_IPv4) {
+			PRINT_IP_ADDR(peer->peerIP.ipv4);
+		} else {
+			PRINT_IPv6_ADDR(peer->peerIP.ipv6);
+		}
+		cout << " AS" << peer->peerAS;
+		cout << endl;
+
+		(*iter)->printMe();
+		cout << endl;
 	}
 }
 
+void MRTTblDumpV2RibHeader::printMeCompact() {
+	PRINT_IP_ADDR(prefix.ipv4) ;
+	cout << "/" << (int)(prefixLength & BITMASK_8);
+	cout << "|" << sequenceNumber << "|";
+}
+
+void MRTTblDumpV2RibHeader::printMeCompact( const MRTTblDumpV2PeerIndexTblPtr &peerIndexTbl )
+{
+	list<TblDumpV2RibEntryPtr>::iterator iter;
+
+	cout << "ENTRY_CNT: " << ribs.size() << endl;
+	for (iter = ribs.begin(); iter != ribs.end(); iter++)
+	{
+		printMeCompact();
+
+		int peerIndex=(*iter)->getPeerIndex( );
+
+		const MRTTblDumpV2PeerIndexTblPeerEntryPtr &peer=peerIndexTbl->getPeer( peerIndex );
+
+		// print from IP
+		if (peer->IPType == AFI_IPv4) {
+			PRINT_IP_ADDR(peer->peerIP.ipv4);
+		} else {
+			PRINT_IPv6_ADDR(peer->peerIP.ipv6);
+		}
+
+		// Print from AS
+		uint16_t top, bottom;
+		top = (uint16_t)((peer->peerAS>>16)&0xFFFF);
+		bottom = (uint16_t)((peer->peerAS)&0xFFFF);
+		printf("|");
+		if( top == 0 ) {
+			printf("%u",bottom);
+		} else {
+			printf("%u.%u",top,bottom);
+		}
+		printf("|");
+
+		(*iter)->printMeCompact();
+		cout << endl;
+	}
+}
 

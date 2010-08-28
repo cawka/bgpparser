@@ -36,15 +36,10 @@
 
 #include <list>
 
-class AttributeTypeAS4PathSegment :
-	public AttributeType
+class AttributeTypeAS4PathSegment
 {
-	friend class AttributeTypeAS4Path;
-	
 public:
-	AttributeTypeAS4PathSegment(void);
-	AttributeTypeAS4PathSegment(uint16_t len, uint8_t* msg);
-	AttributeTypeAS4PathSegment(const AttributeTypeAS4PathSegment&);
+	AttributeTypeAS4PathSegment( std::istream &input );
 	virtual ~AttributeTypeAS4PathSegment(void);
 	
 	enum PathSegment
@@ -60,54 +55,54 @@ public:
 	uint8_t getPathSegmentLength(void) const { return pathSegmentLength; };
 	void setPathSegmentLength(uint32_t pathSegmentLength) { this->pathSegmentLength = pathSegmentLength; };
 
-	std::list<uint32_t> *getPathSegmentValue(void) const { return pathSegmentValue; };
-	void setPathSegmentValue(uint32_t value) { pathSegmentValue->push_back(value); };
+	const std::list<uint32_t>& getPathSegmentValue(void) const { return pathSegmentValue; };
+//	void setPathSegmentValue(uint32_t value) { pathSegmentValue->push_back(value); };
 	
 	virtual void printMe();
 	virtual void printMeCompact();
-	virtual AttributeType* clone();
+//	virtual AttributeType* clone();
 	
 private:
 	uint8_t pathSegmentType;
 	uint8_t pathSegmentLength; // Number of path segments (not octets!)
 
-	std::list<uint32_t> *pathSegmentValue;
+	std::list<uint32_t> pathSegmentValue;
 
 	static log4cxx::LoggerPtr Logger;
 };
-
+typedef boost::shared_ptr<AttributeTypeAS4PathSegment> AttributeTypeAS4PathSegmentPtr;
 
 
 class AttributeTypeAS4Path :
 	public AttributeType
 {	
 public:
-	AttributeTypeAS4Path(void);
-	AttributeTypeAS4Path(uint16_t len, uint8_t* msg);
-	AttributeTypeAS4Path(const AttributeTypeAS4Path&);
+	AttributeTypeAS4Path( AttributeType &header, std::istream &input );
 	virtual ~AttributeTypeAS4Path(void);
 	
-	uint8_t getPathSegmentType(void) const { return pathSegmentType; };
-	void setPathSegmentType(uint32_t pathSegmentType) { this->pathSegmentType = pathSegmentType; };
-	uint8_t getPathSegmentLength(void) const { return pathSegmentLength; };
-	void setPathSegmentLength(uint32_t pathSegmentLength) { this->pathSegmentLength = pathSegmentLength; };
+//	uint8_t getPathSegmentType(void) const { return pathSegmentType; };
+//	void setPathSegmentType(uint32_t pathSegmentType) { this->pathSegmentType = pathSegmentType; };
+//	uint8_t getPathSegmentLength(void) const { return pathSegmentLength; };
+//	void setPathSegmentLength(uint32_t pathSegmentLength) { this->pathSegmentLength = pathSegmentLength; };
 
-	std::list<uint32_t> *getPathSegmentValue(void) const;
-	void setAS4PathSegment(AttributeTypeAS4PathSegment as4ps) { pathSegments->push_back(as4ps); };
+//	std::list<uint32_t>& getPathSegmentValue(void) const;
+//	void setAS4PathSegment(AttributeTypeAS4PathSegment as4ps) { pathSegments->push_back(as4ps); };
 
-	std::list<AttributeTypeAS4PathSegment> *getPathSegments(void) { return pathSegments; }
+	const std::list<AttributeTypeAS4PathSegmentPtr>& getPathSegments(void) const { return pathSegments; }
 	
 	virtual void printMe();
 	virtual void printMeCompact();
-	virtual AttributeType* clone();
+//	virtual AttributeType* clone();
+
+	uint32_t getCountOfASNs( ) const;
 	
 private:
-	uint8_t pathSegmentType;
-	uint8_t pathSegmentLength; // Number of path segments (not octets!)
+	std::list<AttributeTypeAS4PathSegmentPtr> pathSegments;
 
-	std::list<AttributeTypeAS4PathSegment> *pathSegments;
+	static log4cxx::LoggerPtr Logger;
 };
 
+typedef boost::shared_ptr<AttributeTypeAS4Path> AttributeTypeAS4PathPtr;
 
 #endif	/* _ATTRIBUTETYPEAS4PATH_H_ */
 

@@ -45,7 +45,7 @@ class MRTBgp4MPStateChange :
 	public MRTCommonHeader
 {
 public:
-	MRTBgp4MPStateChange( MRTCommonHeader &header, std::istream &input, bool isAS4 );
+	MRTBgp4MPStateChange( MRTCommonHeader &header, std::istream &input );
 	virtual ~MRTBgp4MPStateChange(void);
 
 	uint32_t getPeerAS(void) const;
@@ -76,8 +76,6 @@ protected:
 	bool isAS4;
 
 private:
-	MRTBgp4MPStateChange( );
-
 	static log4cxx::LoggerPtr Logger;
 };
 

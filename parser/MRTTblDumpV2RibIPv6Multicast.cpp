@@ -30,146 +30,39 @@
 #include <bgpparser.h>
 
 #include "MRTTblDumpV2RibIPv6Multicast.h"
+using namespace std;
+
+#include <boost/iostreams/read.hpp>
+#include <boost/iostreams/skip.hpp>
+namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr MRTTblDumpV2RibIPv6Multicast::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibIPv6Multicast" );
 
-MRTTblDumpV2RibIPv6Multicast::MRTTblDumpV2RibIPv6Multicast(void) {
-	/* nothing */
-}
 
-
-MRTTblDumpV2RibIPv6Multicast::MRTTblDumpV2RibIPv6Multicast(uint8_t **ptr) : 
-							  MRTTblDumpV2RibHeader((const uint8_t **)ptr) {
-	uint8_t *p;
-
+MRTTblDumpV2RibIPv6Multicast::MRTTblDumpV2RibIPv6Multicast( MRTCommonHeader &header, std::istream &input ) :
+							  MRTTblDumpV2RibHeader(header) {
 	/* set AFI and SAFI */
 	afi = AFI_IPv6;
 	safi = SAFI_MULTICAST;
 
-	/* add sizeof(MRTCommonHeaderPacket) to ptr since ptr points to base of message */
-	p = const_cast<uint8_t *>(*ptr) + sizeof(MRTCommonHeaderPacket);
-
 	/* copy out the sequence number, increment the pointer, and convert to host order */
-	memcpy(&sequenceNumber, p, sizeof(uint32_t));
-	p += sizeof(uint32_t);
+	io::read( input, reinterpret_cast<char*>(&sequenceNumber), sizeof(uint32_t) );
 	sequenceNumber = ntohl(sequenceNumber);
 
 	/* copy out the prefix length and increment the pointer */
-	prefixLength = *p++;
-
-	/* zero the prefix field and copy out the bytes necessary for the prefix */
-	memset(&prefix, 0, sizeof(IPAddress));
-	memcpy(&prefix, p, ((uint32_t)prefixLength + 7) / 8);
-	p += ((uint32_t)prefixLength + 7) / 8;
+	prefixLength = input.get( );
+	NLRIReachable route( prefixLength, input );
+	prefix=route.getPrefix( );
 
 	/* copy out the entry count, increment the pointer, and convert to host order */
-	memcpy(&entryCount, p, sizeof(uint16_t));
-	p += sizeof(uint16_t);
+	io::read( input, reinterpret_cast<char*>(&entryCount), sizeof(uint16_t) );
 	entryCount = ntohs(entryCount);
 
-	/* TODO: parse each RIB entry... */
-	MRTTblDumpV2RibHeader::parseRibEntry(ribs, entryCount, &p);
-
-	/* TODO: increment the pointer to the new location in the file stream */
-	*ptr = p;
+	for( int i=0; i<entryCount; i++ )
+		ribs.push_back( TblDumpV2RibEntryPtr( new TblDumpV2RibEntry( input )) );
 }
 
 
 MRTTblDumpV2RibIPv6Multicast::~MRTTblDumpV2RibIPv6Multicast(void) {
-}
-
-void MRTTblDumpV2RibIPv6Multicast::printMe() {
-	cout << "PREFIX: ";
-	PRINT_IPv6_ADDR(prefix.ipv6) ;
-	cout << "/" << (int)(prefixLength & BITMASK_8) << endl;
-	cout << "SEQUENCE: " << sequenceNumber;
-}
-
-void MRTTblDumpV2RibIPv6Multicast::printMe(MRTTblDumpV2PeerIndexTblPtr peerIndexTbl) {
-	printMe();
-	cout << endl;
-	// Now continue with infor from the peer index table
-	list<TblDumpV2RibEntry>::iterator iter;
-	for (iter = ribs->begin(); iter != ribs->end(); iter++) {
-		int peerIndex = (*iter).getPeerIndex();
-		list<struct _MRTTblDumpV2PeerIndexTblPeerEntry>::iterator indexIter;
-		list<struct _MRTTblDumpV2PeerIndexTblPeerEntry>* peerEntries;
-		if (peerIndexTbl) {
-			peerEntries = peerIndexTbl->getPeerEntries();
-			if (peerEntries == NULL) {
-				Logger->error("fatal: peer index table not found.");
-				return;
-			}
-			int i=0;
-			for (indexIter = peerEntries->begin(); 
-				 i < (int)peerIndex && i < (int)peerEntries->size() ; 
-				 indexIter++, i++)
-			{ /* Do nothing -- looking up the correct index */ }
-		
-			cout << "FROM: ";
-			if ((*indexIter).IPType == AFI_IPv4) {
-				PRINT_IP_ADDR((*indexIter).peerIP.ipv4);
-			} else {
-				PRINT_IPv6_ADDR((*indexIter).peerIP.ipv6);
-			}
-			cout << " AS" << (*indexIter).peerAS;
-			cout << endl;
-			
-			(*iter).printMe();
-			cout << endl;
-		}
-	}
-}
-
-void MRTTblDumpV2RibIPv6Multicast::printMeCompact() {
-	PRINT_IPv6_ADDR(prefix.ipv6) ;
-	cout << "/" << (int)(prefixLength & BITMASK_8);
-	cout << "|" << sequenceNumber;
-}
-
-void MRTTblDumpV2RibIPv6Multicast::printMeCompact(MRTTblDumpV2PeerIndexTblPtr peerIndexTbl) {
-	cout << "ENTRY_CNT: " << ribs->size() << endl;
-	printMeCompact();
-	cout << "|";
-	// Now continue with infor from the peer index table
-	list<TblDumpV2RibEntry>::iterator iter;
-	for (iter = ribs->begin(); iter != ribs->end(); iter++) {
-		int peerIndex = (*iter).getPeerIndex();
-		list<struct _MRTTblDumpV2PeerIndexTblPeerEntry>::iterator indexIter;
-		list<struct _MRTTblDumpV2PeerIndexTblPeerEntry>* peerEntries;
-		if (peerIndexTbl) {
-			peerEntries = peerIndexTbl->getPeerEntries();
-			if (peerEntries == NULL) {
-				Logger->error("fatal: peer index table not found.");
-				return;
-			}
-			int i=0;
-			for (indexIter = peerEntries->begin(); 
-				 i < (int)peerIndex && i < (int)peerEntries->size() ; 
-				 indexIter++, i++)
-			{ /* Do nothing -- looking up the correct index */ }
-		
-			cout << "|";
-			if ((*indexIter).IPType == AFI_IPv4) {
-				PRINT_IP_ADDR((*indexIter).peerIP.ipv4);
-			} else {
-				PRINT_IPv6_ADDR((*indexIter).peerIP.ipv6);
-			}
-
-			// Print from AS
-			uint16_t top, bottom;
-			top = (uint16_t)(((*indexIter).peerAS>>16)&0xFFFF);
-			bottom = (uint16_t)(((*indexIter).peerAS)&0xFFFF);
-			printf("|");
-			if( top == 0 ) {
-				printf("%u",bottom);
-			} else {
-				printf("%u.%u",top,bottom);
-			}
-			printf("|");
-
-			(*iter).printMeCompact();
-		}
-	}
 }
 

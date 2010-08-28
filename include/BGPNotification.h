@@ -61,4 +61,6 @@ private:
 	static log4cxx::LoggerPtr Logger;
 };
 
+typedef boost::shared_ptr<BGPNotification> BGPNotificationPtr;
+
 #endif	/* _BGPNOTIFICATION_H_ */

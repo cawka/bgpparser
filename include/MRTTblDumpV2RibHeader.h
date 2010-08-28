@@ -41,27 +41,14 @@
 #include "MRTStructure.h"
 #include "MRTTblDumpV2PeerIndexTbl.h"
 #include "TblDumpV2RibEntry.h"
-#include "AttributeType.h"
-#include "AttributeTypeOrigin.h"
-#include "AttributeTypeASPath.h"
-#include "AttributeTypeNextHop.h"
-#include "AttributeTypeMultiExitDisc.h"
-#include "AttributeTypeLocalPref.h"
-#include "AttributeTypeAtomicAggregate.h"
-#include "AttributeTypeAggregator.h"
-#include "AttributeTypeCommunities.h"
-#include "AttributeTypeMPReachNLRI.h"
-#include "AttributeTypeMPUnreachNLRI.h"
 
 #include <list>
-using namespace std;
 
 class MRTTblDumpV2RibHeader :
 	public MRTCommonHeader
 {
 public:
-	MRTTblDumpV2RibHeader(void);
-	MRTTblDumpV2RibHeader(const uint8_t **);
+	MRTTblDumpV2RibHeader( MRTCommonHeader &header );
 	virtual ~MRTTblDumpV2RibHeader(void);
 
 	uint32_t getSequenceNumber(void) const;
@@ -70,21 +57,18 @@ public:
 	uint16_t getEntryCount(void) const;
 	uint16_t getAFI(void) const;
 	uint16_t getSAFI(void) const;
-	//list<struct _MRTTblDumpV2RibEntry> *getRibEntries(void) const;
-	list<TblDumpV2RibEntry> *getRibEntries(void) const;
 
-	//static void parseRibEntry(list<struct _MRTTblDumpV2RibEntry> *, uint16_t, uint8_t **);
-	static void parseRibEntry(list<TblDumpV2RibEntry> *, uint16_t, uint8_t **);
-	static void processAttributes(list<BGPAttribute> *, uint8_t *, const uint8_t * const, bool);
+	const std::list<TblDumpV2RibEntryPtr> &getRibEntries(void) const { return ribs; };
 
-	//[TODO] use copy constructor to create a new PeerIndexTbl object, instead of just use the external object
-	static void setPeerIndexTbl(MRTTblDumpV2PeerIndexTbl* peerIndexTbl) { MRTTblDumpV2RibHeader::_peerIndexTbl = peerIndexTbl; }
-	static MRTTblDumpV2PeerIndexTbl* getPeerIndexTbl() { return MRTTblDumpV2RibHeader::_peerIndexTbl; }
+	static void processAttributes( std::list<BGPAttributePtr> &, std::istream &input, int len, bool isAS4 );
 
-	virtual void printMe() { cout << "MRTTblDumpV2RibHeader"; };
-	virtual void printMe(MRTTblDumpV2PeerIndexTbl*) { cout << "MRTTblDumpV2RibHeader with Peer Index Table"; };
-	virtual void printMeCompact() { cout << "MRTTblDumpV2RibHeader"; };
-	virtual void printMeCompact(MRTTblDumpV2PeerIndexTbl *) { cout << "MRTTblDumpV2RibHeader"; };
+	static void setPeerIndexTbl(MRTTblDumpV2PeerIndexTblPtr peerIndexTbl) { MRTTblDumpV2RibHeader::_peerIndexTbl = peerIndexTbl; }
+	static MRTTblDumpV2PeerIndexTblPtr getPeerIndexTbl() { return MRTTblDumpV2RibHeader::_peerIndexTbl; }
+
+	virtual void printMe();
+	virtual void printMe( const MRTTblDumpV2PeerIndexTblPtr& );
+	virtual void printMeCompact();
+	virtual void printMeCompact( const MRTTblDumpV2PeerIndexTblPtr& );
 
 protected:
 	uint32_t sequenceNumber;
@@ -93,9 +77,11 @@ protected:
 	uint16_t entryCount;
 	uint16_t afi;
 	uint16_t safi;
-	//list<struct _MRTTblDumpV2RibEntry> *ribEntries;
-	list<TblDumpV2RibEntry> *ribs;
-	static MRTTblDumpV2PeerIndexTbl* _peerIndexTbl;
+
+	std::list<TblDumpV2RibEntryPtr> ribs;
+	static MRTTblDumpV2PeerIndexTblPtr _peerIndexTbl;
+
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _MRTTBLDUMPV2RIBHEADER_H_ */

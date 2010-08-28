@@ -36,9 +36,7 @@ class AttributeTypeNextHop :
 	public AttributeType
 {
 public:
-	AttributeTypeNextHop(void);
-	AttributeTypeNextHop(uint16_t len, uint8_t* msg);
-	AttributeTypeNextHop(const AttributeTypeNextHop& attrNextHop);
+	AttributeTypeNextHop(AttributeType &header, std::istream &input);
 	virtual ~AttributeTypeNextHop(void);
 
 	IPAddress getNextHopIPAddress(void) const { return nextHop; };
@@ -49,7 +47,6 @@ public:
 	
 	virtual void printMe();
 	virtual void printMeCompact();
-	virtual AttributeType* clone();
 
 protected:
 	IPAddress nextHop;

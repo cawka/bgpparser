@@ -49,25 +49,24 @@ class MRTTblDumpV2PeerIndexTbl :
 //friend class MRTTblDumpV2RibIPv4Unicast;
 
 public:
-	MRTTblDumpV2PeerIndexTbl(uint8_t **);
+	MRTTblDumpV2PeerIndexTbl( MRTCommonHeader &header, std::istream &input );
 	virtual ~MRTTblDumpV2PeerIndexTbl(void);
 
 	uint32_t getCollectorBGPId(void) const;
 	uint16_t getViewNameLength(void) const;
-	const uint8_t *getViewName(void) const;
+	const std::string &ggetViewName(void) const { return viewName; }
 	uint16_t getPeerCount(void) const;
-	std::list<struct _MRTTblDumpV2PeerIndexTblPeerEntry> *getPeerEntries(void);
+	const std::vector<MRTTblDumpV2PeerIndexTblPeerEntryPtr> &getPeerEntries(void) { return peerEntries; }
+	const MRTTblDumpV2PeerIndexTblPeerEntryPtr getPeer( uint16_t peerIndex );
 
 protected:
 	uint32_t collectorBGPId;
 	uint16_t viewNameLength;
-	uint8_t *viewName;
+	std::string viewName;
 	uint16_t peerCount;
-	std::list<struct _MRTTblDumpV2PeerIndexTblPeerEntry> *peerEntries;
+	std::vector<MRTTblDumpV2PeerIndexTblPeerEntryPtr> peerEntries;
 
 private:
-	MRTTblDumpV2PeerIndexTbl(void);
-
 	static log4cxx::LoggerPtr Logger;
 };
 

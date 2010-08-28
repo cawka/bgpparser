@@ -50,80 +50,46 @@
 
 log4cxx::LoggerPtr AttributeType::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeType" );
 
-uint8_t *AttributeType::endMsg = NULL;
+//uint8_t *AttributeType::endMsg = NULL;
 
-AttributeType::AttributeType(void) {
-	length = 0;
-	value = NULL;
-    error = 0;
-}
+AttributeType::AttributeType( uint16_t len, istream &input, bool isAS4 )
+{
+	LOG4CXX_TRACE(Logger,"length = " << (int)len);
 
-AttributeType::AttributeType(uint16_t len, uint8_t* msg, bool isAS4) {
-	LOG4CXX_TRACE(Logger,"AttributeType::AttributeType()");
-	LOG4CXX_TRACE(Logger,"  length = " << len);
 	length = len;
-	value = (uint8_t*)malloc(length);
-	memcpy(value, msg, length);
-    this->isAS4 = isAS4;
-    error = 0;
-}
-
-AttributeType::AttributeType(uint16_t len, uint8_t* msg) {
-	LOG4CXX_TRACE(Logger,"AttributeType::AttributeType()");
-	LOG4CXX_TRACE(Logger,"  length = " << len);
-	length = len;
-	value = (uint8_t*)malloc(length);
-	memcpy(value, msg, length);
-    isAS4 = false;
-    error = 0;
-}
-
-AttributeType::AttributeType(const AttributeType& attr) {
-	length = attr.length;
-    isAS4  = attr.isAS4;
-	if (attr.value)
-	{
-		value = (uint8_t*)malloc(length);
-		LOG4CXX_TRACE(Logger,"Creating AttributeType Copy");
-		memcpy(value, attr.value, length);
-	} else {
-		value = NULL;
-    }
-    error = 0;
+	this->isAS4 = isAS4;
 }
 
 AttributeType::~AttributeType(void) {
-	if (value) {
-		free(value);	
-		value = NULL;
-	}
 }
 
-AttributeType* AttributeType::newAttribute(uint8_t attrType, uint16_t len, uint8_t* msg, bool isAS4) {
-    AttributeType* attr = NULL;
+AttributeTypePtr AttributeType::newAttribute(uint8_t attrType, uint16_t len, istream &input, bool isAS4)
+{
+    AttributeTypePtr attr;
+    AttributeType header( len, input, isAS4 );
 
-	switch(attrType) {
-	LOG4CXX_TRACE(Logger,"Creating new Attribute(len, msg);");
-		case ORIGIN:           { attr =  new AttributeTypeOrigin(len, msg);           break; }
-		case AS_PATH:          { attr =  new AttributeTypeASPath(len, msg, isAS4);    break; }
-		case NEXT_HOP:         { attr =  new AttributeTypeNextHop(len, msg);          break; }
-		case MULTI_EXIT_DISC:  { attr =  new AttributeTypeMultiExitDisc(len, msg);    break; }
-		case LOCAL_PREF:       { attr =  new AttributeTypeLocalPref(len, msg);        break; }
-		case ATOMIC_AGGREGATE: { attr =  new AttributeTypeAtomicAggregate();          break; }
-		case AGGREGATOR:       { attr =  new AttributeTypeAggregator(len, msg);       break; }
-		case COMMUNITIES:      { attr =  new AttributeTypeCommunities(len, msg);      break; }
-		case ORIGINATOR_ID:    { attr =  new AttributeTypeOriginatorID(len, msg);     break; }
-		case CLUSTER_LIST:     { attr =  new AttributeTypeClusterList(len, msg);      break; }
-		case EXT_COMMUNITIES:  { attr =  new AttributeTypeExtCommunities(len, msg);   break; }
-		case MP_REACH_NLRI:    { attr =  new AttributeTypeMPReachNLRI(len, msg);      break; }
-		case MP_UNREACH_NLRI:  { attr =  new AttributeTypeMPUnreachNLRI(len, msg);    break; }
-		case NEW_AS_PATH:      { attr =  new AttributeTypeAS4Path(len, msg);          break; }
-		case NEW_AGGREGATOR:   { attr =  new AttributeTypeAS4Aggregator(len, msg);    break; }
+	switch(attrType)
+	{
+		case ORIGIN:           { attr =  AttributeTypePtr( new AttributeTypeOrigin(			header, input) );    break; }
+		case AS_PATH:          { attr =  AttributeTypePtr( new AttributeTypeASPath(			header, input) );    break; }
+		case NEXT_HOP:         { attr =  AttributeTypePtr( new AttributeTypeNextHop(		header, input) );    break; }
+		case MULTI_EXIT_DISC:  { attr =  AttributeTypePtr( new AttributeTypeMultiExitDisc(	header, input) );    break; }
+		case LOCAL_PREF:       { attr =  AttributeTypePtr( new AttributeTypeLocalPref(		header, input) );    break; }
+		case ATOMIC_AGGREGATE: { attr =  AttributeTypePtr( new AttributeTypeAtomicAggregate(header, input) );    break; }
+		case AGGREGATOR:       { attr =  AttributeTypePtr( new AttributeTypeAggregator(		header, input) );    break; }
+		case COMMUNITIES:      { attr =  AttributeTypePtr( new AttributeTypeCommunities(	header, input) );    break; }
+		case ORIGINATOR_ID:    { attr =  AttributeTypePtr( new AttributeTypeOriginatorID(	header, input) );    break; }
+		case CLUSTER_LIST:     { attr =  AttributeTypePtr( new AttributeTypeClusterList(	header, input) );    break; }
+		case EXT_COMMUNITIES:  { attr =  AttributeTypePtr( new AttributeTypeExtCommunities(	header, input) );    break; }
+		case MP_REACH_NLRI:    { attr =  AttributeTypePtr( new AttributeTypeMPReachNLRI(	header, input) );    break; }
+		case MP_UNREACH_NLRI:  { attr =  AttributeTypePtr( new AttributeTypeMPUnreachNLRI(	header, input) );    break; }
+		case NEW_AS_PATH:      { attr =  AttributeTypePtr( new AttributeTypeAS4Path(		header, input) );    break; }
+		case NEW_AGGREGATOR:   { attr =  AttributeTypePtr( new AttributeTypeAS4Aggregator(	header, input) );    break; }
 		// ADD MORE ATTRIBUTES HERE
 
 		default: {
-			LOG4CXX_INFO(Logger,"  Unhandled attribute type code");
-			attr =  new AttributeType(len, msg, isAS4);
+			LOG4CXX_ERROR(Logger,"Unknown attribute type code");
+			attr =  AttributeTypePtr( new AttributeType(header) );
 			break;
 		}
 	}

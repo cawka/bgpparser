@@ -31,31 +31,32 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeNextHop.h"
+#include "Exceptions.h"
+using namespace std;
+
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr AttributeTypeNextHop::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeNextHop" );
 
-AttributeTypeNextHop::AttributeTypeNextHop(void) {
-	/* nothing */
-}
+AttributeTypeNextHop::AttributeTypeNextHop( AttributeType &header, istream &input )
+					 : AttributeType(header)
+{
+	LOG4CXX_TRACE( Logger,"" );
 
-AttributeTypeNextHop::AttributeTypeNextHop(const AttributeTypeNextHop& attrNextHop)
-					 : AttributeType(attrNextHop) {
-	memcpy(&nextHop, &attrNextHop.nextHop, sizeof(IPAddress));
-}
-
-AttributeTypeNextHop::AttributeTypeNextHop(uint16_t len, uint8_t* msg)
-					 : AttributeType(len, msg) {
-	LOG4CXX_TRACE(Logger,"AttributeTypeNextHop::AttributeTypeNextHop()");
-	if (len > 0) {
-		if (len == 4) {
-			afi = AFI_IPv4;
-		} else {
-			afi = AFI_IPv6;
-		}
-		memcpy(&nextHop, msg, sizeof(IPAddress));
-	} else {
-		memset(&nextHop, 0, sizeof(IPAddress));
+	if( length==sizeof(nextHop.ipv4) )
+	{
+		afi = AFI_IPv4;
+		io::read( input, reinterpret_cast<char*>(&nextHop), sizeof(nextHop.ipv4) );
 	}
+	else if( length==sizeof(nextHop.ipv6) )
+	{
+		memset(&nextHop, 0, sizeof(IPAddress));
+		afi = AFI_IPv6;
+		io::read( input, reinterpret_cast<char*>(&nextHop), sizeof(nextHop.ipv6) );
+	}
+	else
+		throw BGPError( );
 }
 
 AttributeTypeNextHop::~AttributeTypeNextHop(void) {
@@ -76,13 +77,4 @@ void AttributeTypeNextHop::printMe() {
 		case AFI_IPv4: PRINT_IP_ADDR(nextHop.ipv4); break;
 		case AFI_IPv6: PRINT_IPv6_ADDR(nextHop.ipv6); break;
 	}
-}
-
-AttributeType* AttributeTypeNextHop::clone() {
-	IPAddress ipaddr;
-	AttributeTypeNextHop *patNH = new AttributeTypeNextHop();
-	patNH->setNextHopAFI(getNextHopAFI());
-	ipaddr = getNextHopIPAddress();
-	patNH->setNextHopIPAddress(&ipaddr);
-	return patNH;
 }

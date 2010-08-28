@@ -32,31 +32,21 @@
 #include "AttributeTypeLocalPref.h"
 using namespace std;
 
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
+
 log4cxx::LoggerPtr AttributeTypeLocalPref::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeLocalPref" );
 
-AttributeTypeLocalPref::AttributeTypeLocalPref(void) {
-	/* nothing */
-}
+AttributeTypeLocalPref::AttributeTypeLocalPref( AttributeType &header, std::istream &input )
+					   : AttributeType(header) {
+	LOG4CXX_DEBUG(Logger,"");
 
-AttributeTypeLocalPref::AttributeTypeLocalPref(uint16_t len, uint8_t* msg)
-					   : AttributeType(len, msg) {
-	LOG4CXX_DEBUG(Logger,"AttributeTypeLocalPref::AttributeTypeLocalPref(...)");
-	memcpy(&localPref, msg, len);
+	io::read( input, reinterpret_cast<char*>(&localPref), sizeof(&localPref) );
 	localPref = ntohl(localPref);
-}
-
-AttributeTypeLocalPref::AttributeTypeLocalPref(const AttributeTypeLocalPref& attr) {
-	this->localPref = attr.localPref;
 }
 
 AttributeTypeLocalPref::~AttributeTypeLocalPref(void) {
 	/* nothing */
-}
-
-AttributeType* AttributeTypeLocalPref::clone(void) {
-	AttributeTypeLocalPref *atLP = new AttributeTypeLocalPref();
-	atLP->setLocalPrefValue(getLocalPrefValue());
-	return atLP;
 }
 
 void AttributeTypeLocalPref::printMeCompact() {

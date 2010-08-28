@@ -40,37 +40,12 @@
 class Route
 {
 public:
-
-	Route(void) {}
-	
-	Route(uint8_t aLength, uint8_t* aPrefix) 
-	{ 
-		LOG4CXX_DEBUG(Logger,"Creating a Route");
-		length = aLength;
-		numOctets = aLength / 8 + ((aLength % 8) ? 1 : 0);
-		
-		LOG4CXX_DEBUG(Logger,"length = "<< length << ", numOctets = " << numOctets);
-
-		memset(&prefix, 0, sizeof(prefix));
-		if (numOctets > 0)
-			memcpy(&prefix, aPrefix, numOctets);
-		//*aPrefix += numOctets;
-	}
-
-	Route(const Route &rt) : length(rt.length), numOctets(rt.numOctets)
-	{
-		memset(&prefix, 0, sizeof(IPAddress));
-		memcpy(&prefix, &rt.prefix, sizeof(IPAddress));
-	}
-
-	Route(uint8_t aLength, IPAddress aPrefix) 
-	{ 
-		length = aLength;
-		numOctets = aLength / 8 + ((aLength % 8) ? 1 : 0);
-		memcpy(&prefix, &aPrefix, sizeof(IPAddress));
-	}
-
-
+	Route( uint8_t aLength, std::istream &input );
+	//	Route(const Route &rt) : length(rt.length), numOctets(rt.numOctets)
+	//	{
+	//		memset(&prefix, 0, sizeof(IPAddress));
+	//		memcpy(&prefix, &rt.prefix, sizeof(IPAddress));
+	//	}
 /* THIS COPY CONSTRUCTOR IS CAUSING A LOT OF WEIRDNESS -- DOES NOT COPY CORRECTLY!
 	// Copy constructor
 	Route(const Route& rt)
@@ -81,101 +56,60 @@ public:
 */
 	virtual ~Route() { }
 
-
 	inline uint8_t getLength() { return length; }
 	inline uint8_t setLength(uint8_t aLength) { length = aLength; return length; }
 	inline IPAddress getPrefix() const { return prefix; }
 	inline IPAddress setPrefix(IPAddress in_prefix) { memcpy(&prefix, &in_prefix, sizeof(IPAddress)); return prefix; }
 	inline int getNumOctets() { return numOctets; }
 
-	std::string toString(uint16_t afi=0)
-	{
-	        route_str.clear();
-
-		char len[256];
-		sprintf(len,"%i",length);// C-style string formed without null
-
-		char ip[128]; 
-		ip[0] = '\0';
-		//memset(ip, 0, 128); 
-
-		if (afi == AFI_IPv4)      { route_str.append(inet_ntoa(prefix.ipv4));                                   }
-		else if (afi == AFI_IPv6) { route_str.append(inet_ntop(AF_INET6, (const void *)&prefix.ipv6, ip, 128)); }
-		else                      { route_str.append(inet_ntoa(prefix.ipv4));                                   }
-
-	        route_str.append("/");
-		route_str.append(len);
-
-		return route_str;
-	}
+	std::string toString(uint16_t afi=0);
 	
 	void printMe();
-	void printMeCompact() { printMe(); }
+	void printMeCompact();
+
+private:
+	Route( ) {}
+
+protected:
+	Route( uint8_t aLength, IPAddress aPrefix )
+	{
+		length = aLength;
+		numOctets = aLength / 8 + ((aLength % 8) ? 1 : 0);
+		memcpy( &prefix, &aPrefix, sizeof(IPAddress) );
+	}
 
 protected:
 	uint8_t length; // number of bits in the IP prefix.
 	IPAddress prefix; // Variable length prefix - padded to equal ceil(length / 8) octets. 
 	int numOctets;
-	std::string route_str;
 
 	static log4cxx::LoggerPtr Logger;
 };
 
-class WithdrawnRoute : public Route
-{
-public:
-	WithdrawnRoute(uint8_t aLength, uint8_t* aPrefix) 
-	: Route(aLength, aPrefix)
-	{}
-
-	// Copy constructor
-	WithdrawnRoute(const WithdrawnRoute& wd)
-	: Route(wd.length, (uint8_t*)(&wd.prefix))
-	{}
-
-	~WithdrawnRoute() { }
-
-};
+typedef boost::shared_ptr<Route> RoutePtr;
 
 class NLRIReachable : public Route
 {
 public:
-	NLRIReachable(uint8_t aLength, uint8_t* aPrefix)  : Route(aLength, aPrefix) {}
+	NLRIReachable(uint8_t aLength, std::istream &input)  : Route(aLength, input) {}
 	NLRIReachable(uint8_t aLength, IPAddress aPrefix) : Route(aLength, aPrefix) {}
-
-	//NLRIReachable(const NLRIReachable &nr) : Route(nr.length, (uint8_t*)(&nr.prefix)) {}
-	
-	NLRIReachable(const NLRIReachable &rt)
-	{
-		length = rt.length;
-		numOctets = rt.numOctets;
-		memset(&prefix, 0, sizeof(IPAddress));
-		memcpy(&prefix, &rt.prefix, sizeof(IPAddress));
-	}
-
 
 	~NLRIReachable() {}
 };
 
+typedef boost::shared_ptr<NLRIReachable> NLRIReachablePtr;
+
+
 class NLRIUnReachable : public Route
 {
 public:
-	NLRIUnReachable(uint8_t aLength, uint8_t* aPrefix) : Route(aLength, aPrefix) {}
+	NLRIUnReachable(uint8_t aLength, std::istream &input)  : Route(aLength, input) {}
 	NLRIUnReachable(uint8_t aLength, IPAddress aPrefix): Route(aLength, aPrefix) {}
-
-	//NLRIUnReachable(const NLRIUnReachable &nr) : Route(nr.length, (uint8_t*)(&nr.prefix)) {}
-	
-	NLRIUnReachable(const NLRIUnReachable &rt)
-	{
-		length = rt.length;
-		numOctets = rt.numOctets;
-		memset(&prefix, 0, sizeof(IPAddress));
-		memcpy(&prefix, &rt.prefix, sizeof(IPAddress));
-	}
-
 
 	~NLRIUnReachable() {}
 };
+
+typedef boost::shared_ptr<NLRIUnReachable> NLRIUnReachablePtr;
 
 #endif /* __BGPSTRUCTURE_H_ */
 

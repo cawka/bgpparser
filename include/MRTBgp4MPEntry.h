@@ -44,7 +44,7 @@ class MRTBgp4MPEntry :
 	public MRTCommonHeader
 {
 public:
-	MRTBgp4MPEntry(uint8_t **);
+	MRTBgp4MPEntry( MRTCommonHeader &header, std::istream &input );
 	virtual ~MRTBgp4MPEntry(void);
 
 protected:
@@ -53,9 +53,10 @@ protected:
 	uint32_t timeLastChange;
 	uint16_t addressFamily;
 	uint8_t safi;
+	uint8_t prefixLength;
 
 private:
-	MRTBgp4MPEntry(void);
+
 };
 
 #endif	/* _MRTBGP4MPENTRY_H_ */

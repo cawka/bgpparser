@@ -32,26 +32,18 @@
 
 #include "AttributeTypeAtomicAggregate.h"
 
-AttributeTypeAtomicAggregate::AttributeTypeAtomicAggregate(void) {
+log4cxx::LoggerPtr AttributeTypeAtomicAggregate::Logger=log4cxx::Logger::getLogger( "bgpparser.AttributeTypeAtomicAggregate" );
+
+AttributeTypeAtomicAggregate::AttributeTypeAtomicAggregate( AttributeType &header, std::istream &input )
+							 : AttributeType( header )
+{
+	LOG4CXX_DEBUG(Logger,"");
 	/* nothing */
 }
 
-AttributeTypeAtomicAggregate::AttributeTypeAtomicAggregate(uint16_t len, uint8_t* msg)
-							 : AttributeType(len, msg) {
-	/* nothing */
-}
-
-AttributeTypeAtomicAggregate::AttributeTypeAtomicAggregate(const AttributeTypeAtomicAggregate& attr) {
-	/* nothing */
-}
 
 AttributeTypeAtomicAggregate::~AttributeTypeAtomicAggregate(void) {
 	/* nothing */
-}
-
-AttributeType *AttributeTypeAtomicAggregate::clone(void) {
-	AttributeTypeAtomicAggregate *atAA = new AttributeTypeAtomicAggregate();
-	return atAA;
 }
 
 void AttributeTypeAtomicAggregate::printMe() { std::cout << "ATOMIC_AGGREGATE"; }

@@ -30,143 +30,120 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeMPReachNLRI.h"
+#include "Exceptions.h"
 using namespace std;
+
+#include <boost/iostreams/read.hpp>
+#include <boost/iostreams/skip.hpp>
+namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr AttributeTypeMPReachNLRI::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeMPReachNLRI" );
 
-AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI(void) {
-	afi  = 0;
-	safi = 0;
-	nextHopAddressLength = 0;
-	memset(&nextHopAddress,      0, sizeof(IPAddress));
-	memset(&nextHopAddressLocal, 0, sizeof(IPAddress));
-	nlri = new list<NLRIReachable>();
-	snpa = new list<NLRIReachable>();
-	corrupt = 0;
-}
-
-AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI(const AttributeTypeMPReachNLRI &attrMPReachNLRI) 
-						 : AttributeType(attrMPReachNLRI) {
-	afi = attrMPReachNLRI.afi;
-	safi = attrMPReachNLRI.safi;
-	nextHopAddressLength = attrMPReachNLRI.nextHopAddressLength;
-	memset(&nextHopAddress, 0, sizeof(IPAddress));
-	memcpy(&nextHopAddress, &(attrMPReachNLRI.nextHopAddress), sizeof(IPAddress));
-	memset(&nextHopAddressLocal, 0, sizeof(IPAddress));
-	memcpy(&nextHopAddressLocal, &(attrMPReachNLRI.nextHopAddressLocal), sizeof(IPAddress));
-
-	nlri = new list<NLRIReachable>(nlri->begin(),nlri->end());
-	snpa = new list<NLRIReachable>(snpa->begin(),snpa->end());
-	corrupt = attrMPReachNLRI.corrupt;
-}
-
-AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI(uint16_t len, uint8_t* msg, bool isCompact) 
-						 : AttributeType(len, msg) {
-	uint8_t *ptr = msg;
-	uint8_t *endMsg = AttributeType::getEndMsg();
-
-	nlri = new list<NLRIReachable>();
-	snpa = new list<NLRIReachable>();
+AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI( AttributeType &header, istream &input )
+						 : AttributeType(header)
+{
+	LOG4CXX_TRACE(Logger,"");
 	corrupt = 0;
 
 	// Test if there is only "NextHopLength" and "NextHopAddress" in this attribute (MRT TABLE_DUMP_V2 format)
 	// http://tools.ietf.org/id/draft-ietf-grow-mrt-09.txt
-	memcpy(&nextHopAddressLength, ptr, sizeof(uint8_t));
-	if ( isCompact || len == 1 + nextHopAddressLength) {
-		afi  = 0;
+	if( length == 1 + nextHopAddressLength )
+	{
+		throw BGPTextError( "NOTIFY: ok, we got here" );
+		nextHopAddressLength=input.get( );
+		
+		afi = 0;
 		safi = 0;
-		memset(&nextHopAddress, 0,     sizeof(IPAddress));
-		memcpy(&nextHopAddress, ptr+1, ((uint32_t)nextHopAddressLength & BITMASK_8));
-/*
-		nlri = new list<NLRIReachable>();
-		snpa = new list<NLRIReachable>();
-*/
+		memset( reinterpret_cast<char*>(&nextHopAddress), 0, sizeof(IPAddress) );
+		io::read( input, reinterpret_cast<char*>(&nextHopAddress), nextHopAddressLength );
 		return;
 	}
 
 	// Else parse every fields specified in RFC 4760
-	memcpy(&afi, ptr, sizeof(uint16_t));
-	ptr += sizeof(uint16_t);
+	io::read( input, reinterpret_cast<char*>(&afi), sizeof(uint16_t) );
 	afi = ntohs(afi);
-	LOG4CXX_TRACE(Logger,"  afi = " << afi);
+	LOG4CXX_TRACE(Logger,"  afi = " << (int)afi);
 
 	/* SAFI */
-	safi = *ptr++;
-	LOG4CXX_TRACE(Logger,"  safi = " << safi);
+	safi = input.get( );
+	LOG4CXX_TRACE(Logger,"  safi = " << (int)safi);
 	// SAFI not valid in MP_REACH_NLRI
 
 	/* Next hop length and address */
-	nextHopAddressLength = *ptr++;
-	LOG4CXX_TRACE(Logger,"  nextHopAddressLength = " << nextHopAddressLength);
+	nextHopAddressLength = input.get( );
+	LOG4CXX_TRACE(Logger,"  nextHopAddressLength = " << (int)nextHopAddressLength);
 
-	memset(&nextHopAddress, 0, sizeof(IPAddress));
-	memset(&nextHopAddressLocal, 0, sizeof(IPAddress));
+	memset( reinterpret_cast<char*> ( &nextHopAddress ),      0, sizeof(IPAddress) );
+	memset( reinterpret_cast<char*> ( &nextHopAddressLocal ), 0, sizeof(IPAddress) );
+
 	if( nextHopAddressLength == 32 ) {
 		/* this must be ipv6 with local address as well */
-		memcpy(&nextHopAddress, ptr, sizeof(IPAddress));
-		memcpy(&nextHopAddressLocal, ptr+sizeof(IPAddress), sizeof(IPAddress));
+		io::read( input, reinterpret_cast<char*>(&nextHopAddress.ipv6),      sizeof(nextHopAddress.ipv6) );
+		io::read( input, reinterpret_cast<char*>(&nextHopAddressLocal.ipv6), sizeof(nextHopAddressLocal.ipv6) );
 	} else if( nextHopAddressLength == 16 ) {
 		/* this must be ipv6 */
-		memcpy(&nextHopAddress, ptr, sizeof(IPAddress));
+		io::read( input, reinterpret_cast<char*>(&nextHopAddress.ipv6),      sizeof(nextHopAddress.ipv6) );
 	} else if( nextHopAddressLength == 4 ) {
 		/* this must be ipv4 */
-		memcpy(&nextHopAddress, ptr, nextHopAddressLength);
+		io::read( input, reinterpret_cast<char*>(&nextHopAddress.ipv4),      sizeof(nextHopAddress.ipv4) );
 	}
-	ptr += nextHopAddressLength;
+
+	int left=length - /*afi*/2 - /*safi*/1 - /*nextHopAddressLength*/1 - nextHopAddressLength;
 
 	/* JP: let's not worry about SNPA for now */
 	uint8_t unSNPACnt = 0;
 	uint8_t unSNPALen = 0;
-	unSNPACnt = *ptr++;
-	LOG4CXX_TRACE(Logger,"  unSNPACnt = " << unSNPACnt);
+	unSNPACnt = input.get( );
+	LOG4CXX_TRACE(Logger,"  unSNPACnt = " << (int)unSNPACnt);
+
+	left--;
+
 	for(int ic=0; ic<unSNPACnt; ic++) {
-		unSNPALen = *ptr++;
-		ptr += unSNPALen;
+		unSNPALen = input.get( );
+		io::detail::skip( input, unSNPALen, boost::mpl::false_() );
+
+		left-=1+unSNPALen;
 	}
 
-	while (ptr < (msg + len) && ptr < endMsg ) {
+	while( left>0 ) {
 		uint8_t prefixLength = 0;
-		prefixLength = *ptr++;
-		if( ptr > endMsg ) {
-			LOG4CXX_ERROR(Logger,"message truncated! cannot read mbgp prefix.");
-			break;
-		}
+		prefixLength = input.get( );
+//		if( ptr > endMsg ) {
+//			LOG4CXX_ERROR(Logger,"message truncated! cannot read mbgp prefix.");
+//			break;
+//		}
 		if( prefixLength > sizeof(IPAddress)*8) { 
-			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< prefixLength <<"]. skip this record." );
+			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< (int)prefixLength <<"]. skip this record." );
+
+			LOG4CXX_ERROR(Logger,"Length = " << (int)length << ", left = " << left );
+			throw BGPError( );
 			break;
 		}
-		LOG4CXX_TRACE(Logger,"  prefixLength = %u" << prefixLength);
+		LOG4CXX_TRACE(Logger,"prefixLength = " << (int)prefixLength);
 		
-		NLRIReachable route(prefixLength, ptr);
-		if( route.getNumOctets()+ptr > endMsg ) { 
-			LOG4CXX_ERROR(Logger,"message (mbgp a) truncated! need to read ["<< route.getNumOctets() <<"], "<<
-					"but only have ["<< (int)(endMsg-ptr) <<"] bytes." );
-			break;
-		}
-		ptr += route.getNumOctets();
-		nlri->push_back(route);
-		LOG4CXX_TRACE(Logger, "num_octets = %u" << route.getNumOctets() );
+		NLRIReachablePtr route( new NLRIReachable(prefixLength, input) );
+//		if( route.getNumOctets()+ptr > endMsg ) {
+//			LOG4CXX_ERROR(Logger,"message (mbgp a) truncated! need to read ["<< route.getNumOctets() <<"], "<<
+//					"but only have ["<< (int)(endMsg-ptr) <<"] bytes." );
+//			break;
+//		}
+		left -= 1+route->getNumOctets();
+		nlri.push_back(route);
+		LOG4CXX_TRACE(Logger, "num_octets = " << (int)route->getNumOctets() );
 	}
 }
 
-AttributeTypeMPReachNLRI::~AttributeTypeMPReachNLRI(void) {
-	if (nlri != NULL) {
-		delete nlri;
-		nlri = NULL;
-	}
-	if (snpa != NULL) {
-		delete snpa;
-		snpa = NULL;
-	}
+AttributeTypeMPReachNLRI::~AttributeTypeMPReachNLRI(void)
+{
 }
 
 void AttributeTypeMPReachNLRI::printMe() {
 	cout << "ANNOUNCE:";
-	list<NLRIReachable>::iterator iter;
+	list<NLRIReachablePtr>::iterator iter;
 	
-	for(iter = nlri->begin(); iter != nlri->end(); iter++) {
+	for(iter = nlri.begin(); iter != nlri.end(); iter++) {
 		cout << endl;
-		(*iter).printMe();
+		(*iter)->printMe();
 	}
 }
 
@@ -178,42 +155,17 @@ void AttributeTypeMPReachNLRI::printMeCompact() {
 		PRINT_IPv6_ADDR(nextHopAddress.ipv6);
 	}
 	cout << "^MBGP-ANNOUNCE:";
-	list<NLRIReachable>::iterator iter;
-	for(iter = nlri->begin(); iter != nlri->end(); iter++) {
+	list<NLRIReachablePtr>::iterator iter;
+	for(iter = nlri.begin(); iter != nlri.end(); iter++) {
 		cout << " ";
 		if( afi == AFI_IPv4 ) {
 			/* ipv4 */
-			(*iter).printMeCompact();
+			(*iter)->printMeCompact();
 		} else {
 			/* ipv6 */
-			PRINT_IPv6_ADDR((*iter).getPrefix().ipv6);
+			PRINT_IPv6_ADDR((*iter)->getPrefix().ipv6);
 			cout << "/";
-			printf("%u", (*iter).getLength());
+			printf("%u", (*iter)->getLength());
 		}
 	}
 }
-
-AttributeType* AttributeTypeMPReachNLRI::clone() {
-	LOG4CXX_TRACE(Logger,"AttributeTypeMPReachNLRI::clone()");
-	AttributeTypeMPReachNLRI *atMPR = new AttributeTypeMPReachNLRI();
-	IPAddress nhaddr = getNextHopAddress();
-	IPAddress nhaddrl = getNextHopAddressLocal();
-	
-	atMPR->setAFI(getAFI());
-	atMPR->setSAFI(getSAFI());
-	atMPR->setNextHopAddressLength(getNextHopAddressLength());
-	atMPR->setNextHopAddress(&nhaddr);
-	atMPR->setNextHopAddressLocal(&nhaddrl);
-	atMPR->setCorrupt(getCorrupt());
-
-	list<NLRIReachable>::iterator it;
-	for(it = nlri->begin(); it != nlri->end(); it++) {
-		atMPR->addNLRI(*it);
-	}
-	for(it = snpa->begin(); it != snpa->end(); it++) {
-		atMPR->addSNPA(*it);
-	}
-	return atMPR;
-	LOG4CXX_TRACE(Logger,"END AttributeTypeMPReachNLRI::clone()");
-}
-

@@ -38,11 +38,7 @@
 class BGPUpdate: public BGPCommonHeader
 {
 public:
-	// This constructor will update what msg is pointing at to point
-	//  to the next octet after the BGP update data.
-	BGPUpdate(BGPCommonHeader &header, std::istream &input, bool isAS4, uint16_t mrtLen);
-	// Dummy constructor
-//	BGPUpdate(bool isAS4);
+	BGPUpdate(BGPCommonHeader &header, std::istream &input, bool isAS4);
 	virtual ~BGPUpdate();
 	
 	virtual BGP_MESSAGE_TYPE Type()    { return UPDATE;   }
@@ -52,25 +48,27 @@ public:
 	inline uint16_t getPathAttributesLength() { return pathAttributesLength; }
 	inline uint16_t getNlriLength() { return nlriLength; }
 	
-	std::list<BGPAttribute>* getPathAttributes() { return pathAttributes; }
-	std::list<Route>* getWithdrawnRoutes() { return withdrawnRoutes; }
-	std::list<Route>* getNlriRoutes()      { return announcedRoutes; }
+	const std::list<BGPAttributePtr>& getPathAttributes()  { return pathAttributes; }
+	const std::list<RoutePtr>& 		  getWithdrawnRoutes() { return withdrawnRoutes; }
+	const std::list<RoutePtr>& 		  getNlriRoutes()      { return announcedRoutes; }
 	
 	virtual void printMe();
 	virtual void printMeCompact();
 	
 protected:
 	uint16_t withdrawnRoutesLength;
-	std::list<Route>* withdrawnRoutes;
+	std::list<RoutePtr> withdrawnRoutes;
 	
 	uint16_t pathAttributesLength;
-	std::list<BGPAttribute>* pathAttributes;
+	std::list<BGPAttributePtr> pathAttributes;
 	
 	uint16_t nlriLength; 	// = length - sizeof(withdrawnRoutesLength) - sizeof(pathAttributesLength)
-												//			- withdrawnRoutesLength - pathAttributesLength
-	std::list<Route>* announcedRoutes;
+							//			- withdrawnRoutesLength - pathAttributesLength
+	std::list<RoutePtr> announcedRoutes;
 
 	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<BGPUpdate> BGPUpdatePtr;
 
 #endif /* __BGPUPDATE_H_ */

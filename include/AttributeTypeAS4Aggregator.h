@@ -38,9 +38,7 @@ class AttributeTypeAS4Aggregator :
 	public AttributeType
 {
 public:
-	AttributeTypeAS4Aggregator(void);
-	AttributeTypeAS4Aggregator(uint16_t len, uint8_t* msg);
-	AttributeTypeAS4Aggregator(const AttributeTypeAS4Aggregator&);
+	AttributeTypeAS4Aggregator( AttributeType &header, std::istream &input );
 	virtual ~AttributeTypeAS4Aggregator(void);
 
 	uint32_t getAggregatorLastAS(void) const { return aggregatorLastAS; };
@@ -50,11 +48,15 @@ public:
 	//void setAggregatorBGPSpeakerIPAddress(IPAddress *);
 	virtual void printMe();
 	virtual void printMeCompact();
-	virtual AttributeType* clone();
 	
 protected:
 	uint32_t aggregatorLastAS;
 	IPAddress bgpSpeakerIPAddress;
+
+private:
+	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<AttributeTypeAS4Aggregator> AttributeTypeAS4AggregatorPtr;
 
 #endif	/* _ATTRIBUTETYPEAS4AGGREGATOR_H_ */

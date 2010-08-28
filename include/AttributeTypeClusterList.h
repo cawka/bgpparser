@@ -36,20 +36,17 @@
 class AttributeTypeClusterList : public AttributeType
 {
 public:
-	AttributeTypeClusterList(void);
-	AttributeTypeClusterList(uint16_t len, uint8_t* msg);
-	AttributeTypeClusterList(const AttributeTypeClusterList& attr);
+	AttributeTypeClusterList(AttributeType &header, std::istream &input);
 	
 	virtual ~AttributeTypeClusterList(void);	
 	
-	void setClusterList(uint32_t value) { cluster_list->push_back(value); }
-	std::list<uint32_t> *getClusterList(void) const { return cluster_list; }
+//	void setClusterList(uint32_t value) { cluster_list.push_back(value); }
+	const std::list<uint32_t>& getClusterList(void) const { return cluster_list; }
 	virtual void printMe();
 	virtual void printMeCompact();
-	virtual AttributeType* clone();
 	
 private:
-	std::list<uint32_t> *cluster_list;
+	std::list<uint32_t> cluster_list;
 
 	static log4cxx::LoggerPtr Logger;
 };

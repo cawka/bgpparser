@@ -30,6 +30,7 @@
 #include <bgpparser.h>
 
 #include "BGPOpen.h"
+#include "OptionalParameterCapabilities.h"
 
 #include <boost/iostreams/read.hpp>
 namespace io = boost::iostreams;
@@ -53,6 +54,24 @@ BGPOpen::BGPOpen( BGPCommonHeader &header, std::istream &input )
 	bgpId = ntohl(bgpId);
 
 	io::read( input, reinterpret_cast<char*>(&optParmLen), sizeof(uint8_t) );
+
+	// @TODO  Should read optional parameters
+	//		  and if exists propagate Capabilities to BGP_UPDATE
+	int left=optParmLen;
+	while( left>0 )
+	{
+		OptionalParameterPtr param = OptionalParameter::newOptionalParameter( input );
+		if( param->getType()==OptionalParameter::CAPABILITIES )
+		{
+			OptionalParameterCapabilitiesPtr caps=boost::dynamic_pointer_cast<OptionalParameterCapabilities>( param );
+			if( caps->getType()==OptionalParameterCapabilities::CAPABILITY_AS4 )
+			{
+				isAS4=true;
+			}
+		}
+
+		left-=param->getLength( );
+	}
 }
 
 BGPOpen::~BGPOpen() { 

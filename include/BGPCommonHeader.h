@@ -197,26 +197,25 @@ public:
 	virtual std::string      TypeStr() { return "UNKNOWN"; };
 	
 //	// Getters and Setters
-//	inline void setMarker(const uint8_t aMarker[]) { memcpy(marker, aMarker, sizeof(marker)); }
-//	inline uint8_t* getMarker() { return marker; }
-	
-	inline uint16_t getLength() { return length; }
-	inline uint8_t getType() { return type; }
+	uint8_t* getMarker() { return marker; }
+	uint16_t getLength() { return length; }
+	uint8_t  getType()   { return type; }
 
-//	inline uint8_t *getOctets() { return octets; }
+	boost::shared_ptr<char> getData() { return data; }
 //	uint8_t hasError() { return error; }
 	
 //	BGPMessage_t& getBgpData() { return bgpData; }
 	
 	// Factory method for creating a BGP message instance.
-	static BGPMessagePtr newMessage( std::istream &input, bool isAS4, uint16_t mrtLen);
+	static BGPMessagePtr newMessage( std::istream &input, bool isAS4 );
 
 protected:
 	// There is a 16-byte marker that is all 1s
 	uint8_t marker[16];
 	uint16_t length;
 	uint8_t type;
-//	boost::shared_ptr<uint8_t> octets;
+	boost::shared_ptr<char> data;
+
 //	BGPMessage_t bgpData;
 //	uint8_t error;
 

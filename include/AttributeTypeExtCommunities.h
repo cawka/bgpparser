@@ -49,20 +49,17 @@ class AttributeTypeExtCommunities :
 	public AttributeType
 {
 public:
-	AttributeTypeExtCommunities(void);
-	AttributeTypeExtCommunities(uint16_t len, uint8_t* msg);
-	AttributeTypeExtCommunities(const AttributeTypeExtCommunities&);
-	virtual ~AttributeTypeExtCommunities(void);
+	AttributeTypeExtCommunities(AttributeType &header, std::istream &input);
+	virtual ~AttributeTypeExtCommunities( );
 
-	list<ExtCommunityValue>* getExtCommunityValue(void) const { return extCommunityValues; };
-	void setExtCommunityValue(ExtCommunityValue ExtCommunityVal) { this->extCommunityValues->push_back(ExtCommunityVal); };
+	const list<ExtCommunityValue>& getExtCommunityValue(void) const { return extCommunityValues; };
+//	void setExtCommunityValue(ExtCommunityValue ExtCommunityVal) { this->extCommunityValues->push_back(ExtCommunityVal); };
 
 	void printMe();
 	void printMeCompact();
-	AttributeType* clone();
 
 private:
-	list<ExtCommunityValue>* extCommunityValues;
+	list<ExtCommunityValue> extCommunityValues;
 
 	static log4cxx::LoggerPtr Logger;
 };

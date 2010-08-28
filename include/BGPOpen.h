@@ -41,6 +41,8 @@ public:
 	virtual BGP_MESSAGE_TYPE Type()    { return OPEN; }
 	virtual std::string      TypeStr() { return "OPEN"; };
 
+	bool    isAS4Supported( ) const { return isAS4; }
+
 	virtual void printMe();
 	virtual void printMeCompact();
 
@@ -51,8 +53,12 @@ protected:
 	uint32_t bgpId;
 	uint8_t optParmLen;
 	
+	bool isAS4;
+
 private:
 	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<BGPOpen> BGPOpenPtr;
 
 #endif /* __BGPOpen_H__ */

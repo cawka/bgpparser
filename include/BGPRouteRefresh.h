@@ -55,4 +55,6 @@ private:
 	static log4cxx::LoggerPtr Logger;
 };
 
+typedef boost::shared_ptr<BGPRouteRefresh> BGPRouteRefreshPtr;
+
 #endif /* __BGPROUTEREFRESH_H__ */

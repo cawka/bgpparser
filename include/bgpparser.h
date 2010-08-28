@@ -102,10 +102,19 @@
 					for (int i=1; i < numOctets ; i++) printf(".%01i",	*(((uint8_t*)&x)+i) & BITMASK_8 ); }
 
 // inet_ntoa uses a static buffer which is overwritten with each write.  No need to free memory.
-#define PRINT_IP_ADDR(x)   { std::cout << boost::asio::ip::address_v4( x.s_addr ); }
-#define PRINT_IPv6_ADDR(x) { boost::asio::ip::address_v6::bytes_type ipv6; \
-std::copy( x.__u6_addr.__u6_addr8, x.__u6_addr.__u6_addr8+16, ipv6.begin() ); \
-std::cout << boost::asio::ip::address_v6( ipv6 ); }
+#define PRINT_IP_ADDR(x)   { std::cout << FORMAT_IPv4_ADDRESS( x ); }
+#define PRINT_IPv6_ADDR(x) { std::cout << FORMAT_IPv6_ADDRESS( x ); }
 
+inline std::string FORMAT_IPv4_ADDRESS( in_addr addr )
+{
+	 return boost::asio::ip::address_v4( ntohl(addr.s_addr) ).to_string();
+}
+
+inline std::string FORMAT_IPv6_ADDRESS( in6_addr addr )
+{
+	boost::asio::ip::address_v6::bytes_type ipv6;
+	std::copy( addr.__u6_addr.__u6_addr8, addr.__u6_addr.__u6_addr8+16, ipv6.begin() );
+	return boost::asio::ip::address_v6( ipv6 ).to_string( );
+}
 
 #endif

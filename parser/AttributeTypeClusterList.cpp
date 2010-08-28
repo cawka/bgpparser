@@ -32,57 +32,33 @@
 #include "AttributeTypeClusterList.h"
 using namespace std;
 
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
+
 log4cxx::LoggerPtr AttributeTypeClusterList::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeClusterList" );
 
-AttributeTypeClusterList::AttributeTypeClusterList(void) {
-	/* nothing */
-}
+AttributeTypeClusterList::AttributeTypeClusterList( AttributeType &header, std::istream &input )
+					: AttributeType(header) {
+	LOG4CXX_DEBUG(Logger,"");
 
-AttributeTypeClusterList::AttributeTypeClusterList(uint16_t len, uint8_t* msg)
-					: AttributeType(len, msg) {
-	LOG4CXX_DEBUG(Logger,"AttributeTypeClusterList::AttributeTypeClusterList()");
-	uint32_t cluster_id;
-	cluster_list = new list<uint32_t>();
-	while( len > 0 ) {
-		memcpy(&cluster_id,msg,sizeof(cluster_id));
-		msg += sizeof(cluster_id);
-		len -= sizeof(cluster_id);
-		cluster_list->push_back(cluster_id);
+	uint32_t left=length;
+	while( left > 0 )
+	{
+		uint32_t cluster_id;
+		io::read( input, reinterpret_cast<char*>(&cluster_id), sizeof(cluster_id) );
+		left -= sizeof(cluster_id);
+		cluster_list.push_back(cluster_id);
 	}
-}
-
-AttributeTypeClusterList::AttributeTypeClusterList(const AttributeTypeClusterList& attr) {
-	length = attr.length;
-	if( attr.cluster_list ) {
-		cluster_list = new list<uint32_t>();
-		list<uint32_t>::iterator it;
-		for (it = attr.cluster_list->begin(); it != attr.cluster_list->end(); it++) {
-			cluster_list->push_back(*it);
-		}
-	}
-}
-
-AttributeType* AttributeTypeClusterList::clone() {
-	AttributeTypeClusterList *atCL = new AttributeTypeClusterList();
-	if( cluster_list ) {
-		atCL->cluster_list = new list<uint32_t>();
-		list<uint32_t>::iterator it;
-		for (it = cluster_list->begin(); it != cluster_list->end(); it++) {
-			atCL->cluster_list->push_back(*it);
-		}
-	}
-	return atCL;
 }
 
 AttributeTypeClusterList::~AttributeTypeClusterList(void) {
-	delete cluster_list;
 }
 
 void AttributeTypeClusterList::printMe() { 
 	IPAddress addr;
 	list<uint32_t>::iterator it;
 	cout << "CLUSTER-LIST:";
-	for (it = cluster_list->begin(); it != cluster_list->end(); it++) {
+	for (it = cluster_list.begin(); it != cluster_list.end(); it++) {
 		memcpy(&addr,&(*it),sizeof(uint32_t));
 		cout << " ";
 		PRINT_IP_ADDR(addr.ipv4);
@@ -93,7 +69,7 @@ void AttributeTypeClusterList::printMeCompact() {
 	IPAddress addr;
 	list<uint32_t>::iterator it;
 	cout << "CLUSTER-LIST:";
-	for (it = cluster_list->begin(); it != cluster_list->end(); it++) {
+	for (it = cluster_list.begin(); it != cluster_list.end(); it++) {
 		memcpy(&addr,&(*it),sizeof(uint32_t));
 		cout << " ";
 		PRINT_IP_ADDR(addr.ipv4);

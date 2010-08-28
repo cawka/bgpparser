@@ -21,6 +21,9 @@ AttributeTypeMultiExitDisc.cpp \
 AttributeTypeNextHop.cpp \
 AttributeTypeOrigin.cpp \
 AttributeTypeOriginatorID.cpp \
+OptionalParameter.cpp \
+OptionalParameterCapabilities.cpp \
+BGPStructure.cpp \
 BGPAttribute.cpp \
 BGPCommonHeader.cpp \
 BGPKeepAlive.cpp \
@@ -30,6 +33,7 @@ BGPRouteRefresh.cpp \
 BGPUpdate.cpp \
 MRTBgp4MPEntry.cpp \
 MRTBgp4MPMessage.cpp \
+MRTBgp4MPMessageAS4.cpp \
 MRTBgp4MPSnapshot.cpp \
 MRTBgp4MPStateChange.cpp \
 MRTBgp4MPStateChangeAS4.cpp \
@@ -63,6 +67,8 @@ libbgpparser_la_HEADERS = \
 ../include/AttributeTypeNextHop.h \
 ../include/AttributeTypeOrigin.h \
 ../include/AttributeTypeOriginatorID.h \
+../include/OptionalParameter.h \
+../include/OptionalParameterCapabilities.h \
 ../include/BGPAttribute.h \
 ../include/BGPAttributeDumper.h \
 ../include/BGPCommonHeader.h \
@@ -78,6 +84,7 @@ libbgpparser_la_HEADERS = \
 ../include/Dumper.h \
 ../include/MRTBgp4MPEntry.h \
 ../include/MRTBgp4MPMessage.h \
+../include/MRTBgp4MPMessageAS4.h \
 ../include/MRTBgp4MPMessageDumper.h \
 ../include/MRTBgp4MPSnapshot.h \
 ../include/MRTBgp4MPStateChange.h \

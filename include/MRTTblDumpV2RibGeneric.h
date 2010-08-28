@@ -46,12 +46,10 @@ class MRTTblDumpV2RibGeneric :
 	public MRTTblDumpV2RibHeader
 {
 public:
-	MRTTblDumpV2RibGeneric(uint8_t **);
+	MRTTblDumpV2RibGeneric(MRTCommonHeader &header, std::istream &input);
 	virtual ~MRTTblDumpV2RibGeneric(void);
 
 private:
-	MRTTblDumpV2RibGeneric(void);
-
 	static log4cxx::LoggerPtr Logger;
 };
 
