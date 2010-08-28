@@ -40,8 +40,8 @@ using namespace std;
 
 typedef struct ExtCommunityValue
 {
-	uint16_t	typeHigh;
-	uint16_t	typeLow;
+	uint8_t		typeHigh;
+	uint8_t		typeLow;
 	uint8_t		rchValue[6];
 } ExtCommunityValue;
 

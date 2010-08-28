@@ -125,7 +125,8 @@ MRTMessagePtr MRTCommonHeader::newMessage( istream &input ) {
 	if ((header->getType() != BGP4MP) && /*(header.getType() != BGP4MP_ET) && */
 		(header->getType() != TABLE_DUMP) && (header->getType() != TABLE_DUMP_V2) )
 	{
-		return msg;
+		LOG4CXX_ERROR(Logger,"Nonsupported MRT type ["<<header->getType()<<"]");
+//		return msg;
 	}
 
 	if( header->getType( ) == BGP4MP )

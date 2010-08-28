@@ -51,6 +51,7 @@ log4cxx::LoggerPtr BGPCommonHeader::Logger = log4cxx::Logger::getLogger( "bgppar
 
 BGPCommonHeader::BGPCommonHeader( istream &input )
 {
+	LOG4CXX_TRACE(Logger,"");
 	io::read( input, reinterpret_cast<char*>(&marker), sizeof(marker) );
 
 	io::read( input, reinterpret_cast<char*>(&length), sizeof(length) );
@@ -59,10 +60,12 @@ BGPCommonHeader::BGPCommonHeader( istream &input )
 	type=input.get( );
 
 	uint32_t msg_length=length-/*marker*/16-/*length*/2-/*type*/1;
+	if( msg_length==0 ) return; //there is no need to do anything
 
 	data=boost::shared_ptr<char>( new char[msg_length] );
 
 	int read=io::read( input, data.get(), msg_length );
+	LOG4CXX_TRACE(Logger,msg_length << " bytes was requested, read only " << read << " bytes");
 	if( read==-1 || read!=msg_length ) throw BGPError( );
 }
 

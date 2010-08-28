@@ -34,6 +34,7 @@ using namespace std;
 
 #include <boost/iostreams/read.hpp>
 #include <boost/iostreams/skip.hpp>
+#include <boost/foreach.hpp>
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr AttributeTypeMPUnreachNLRI::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeMPUnreachNLRI" );
@@ -83,28 +84,21 @@ AttributeTypeMPUnreachNLRI::~AttributeTypeMPUnreachNLRI(void) {
 
 void AttributeTypeMPUnreachNLRI::printMe() {
 	cout << "MBGP-WITHDRAWN: ";
-	list<NLRIUnReachablePtr>::iterator iter;
 	
-	for(iter = nlri.begin(); iter != nlri.end(); iter++) {
+	BOOST_FOREACH( NLRIUnReachablePtr entry, nlri )
+	{
 		cout << endl;
-		(*iter)->printMe();
+		entry->printMe( afi );
 	}
 }
 
 void AttributeTypeMPUnreachNLRI::printMeCompact()
 {
 	cout << "MBGP-WITHDRAWN:";
-	list<NLRIUnReachablePtr>::iterator iter;
-	for(iter = nlri.begin(); iter != nlri.end(); iter++) {
+
+	BOOST_FOREACH( NLRIUnReachablePtr entry, nlri )
+	{
 		cout << " ";
-		if( afi == AFI_IPv4 ) {
-			/* ipv4 */
-			(*iter)->printMeCompact();
-		} else {
-			/* ipv6 */
-			PRINT_IPv6_ADDR((*iter)->getPrefix().ipv6);
-			cout << "/";
-			printf("%u", (*iter)->getLength());
-		}
+		entry->printMeCompact( afi );
 	}
 }

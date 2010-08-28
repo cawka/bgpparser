@@ -241,6 +241,12 @@ int main(int argc, char** argv)
 		exit( 2 );
 	}
 
+	if( CONFIG.count("help")>0 )
+	{
+		cout << opts << endl;
+		exit( 0 );
+	}
+
 	// configure Logger
 	if( CONFIG.count("log")>0 )
 		PropertyConfigurator::configureAndWatch( CONFIG["log"].as<string>() );

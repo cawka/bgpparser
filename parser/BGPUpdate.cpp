@@ -87,50 +87,47 @@ BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4 )
 		left-=attrib->totalSize( );
 	}
 
-	if( !isAS4 ) //if AS4 supported, AS4_PATH should be ignored
+	// Post processing
+	// 1. Merge AS_PATH and AS4_PATH
+
+	std::list<BGPAttributePtr>::iterator as_path=
+		find_if( pathAttributes.begin(), pathAttributes.end(), findByType(AttributeType::AS_PATH) );
+
+	std::list<BGPAttributePtr>::iterator as4_path=
+		find_if( pathAttributes.begin(), pathAttributes.end(), findByType(AttributeType::NEW_AS_PATH) );
+
+	if( as_path!=pathAttributes.end() && as4_path!=pathAttributes.end() )
 	{
-		// Post processing
-		// 1. Merge AS_PATH and AS4_PATH
+		AttributeTypeASPathPtr  as=
+				boost::dynamic_pointer_cast<AttributeTypeASPath>( (*as_path)->getAttributeValueMutable() );
+		AttributeTypeAS4PathPtr as4=
+				boost::dynamic_pointer_cast<AttributeTypeAS4Path>( (*as4_path)->getAttributeValue() );
 
-		std::list<BGPAttributePtr>::iterator as_path=
-			find_if( pathAttributes.begin(), pathAttributes.end(), findByType(AttributeType::AS_PATH) );
-		
-		std::list<BGPAttributePtr>::iterator as4_path=
-			find_if( pathAttributes.begin(), pathAttributes.end(), findByType(AttributeType::NEW_AS_PATH) );
-
-		if( as_path!=pathAttributes.end() && as4_path!=pathAttributes.end() )
-		{
-			AttributeTypeASPathPtr  as=
-					boost::dynamic_pointer_cast<AttributeTypeASPath>( (*as_path)->getAttributeValueMutable() );
-			AttributeTypeAS4PathPtr as4=
-					boost::dynamic_pointer_cast<AttributeTypeAS4Path>( (*as4_path)->getAttributeValue() );
-
-			as->genPathSegmentsComplete( *as4 );
-		}
-		else if( as_path!=pathAttributes.end() )
-			boost::dynamic_pointer_cast<AttributeTypeASPath>( (*as_path)->getAttributeValueMutable() )
-				->genPathSegmentsComplete( );
-
-		// 2. Merge AGGREGATOR and AS4_AGGREGATOR
-		std::list<BGPAttributePtr>::iterator agg2=
-				find_if( pathAttributes.begin(), pathAttributes.end(), findByType(AttributeType::AGGREGATOR) );
-
-		std::list<BGPAttributePtr>::iterator agg4=
-				find_if( pathAttributes.begin(), pathAttributes.end(), findByType(AttributeType::NEW_AGGREGATOR) );
-
-		if( agg2!=pathAttributes.end() && agg4!=pathAttributes.end() )
-		{
-			AttributeTypeAggregatorPtr    agg_attr     =
-					boost::dynamic_pointer_cast<AttributeTypeAggregator>( (*agg2)->getAttributeValueMutable() );
-
-			AttributeTypeAS4AggregatorPtr as4_agg_attr =
-					boost::dynamic_pointer_cast<AttributeTypeAS4Aggregator>( (*agg4)->getAttributeValueMutable() );
-
-			uint32_t as = (as4_agg_attr != NULL) ? as4_agg_attr->getAggregatorLastAS() : agg_attr->getAggregatorLastAS();
-			agg_attr->setAggregatorLastASComplete(as);
-		}
-
+		as->genPathSegmentsComplete( *as4 );
 	}
+	else if( as_path!=pathAttributes.end() )
+		boost::dynamic_pointer_cast<AttributeTypeASPath>( (*as_path)->getAttributeValueMutable() )
+			->genPathSegmentsComplete( );
+
+	// 2. Merge AGGREGATOR and AS4_AGGREGATOR
+	std::list<BGPAttributePtr>::iterator agg2=
+			find_if( pathAttributes.begin(), pathAttributes.end(), findByType(AttributeType::AGGREGATOR) );
+
+	std::list<BGPAttributePtr>::iterator agg4=
+			find_if( pathAttributes.begin(), pathAttributes.end(), findByType(AttributeType::NEW_AGGREGATOR) );
+
+	if( agg2!=pathAttributes.end() && agg4!=pathAttributes.end() )
+	{
+		AttributeTypeAggregatorPtr    agg_attr     =
+				boost::dynamic_pointer_cast<AttributeTypeAggregator>( (*agg2)->getAttributeValueMutable() );
+
+		AttributeTypeAS4AggregatorPtr as4_agg_attr =
+				boost::dynamic_pointer_cast<AttributeTypeAS4Aggregator>( (*agg4)->getAttributeValueMutable() );
+
+		uint32_t as = (as4_agg_attr != NULL) ? as4_agg_attr->getAggregatorLastAS() : agg_attr->getAggregatorLastAS();
+		agg_attr->setAggregatorLastASComplete(as);
+	}
+
 
 	// This information is not part of the BGP message.
 	nlriLength = length 

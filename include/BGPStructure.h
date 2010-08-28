@@ -62,10 +62,10 @@ public:
 	inline IPAddress setPrefix(IPAddress in_prefix) { memcpy(&prefix, &in_prefix, sizeof(IPAddress)); return prefix; }
 	inline int getNumOctets() { return numOctets; }
 
-	std::string toString(uint16_t afi=0);
+	std::string toString(uint16_t afi=AFI_IPv4);
 	
-	void printMe();
-	void printMeCompact();
+	void printMe(uint16_t afi=AFI_IPv4);
+	void printMeCompact(uint16_t afi=AFI_IPv4);
 
 private:
 	Route( ) {}

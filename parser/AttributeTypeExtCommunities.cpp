@@ -47,11 +47,11 @@ AttributeTypeExtCommunities::AttributeTypeExtCommunities( AttributeType &header,
 	while( input.peek()!=-1 )
 	{
 		ExtCommunityValue extCommunity;
-		io::read( input, reinterpret_cast<char*>(&extCommunity), sizeof(ExtCommunityValue) );
 
-		extCommunity.typeHigh = ntohs( extCommunity.typeHigh );
-		extCommunity.typeLow = 	ntohs( extCommunity.typeLow );
+		extCommunity.typeHigh = input.get( );
+		extCommunity.typeLow = 	input.get( );
 
+		io::read( input, reinterpret_cast<char*>(extCommunity.rchValue), sizeof(extCommunity.rchValue) );
 		extCommunityValues.push_back( extCommunity );
 	}
 }
@@ -65,7 +65,7 @@ void AttributeTypeExtCommunities::printMe() {
 	list<ExtCommunityValue>::iterator iter;
 
 	for(iter = extCommunityValues.begin(); iter != extCommunityValues.end(); iter++) {
-		cout << " " << (*iter).typeHigh << ":" << (*iter).typeLow << ":"; 
+		cout << " " << (int)(*iter).typeHigh << ":" << (int)(*iter).typeLow << ":";
 		printf("%02x%02x%02x%02x%02x%02x", 
 					(*iter).rchValue[0], (*iter).rchValue[1], (*iter).rchValue[2],
 					(*iter).rchValue[3], (*iter).rchValue[4], (*iter).rchValue[5] );
@@ -77,7 +77,7 @@ void AttributeTypeExtCommunities::printMeCompact() {
 	list<ExtCommunityValue>::iterator iter;
 	bool isFirstLoop = true;
 	for(iter = extCommunityValues.begin(); iter != extCommunityValues.end(); iter++) {
-		cout << (isFirstLoop ? "" : " ") << (*iter).typeHigh << ":" << (*iter).typeLow << ":";
+		cout << (isFirstLoop ? "" : " ") << (int)(*iter).typeHigh << ":" << (int)(*iter).typeLow << ":";
 		printf("%02x%02x%02x%02x%02x%02x", 
 					(*iter).rchValue[0], (*iter).rchValue[1], (*iter).rchValue[2],
 					(*iter).rchValue[3], (*iter).rchValue[4], (*iter).rchValue[5] );

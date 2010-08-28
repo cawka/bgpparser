@@ -35,6 +35,7 @@ using namespace std;
 
 #include <boost/iostreams/read.hpp>
 #include <boost/iostreams/skip.hpp>
+#include <boost/foreach.hpp>
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr AttributeTypeMPReachNLRI::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeMPReachNLRI" );
@@ -139,11 +140,11 @@ AttributeTypeMPReachNLRI::~AttributeTypeMPReachNLRI(void)
 
 void AttributeTypeMPReachNLRI::printMe() {
 	cout << "ANNOUNCE:";
-	list<NLRIReachablePtr>::iterator iter;
 	
-	for(iter = nlri.begin(); iter != nlri.end(); iter++) {
+	BOOST_FOREACH( NLRIReachablePtr entry, nlri )
+	{
 		cout << endl;
-		(*iter)->printMe();
+		entry->printMe(afi);
 	}
 }
 
@@ -155,17 +156,9 @@ void AttributeTypeMPReachNLRI::printMeCompact() {
 		PRINT_IPv6_ADDR(nextHopAddress.ipv6);
 	}
 	cout << "^MBGP-ANNOUNCE:";
-	list<NLRIReachablePtr>::iterator iter;
-	for(iter = nlri.begin(); iter != nlri.end(); iter++) {
+	BOOST_FOREACH( NLRIReachablePtr entry, nlri )
+	{
 		cout << " ";
-		if( afi == AFI_IPv4 ) {
-			/* ipv4 */
-			(*iter)->printMeCompact();
-		} else {
-			/* ipv6 */
-			PRINT_IPv6_ADDR((*iter)->getPrefix().ipv6);
-			cout << "/";
-			printf("%u", (*iter)->getLength());
-		}
+		entry->printMeCompact(afi);
 	}
 }

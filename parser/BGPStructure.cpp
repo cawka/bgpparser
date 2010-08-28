@@ -64,16 +64,14 @@ Route::Route( uint8_t aLength, istream &input )
 	}
 }
 
-void Route::printMe( )
+void Route::printMe( uint16_t afi )
 {
-	PRINT_IP_ADDR(prefix.ipv4);
-	cout << "/";
-	printf("%i", length);
+	cout << toString( afi );
 }
 
-void Route::printMeCompact( )
+void Route::printMeCompact( uint16_t afi )
 {
-	printMe( );
+	printMe( afi );
 }
 
 string Route::toString( uint16_t afi )
@@ -84,7 +82,7 @@ string Route::toString( uint16_t afi )
 	else if (afi == AFI_IPv6) { os << FORMAT_IPv6_ADDRESS(prefix.ipv6);   }
 	else                      { os << FORMAT_IPv4_ADDRESS(prefix.ipv4);   }
 
-	os << "/" << length;
+	os << "/" << (int)length;
 
 	return os.str( );
 }

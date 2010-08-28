@@ -109,29 +109,25 @@ uint16_t MRTTblDumpV2RibHeader::getSAFI(void) const {
 		left-=attrib->totalSize( );
 	}
 
-	if( !isAS4 )
+	// Post processing
+	std::list<BGPAttributePtr>::iterator as_path=
+		find_if( attributes.begin(), attributes.end(), findByType(AttributeType::AS_PATH) );
+
+	std::list<BGPAttributePtr>::iterator as4_path=
+		find_if( attributes.begin(), attributes.end(), findByType(AttributeType::NEW_AS_PATH) );
+
+	if( as_path!=attributes.end() && as4_path!=attributes.end() )
 	{
-		// Post processing
+		AttributeTypeASPathPtr  as=
+				boost::dynamic_pointer_cast<AttributeTypeASPath>( (*as_path)->getAttributeValueMutable() );
+		AttributeTypeAS4PathPtr as4=
+				boost::dynamic_pointer_cast<AttributeTypeAS4Path>( (*as4_path)->getAttributeValue() );
 
-		std::list<BGPAttributePtr>::iterator as_path=
-			find_if( attributes.begin(), attributes.end(), findByType(AttributeType::AS_PATH) );
-
-		std::list<BGPAttributePtr>::iterator as4_path=
-			find_if( attributes.begin(), attributes.end(), findByType(AttributeType::NEW_AS_PATH) );
-
-		if( as_path!=attributes.end() && as4_path!=attributes.end() )
-		{
-			AttributeTypeASPathPtr  as=
-					boost::dynamic_pointer_cast<AttributeTypeASPath>( (*as_path)->getAttributeValueMutable() );
-			AttributeTypeAS4PathPtr as4=
-					boost::dynamic_pointer_cast<AttributeTypeAS4Path>( (*as4_path)->getAttributeValue() );
-
-			as->genPathSegmentsComplete( *as4 );
-		}
-		else if( as_path!=attributes.end() )
-			boost::dynamic_pointer_cast<AttributeTypeASPath>( (*as_path)->getAttributeValueMutable() )
-				->genPathSegmentsComplete( );
+		as->genPathSegmentsComplete( *as4 );
 	}
+	else if( as_path!=attributes.end() )
+		boost::dynamic_pointer_cast<AttributeTypeASPath>( (*as_path)->getAttributeValueMutable() )
+			->genPathSegmentsComplete( );
 
 	LOG4CXX_TRACE(Logger,"END MRTTblDumpV2RibHeader::processAttributes(...)");
 }
