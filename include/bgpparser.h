@@ -113,7 +113,7 @@ inline std::string FORMAT_IPv4_ADDRESS( in_addr addr )
 inline std::string FORMAT_IPv6_ADDRESS( in6_addr addr )
 {
 	boost::asio::ip::address_v6::bytes_type ipv6;
-	std::copy( addr.__u6_addr.__u6_addr8, addr.__u6_addr.__u6_addr8+16, ipv6.begin() );
+	std::copy( addr.s6_addr, addr.s6_addr+16, ipv6.begin() );
 	return boost::asio::ip::address_v6( ipv6 ).to_string( );
 }
 
