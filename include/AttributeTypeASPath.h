@@ -68,7 +68,7 @@ public:
 	virtual void printMe();
 	virtual void printMeCompact();
 
-private:
+protected:
 	uint8_t pathSegmentType;
 	uint8_t pathSegmentLength; // Number of path segments (not octets!)
 	std::list<uint32_t> pathSegmentValue;

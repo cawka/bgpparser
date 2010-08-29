@@ -52,16 +52,17 @@ public:
 	virtual xmlNodePtr genXml() { return NULL; };
 
 	/* ASCII output */
-	static int printAsciiNode(string node, int format, int newline);
-	virtual void printAscii(bool format, bool newline) 
+	static int printAsciiNode( std::string node, int format, int newline );
+	virtual void printAscii( bool format, bool newline )
 	{ 
-	        string node = genAscii();	
+		std::string node = genAscii();
 		printAsciiNode(node, format, newline);
 	};
 	virtual std::string genAscii() { return ""; };
 
 protected:
-
 };
+
+typedef boost::shared_ptr<Dumper> DumperPtr;
 
 #endif /* __DUMPER_H_ */

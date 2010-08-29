@@ -56,6 +56,9 @@ public:
 	virtual void printMeCompact();
 	
 protected:
+	BGPUpdate( );
+
+protected:
 	uint16_t withdrawnRoutesLength;
 	std::list<RoutePtr> withdrawnRoutes;
 	

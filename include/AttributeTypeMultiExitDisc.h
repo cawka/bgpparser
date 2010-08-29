@@ -32,16 +32,12 @@
 #define _ATTRIBUTETYPEMULTIEXITDISC_H_
 
 #include "AttributeType.h"
-using namespace std;
-
-#include <boost/iostreams/read.hpp>
-namespace io = boost::iostreams;
 
 class AttributeTypeMultiExitDisc :
 	public AttributeType
 {
 public:
-	AttributeTypeMultiExitDisc( AttributeType &header, istream &input );
+	AttributeTypeMultiExitDisc( AttributeType &header, std::istream &input );
 	virtual ~AttributeTypeMultiExitDisc(void);
 
 	uint32_t getMultiExitDiscValue(void) const { return discriminator; };
@@ -55,6 +51,8 @@ protected:
 
 	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<AttributeTypeMultiExitDisc> AttributeTypeMultiExitDiscPtr;
 
 #endif	/* _ATTRIBUTETYPEMULTIEXITDISC_H_ */
 

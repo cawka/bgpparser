@@ -207,11 +207,11 @@ void AttributeTypeASPath::genPathSegmentsComplete( const AttributeTypeAS4Path &a
 	}
 
 
-	const list<AttributeTypeASPathSegmentPtr>  &as_path_segs  = getPathSegments( );
-	const list<AttributeTypeAS4PathSegmentPtr> &as4_path_segs = as4_path.getPathSegments( );
+	const list<AttributeTypeASPathSegmentPtr> &as_path_segs  = getPathSegments( );
+	const list<AttributeTypeASPathSegmentPtr> &as4_path_segs = as4_path.getPathSegments( );
 
 	list<AttributeTypeASPathSegmentPtr>::const_reverse_iterator  it  = as_path_segs.rbegin();
-	list<AttributeTypeAS4PathSegmentPtr>::const_reverse_iterator it4 = as4_path_segs.rbegin();
+	list<AttributeTypeASPathSegmentPtr>::const_reverse_iterator  it4 = as4_path_segs.rbegin();
 
 	while( it != as_path_segs.rend() && it4 != as4_path_segs.rend() )
 	{

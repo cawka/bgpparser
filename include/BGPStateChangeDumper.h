@@ -33,8 +33,6 @@
 #include "Dumper.h"
 #include "MRTBgp4MPStateChange.h"
 
-using namespace std;
-
 #define _XFB_VERSION "0.2" 
 
 /* Common Dumper */
@@ -44,10 +42,8 @@ public:
 	BGPStateChangeDumper();
 	virtual ~BGPStateChangeDumper();
 	
-	// Factory method for creating a BGP dumper
-	//static class BGPStateChangeDumper* newDumper(BGPMessage**);
-	xmlNodePtr genXml();
-	string     genAscii();
+	xmlNodePtr  genXml();
+	std::string genAscii();
 
     void setPeering(IPAddress peer_addr, IPAddress local_addr, uint32_t peer_as, uint32_t local_as, uint16_t if_idx, uint16_t afi) 
     {
@@ -94,6 +90,8 @@ protected:
 private:
 	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<BGPStateChangeDumper> BGPStateChangeDumperPtr;
 
 #endif /* __BGPSTATECHANGEDUMPER_H_ */
 

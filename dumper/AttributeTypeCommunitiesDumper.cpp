@@ -26,16 +26,21 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <bgpparser.h>
+using namespace std;
+using namespace boost;
+
 #include <string>
 #include <libxml/tree.h>
 #include "AttributeTypeDumper.h"
 #include "AttributeTypeCommunities.h"
+#include <boost/foreach.hpp>
 
 extern "C" {
     #include "xmlinternal.h"
 }
 
-AttributeTypeCommunitiesDumper::AttributeTypeCommunitiesDumper(AttributeType* attr)
+AttributeTypeCommunitiesDumper::AttributeTypeCommunitiesDumper( const AttributeTypePtr &attr )
 : AttributeTypeDumper(attr)
 {}
 
@@ -44,45 +49,40 @@ AttributeTypeCommunitiesDumper::~AttributeTypeCommunitiesDumper()
 
 xmlNodePtr AttributeTypeCommunitiesDumper::genXml()
 {
-    AttributeTypeCommunities *attr = (AttributeTypeCommunities *)attr_type;
+    AttributeTypeCommunitiesPtr attr = dynamic_pointer_cast<AttributeTypeCommunities>( attr_type );
     xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "COMMUNITIES");
 
-    char *ctag = "COMMUNITY";
-    char *rtag = "RESERVED_COMMUNITY";
-    char *atag = "AS";
-    char *vtag = "VALUE";
+    const char *ctag = "COMMUNITY";
+    const char *rtag = "RESERVED_COMMUNITY";
+    const char *atag = "AS";
+    const char *vtag = "VALUE";
 
-	list<CommunityValue>::iterator iter;
-	list<CommunityValue>* communityValues = attr->getCommunityValue();
-	for(iter = communityValues->begin(); iter != communityValues->end(); iter++)
+	BOOST_FOREACH( const CommunityValue &value, attr->getCommunityValue() )
     {
-        int as  = (*iter).ASnum;
-        int val = (*iter).info;
-
-        if ( as == 0xFFFF && val ==  0xFF01 )
+        if ( value.ASnum == 0xFFFF && value.info ==  0xFF01 )
         {
             xmlAddChild(node, xmlNewNode(NULL, BAD_CAST "NO_EXPORT"));
         }
-        else if ( as == 0xFFFF && val == 0xFF02 )
+        else if ( value.ASnum == 0xFFFF && value.info == 0xFF02 )
         {
             xmlAddChild(node, xmlNewNode(NULL, BAD_CAST "NO_ADVERTISE"));
         }
-        else if ( as == 0xFFFF && val == 0xFF03 )
+        else if ( value.ASnum == 0xFFFF && value.info == 0xFF03 )
         {
             xmlAddChild(node, xmlNewNode(NULL, BAD_CAST "NO_EXPORT_SUBCONFED"));
         }
-        else if ( as == 0x0000 || as == 0xFFFF )
+        else if ( value.ASnum == 0x0000 || value.ASnum == 0xFFFF )
         {
             xmlNodePtr child_node = xmlNewNode(NULL, BAD_CAST rtag);
-            xmlNewChildInt(child_node, atag, as);
-            xmlNewChildInt(child_node, vtag, val);
+            xmlNewChildInt(child_node, atag, value.ASnum);
+            xmlNewChildInt(child_node, vtag, value.info);
             xmlAddChild(node, child_node);
         }
         else
         {
             xmlNodePtr child_node = xmlNewNode(NULL, BAD_CAST ctag);
-            xmlNewChildInt(child_node, atag, as);
-            xmlNewChildInt(child_node, vtag, val);
+            xmlNewChildInt(child_node, atag, value.ASnum);
+            xmlNewChildInt(child_node, vtag, value.info);
             xmlAddChild(node, child_node);
         }
     }
@@ -91,31 +91,23 @@ xmlNodePtr AttributeTypeCommunitiesDumper::genXml()
 
 string AttributeTypeCommunitiesDumper::genAscii()
 {
-    AttributeTypeCommunities *attr = (AttributeTypeCommunities *)attr_type;
-    string node = "";
+    AttributeTypeCommunitiesPtr attr = dynamic_pointer_cast<AttributeTypeCommunities>( attr_type );
+    ostringstream node;
     string sep  = "";
 
-	list<CommunityValue>::iterator iter;
-	list<CommunityValue>* communityValues = attr->getCommunityValue();
-	for(iter = communityValues->begin(); iter != communityValues->end(); iter++)
+    BOOST_FOREACH( const CommunityValue &value, attr->getCommunityValue() )
     {
-        int as  = (*iter).ASnum;
-        int val = (*iter).info;
-
-        if ( as == 0xFFFF && val ==  0xFF01 )
+        if ( value.ASnum == 0xFFFF && value.info == 0xFF01 )
         {
-            node += sep + "no-export";
+            node << sep << "no-export";
         }
         else
         {
-            char buffer[32];
-            buffer[0] = '\0';
-            sprintf(buffer, "%d:%d", as, val); 
-            node += sep + buffer;
+        	node << sep << (int)value.ASnum << ":" << (int)value.info;
         }
         sep = " ";
     }
-    return node;
+    return node.str();
 }
 
 // vim: sw=4 ts=4 sts=4 expandtab

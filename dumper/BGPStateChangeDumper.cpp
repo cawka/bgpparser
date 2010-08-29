@@ -26,6 +26,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <bgpparser.h>
+using namespace std;
+
 #include <libxml/tree.h>
 #include "BGPStateChangeDumper.h"
 #include "MRTBgp4MPStateChange.h"

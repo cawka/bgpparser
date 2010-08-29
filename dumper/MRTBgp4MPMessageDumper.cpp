@@ -26,6 +26,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <bgpparser.h>
+using namespace std;
+
 #include <libxml/tree.h>
 #include "MRTBgp4MPMessage.h"
 #include "MRTBgp4MPMessageDumper.h"
@@ -37,21 +40,22 @@ MRTBgp4MPMessageDumper::MRTBgp4MPMessageDumper()
 MRTBgp4MPMessageDumper::~MRTBgp4MPMessageDumper()
 {}
 
-MRTBgp4MPMessageDumper* MRTBgp4MPMessageDumper::newDumper(MRTBgp4MPMessage* bgp4mp_msg)
+MRTBgp4MPMessageDumperPtr MRTBgp4MPMessageDumper::newDumper( const MRTBgp4MPMessagePtr &bgp4mp_msg )
 {
-    MRTBgp4MPMessageDumper *dumper = new MRTBgp4MPMessageDumper();
-    dumper->setMRTBgp4MPMessagese(bgp4mp_msg); 
+    MRTBgp4MPMessageDumperPtr dumper = MRTBgp4MPMessageDumperPtr( new MRTBgp4MPMessageDumper() );
+    dumper->bgp4mp_msg=bgp4mp_msg;
+
     return dumper;
 }
 
-xmlNodePtr MRTBgp4MPMessageDumper::genXml()
+xmlNodePtr MRTBgp4MPMessageDumper::genXml( )
 {
     xmlNodePtr node = NULL;
 
-    BGPMessageDumper *bgpmsg_dumper = new BGPMessageDumper();
+    BGPMessageDumperPtr bgpmsg_dumper( new BGPMessageDumper(bgp4mp_msg->getPayload()) );
     /* Collect infomation */
-    bgpmsg_dumper->setTimestamp(bgp4mp_msg->getTimestamp());
-    bgpmsg_dumper->setBGPMessage((BGPMessage*)bgp4mp_msg->getPayload());
+    bgpmsg_dumper->setTimestamp( bgp4mp_msg->getTimestamp() );
+
     bgpmsg_dumper->setPeering(
                                 bgp4mp_msg->getPeerIP(),
                                 bgp4mp_msg->getLocalIP(),
@@ -61,7 +65,6 @@ xmlNodePtr MRTBgp4MPMessageDumper::genXml()
                                 bgp4mp_msg->getAddressFamily()
                              );
     node = bgpmsg_dumper->genXml();
-    delete bgpmsg_dumper;
 
     return node;
 }
@@ -70,10 +73,9 @@ string MRTBgp4MPMessageDumper::genAscii()
 {
     string node = "";
 
-    BGPMessageDumper *bgpmsg_dumper = new BGPMessageDumper();
+    BGPMessageDumperPtr bgpmsg_dumper( new BGPMessageDumper(bgp4mp_msg->getPayload( )) );
     /* Collect infomation */
     bgpmsg_dumper->setTimestamp(bgp4mp_msg->getTimestamp());
-    bgpmsg_dumper->setBGPMessage((BGPMessage*)bgp4mp_msg->getPayload());
     bgpmsg_dumper->setPeering(
                                 bgp4mp_msg->getPeerIP(),
                                 bgp4mp_msg->getLocalIP(),
@@ -83,7 +85,6 @@ string MRTBgp4MPMessageDumper::genAscii()
                                 bgp4mp_msg->getAddressFamily()
                              );
     node = bgpmsg_dumper->genAscii();
-    delete bgpmsg_dumper;
 
     return node;
 }

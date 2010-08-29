@@ -42,12 +42,18 @@
 #include <boost/iostreams/skip.hpp>
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>
-
 namespace io = boost::iostreams;
 
 using namespace std;
 
 log4cxx::LoggerPtr BGPCommonHeader::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPCommonHeader" );
+
+/*protected*/BGPCommonHeader::BGPCommonHeader( uint8_t _type )
+{
+	memset( reinterpret_cast<char*>(&marker), 255, sizeof(marker) );
+	length=19; //only headers
+	type=_type;
+}
 
 BGPCommonHeader::BGPCommonHeader( istream &input )
 {

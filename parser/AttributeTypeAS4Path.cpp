@@ -41,42 +41,6 @@ namespace io = boost::iostreams;
 log4cxx::LoggerPtr AttributeTypeAS4Path::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeAS4Path" );
 log4cxx::LoggerPtr AttributeTypeAS4PathSegment::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeAS4PathSegment" );
 
-AttributeTypeAS4PathSegment::AttributeTypeAS4PathSegment( istream &input )
-{
-	pathSegmentType   = input.get() & BITMASK_8;
-	pathSegmentLength = input.get() & BITMASK_8;
-
-	for( int i = 0; i < pathSegmentLength; i++ )
-	{
-		uint32_t segVal;
-		int len=io::read( input, reinterpret_cast<char*>(&segVal), sizeof(uint32_t) );
-		if( len!=sizeof(uint32_t) ) throw BGPError( );
-		segVal = ntohl(segVal);
-		pathSegmentValue.push_back( segVal );
-	}
-}
-
-AttributeTypeAS4PathSegment::~AttributeTypeAS4PathSegment(void)
-{
-}
-
-
-void AttributeTypeAS4PathSegment::printMe() { 
-	switch (pathSegmentType) {
-		case AS_SEQUENCE: break;
-		case AS_SET: cout << "{";
-	}
-		
-	for (list<uint32_t>::iterator it = pathSegmentValue.begin(); it != pathSegmentValue.end(); it++) {
-		cout << " " << *it;
-	}
-	
-	switch (pathSegmentType) {
-		case AS_SEQUENCE: break;
-		case AS_SET: cout << "}";
-	}
-}
-
 void AttributeTypeAS4PathSegment::printMeCompact()
 {
 	uint16_t top, bottom;
@@ -156,7 +120,7 @@ AttributeTypeAS4Path::~AttributeTypeAS4Path(void)
 void AttributeTypeAS4Path::printMe() 
 { 
 	cout << "AS4_PATH:";
-	list<AttributeTypeAS4PathSegmentPtr>::iterator it;
+	list<AttributeTypeASPathSegmentPtr>::iterator it;
 
 	for (it = pathSegments.begin(); it != pathSegments.end(); it++)
 	{
@@ -167,7 +131,7 @@ void AttributeTypeAS4Path::printMe()
 
 void AttributeTypeAS4Path::printMeCompact()
 {
-	list<AttributeTypeAS4PathSegmentPtr>::iterator it;
+	list<AttributeTypeASPathSegmentPtr>::iterator it;
 
 	for (it = pathSegments.begin(); it != pathSegments.end(); it++)
 	{
@@ -179,10 +143,10 @@ void AttributeTypeAS4Path::printMeCompact()
 uint32_t AttributeTypeAS4Path::getCountOfASNs( ) const
 {
 	uint32_t count=0;
-	BOOST_FOREACH( const AttributeTypeAS4PathSegmentPtr &segment, pathSegments )
+	BOOST_FOREACH( const AttributeTypeASPathSegmentPtr &segment, pathSegments )
 	{
-		if( segment->getPathSegmentType()==AttributeTypeAS4PathSegment::AS_SET ||
-			segment->getPathSegmentType()==AttributeTypeAS4PathSegment::AS_CONFED_SET )
+		if( segment->getPathSegmentType()==AttributeTypeASPathSegment::AS_SET ||
+			segment->getPathSegmentType()==AttributeTypeASPathSegment::AS_CONFED_SET )
 		{
 			count++;
 		}

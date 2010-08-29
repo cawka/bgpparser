@@ -47,6 +47,8 @@ public:
 	uint16_t getSubType(void) const;
 	uint32_t getLength(void) const;
 
+	const boost::shared_ptr<char> &getData( ) const { return data; }
+
 	/* static interface... uint8_t pointer will be updated to new location in file after call */
 	static MRTMessagePtr newMessage( std::istream &input );
 

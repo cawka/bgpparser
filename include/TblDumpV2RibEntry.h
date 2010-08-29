@@ -29,19 +29,10 @@
 #ifndef _TBLDUMPV2RIBENTRY_H_
 #define _TBLDUMPV2RIBENTRY_H_
 
-#ifdef WIN32
-#define _USE_32BIT_TIME_T
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#else
-#include <netinet/in.h>
-#endif	/* WIN32 */
-
 #include "MRTTblDumpV2PeerIndexTbl.h"
 #include "BGPAttribute.h"
 
 #include <list>
-using namespace std;
 
 class TblDumpV2RibEntry
 {

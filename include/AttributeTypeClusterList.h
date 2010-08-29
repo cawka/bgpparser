@@ -51,5 +51,7 @@ private:
 	static log4cxx::LoggerPtr Logger;
 };
 
+typedef boost::shared_ptr<AttributeTypeClusterList> AttributeTypeClusterListPtr;
+
 #endif	/* _ATTRIBUTETYPECLUSTERLIST_H_ */
 

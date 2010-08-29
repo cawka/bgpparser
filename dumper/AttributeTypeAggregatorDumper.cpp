@@ -26,6 +26,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <bgpparser.h>
+using namespace std;
+using namespace boost;
+
 #include <string>
 #include <libxml/tree.h>
 #include "AttributeTypeDumper.h"
@@ -36,73 +40,45 @@ extern "C" {
     #include "xmlinternal.h"
 }
 
-AttributeTypeAggregatorDumper::AttributeTypeAggregatorDumper(AttributeType* attr)
+AttributeTypeAggregatorDumper::AttributeTypeAggregatorDumper( const AttributeTypePtr &attr )
 : AttributeTypeDumper(attr)
-{}
+{
+}
 
 AttributeTypeAggregatorDumper::~AttributeTypeAggregatorDumper()
 {}
 
 xmlNodePtr AttributeTypeAggregatorDumper::genXml()
 {
-    AttributeTypeAggregator *attr = (AttributeTypeAggregator *)attr_type;
+    AttributeTypeAggregatorPtr attr = dynamic_pointer_cast<AttributeTypeAggregator>( attr_type );
     //xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "AGGREGATOR");
-    xmlNodePtr node = xmlNewNode(NULL, BAD_CAST (char *)type_str.c_str()); /* AGGREGATOR or AS4_AGGREGATOR */
+    xmlNodePtr node = xmlNewNode(NULL, BAD_CAST type_str.c_str()); /* AGGREGATOR or AS4_AGGREGATOR */
 
-	IPAddress addr = attr->getAggregatorBGPSpeakerIPAddress();
-    static char str[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET, &(addr.ipv4), str, INET_ADDRSTRLEN);
+    uint32_t as =
+			(type_code==AttributeType::AGGREGATOR) ?
+					dynamic_pointer_cast<AttributeTypeAggregator>(attr_type)->getAggregatorLastASComplete()
+			: /*type_code==AttributeType::NEW_AGGREGATOR*/
+					dynamic_pointer_cast<AttributeTypeAS4Aggregator>(attr_type)->getAggregatorLastAS();
 
-    uint32_t as = 0;
-	switch(type_code)
-	{
-        case AttributeType::AGGREGATOR:
-		{
-            as = ((AttributeTypeAggregator *)attr_type)->getAggregatorLastASComplete();
-			break;
-		}
-        case AttributeType::NEW_AGGREGATOR:
-		{
-            as = ((AttributeTypeAS4Aggregator *)attr_type)->getAggregatorLastAS();
-			break;
-		}
-    }
-
-    xmlNewChildInt(node,    "AS",   as);
-    xmlNewChildString(node, "ADDR", str);
+    xmlNewChildInt(   node, "AS",   as);
+    xmlNewChildString(node, "ADDR", FORMAT_IPv4_ADDRESS( attr->getAggregatorBGPSpeakerIPAddress().ipv4 ).c_str());
     return node;
 }
 
 string AttributeTypeAggregatorDumper::genAscii()
 {
-    AttributeTypeAggregator *attr = (AttributeTypeAggregator *)attr_type;
+    AttributeTypeAggregatorPtr attr = dynamic_pointer_cast<AttributeTypeAggregator>( attr_type );
     //xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "AGGREGATOR");
-    string node = "";
+    ostringstream node;
 
-	IPAddress addr = attr->getAggregatorBGPSpeakerIPAddress();
-    static char str[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET, &(addr.ipv4), str, INET_ADDRSTRLEN);
+    uint32_t as =
+			(type_code==AttributeType::AGGREGATOR) ?
+					dynamic_pointer_cast<AttributeTypeAggregator>(attr_type)->getAggregatorLastASComplete()
+			: /*type_code==AttributeType::NEW_AGGREGATOR*/
+					dynamic_pointer_cast<AttributeTypeAS4Aggregator>(attr_type)->getAggregatorLastAS();
 
-    uint32_t as = 0;
-	switch(type_code)
-	{
-        case AttributeType::AGGREGATOR:
-		{
-            as = ((AttributeTypeAggregator *)attr_type)->getAggregatorLastASComplete();
-			break;
-		}
-        case AttributeType::NEW_AGGREGATOR:
-		{
-            as = ((AttributeTypeAS4Aggregator *)attr_type)->getAggregatorLastAS();
-			break;
-		}
-    }
-
-    char buffer[64];
-    buffer[0] = '\0';
-    sprintf(buffer, "%u %s", as, str);
-    node += buffer;
-    return node;
+    node << (int)as << " " << FORMAT_IPv4_ADDRESS( attr->getAggregatorBGPSpeakerIPAddress().ipv4 );
+    return node.str( );
 }
 
 // vim: sw=4 ts=4 sts=4 expandtab

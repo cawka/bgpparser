@@ -44,8 +44,11 @@ public:
 
 	uint32_t getAggregatorLastAS(void)         const { return aggregatorLastAS; };
 	uint32_t getAggregatorLastASComplete(void) const { return aggregatorLastASComplete; };
+
 	void setAggregatorLastAS(uint32_t aggregatorLastAS)         { this->aggregatorLastAS         = aggregatorLastAS; };
 	void setAggregatorLastASComplete(uint32_t aggregatorLastAS) { this->aggregatorLastASComplete = aggregatorLastAS; };
+	void setAggregatorLastASComplete() 							{ this->aggregatorLastASComplete = this->aggregatorLastAS; };
+
 	IPAddress getAggregatorBGPSpeakerIPAddress(void) const { return bgpSpeakerIPAddress; };
 //	void setAggregatorBGPSpeakerIPAddress(IPAddress *bgpSpeakerIPAddress) { memcpy(&(this->bgpSpeakerIPAddress.ipv4), bgpSpeakerIPAddress, sizeof(bgpSpeakerIPAddress->ipv4)); };
 	//void setAggregatorBGPSpeakerIPAddress(IPAddress *);

@@ -26,6 +26,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <bgpparser.h>
+using namespace std;
+
 #include <string>
 #include <libxml/tree.h>
 #include "AttributeTypeDumper.h"
@@ -35,7 +38,7 @@ extern "C" {
     #include "xmlinternal.h"
 }
 
-AttributeTypeAtomicAggregateDumper::AttributeTypeAtomicAggregateDumper(AttributeType* attr)
+AttributeTypeAtomicAggregateDumper::AttributeTypeAtomicAggregateDumper( const AttributeTypePtr &attr )
 : AttributeTypeDumper(attr)
 {
     attr_type = attr;

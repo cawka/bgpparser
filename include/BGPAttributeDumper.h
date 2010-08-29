@@ -33,20 +33,23 @@
 #include "Dumper.h"
 #include "BGPAttribute.h"
 
+class BGPAttributeDumper;
+typedef boost::shared_ptr<BGPAttributeDumper> BGPAttributeDumperPtr;
+
 class BGPAttributeDumper : public Dumper 
 {
 public:
-	BGPAttributeDumper(BGPAttribute*);
+	BGPAttributeDumper( const BGPAttributePtr &bgp_attr );
 	virtual ~BGPAttributeDumper();
 	
 	// Factory method for creating a BGP attribute dumper instance.
-	static class BGPAttributeDumper* newDumper(BGPAttribute*);
+	static BGPAttributeDumperPtr newDumper( const BGPAttributePtr &attr );
 
 	xmlNodePtr genXml();
 	std::string     genAscii();
 
 protected:
-    BGPAttribute* bgp_attr;
+    BGPAttributePtr bgp_attr;
 
 	static log4cxx::LoggerPtr Logger;
 };

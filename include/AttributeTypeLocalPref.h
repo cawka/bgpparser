@@ -51,4 +51,6 @@ protected:
 	static log4cxx::LoggerPtr Logger;
 };
 
+typedef boost::shared_ptr<AttributeTypeLocalPref> AttributeTypeLocalPrefPtr;
+
 #endif	/* _ATTRIBUTETYPELOCALPREF_H_ */

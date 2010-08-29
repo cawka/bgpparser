@@ -26,16 +26,21 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <bgpparser.h>
+using namespace std;
+using namespace boost;
+
 #include <string>
 #include <libxml/tree.h>
 #include "AttributeTypeDumper.h"
 #include "AttributeTypeClusterList.h"
+#include <boost/foreach.hpp>
 
 extern "C" {
     #include "xmlinternal.h"
 }
 
-AttributeTypeClusterListDumper::AttributeTypeClusterListDumper(AttributeType* attr)
+AttributeTypeClusterListDumper::AttributeTypeClusterListDumper( const AttributeTypePtr &attr )
 : AttributeTypeDumper(attr)
 {}
 
@@ -44,20 +49,14 @@ AttributeTypeClusterListDumper::~AttributeTypeClusterListDumper()
 
 xmlNodePtr AttributeTypeClusterListDumper::genXml()
 {
-    AttributeTypeClusterList *attr = (AttributeTypeClusterList *)attr_type;
-    xmlNodePtr node = xmlNewNode(NULL, BAD_CAST (char *)type_str.c_str()); /* CLUSTER_LIST */
+    AttributeTypeClusterListPtr attr = dynamic_pointer_cast<AttributeTypeClusterList>( attr_type );
+    xmlNodePtr node = xmlNewNode(NULL, BAD_CAST type_str.c_str()); /* CLUSTER_LIST */
 
-    static char rid_str[INET6_ADDRSTRLEN];
-    list<uint32_t>* clist = attr->getClusterList();
-	if (clist != NULL)
-	{	
-		list<uint32_t>::iterator it;
-		for (it = clist->begin(); it != clist->end(); it++)
-		{
-            rid_str[0] = '\0';
-            inet_ntop(AF_INET, &(*it), rid_str, INET_ADDRSTRLEN);
-            xmlNewChildString(node, "ID", rid_str);
-        }
+    BOOST_FOREACH( uint32_t cluster, attr->getClusterList() )
+    {
+    	in_addr addr;
+    	addr.s_addr=cluster;
+		xmlNewChildString(node, "ID", FORMAT_IPv4_ADDRESS(addr).c_str() );
     }
     return node;
 }

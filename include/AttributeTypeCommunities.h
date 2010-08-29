@@ -65,4 +65,6 @@ private:
 	static log4cxx::LoggerPtr Logger;
 };
 
+typedef boost::shared_ptr<AttributeTypeCommunities> AttributeTypeCommunitiesPtr;
+
 #endif	/* _ATTRIBUTETYPECOMMUNITIES_H_ */

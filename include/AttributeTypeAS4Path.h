@@ -33,43 +33,19 @@
 #define _ATTRIBUTETYPEAS4PATH_H_
 
 #include "AttributeType.h"
-
+#include "AttributeTypeASPath.h"
 #include <list>
 
-class AttributeTypeAS4PathSegment
+class AttributeTypeAS4PathSegment : public AttributeTypeASPathSegment
 {
 public:
-	AttributeTypeAS4PathSegment( std::istream &input );
-	virtual ~AttributeTypeAS4PathSegment(void);
-	
-	enum PathSegment
-	{
-		AS_SET = 1,
-		AS_SEQUENCE,
-		AS_CONFED_SEQUENCE, 
-		AS_CONFED_SET
-	};
-	
-	uint8_t getPathSegmentType(void) const { return pathSegmentType; };
-	void setPathSegmentType(uint32_t pathSegmentType) { this->pathSegmentType = pathSegmentType; };
-	uint8_t getPathSegmentLength(void) const { return pathSegmentLength; };
-	void setPathSegmentLength(uint32_t pathSegmentLength) { this->pathSegmentLength = pathSegmentLength; };
+	AttributeTypeAS4PathSegment( std::istream &input ) : AttributeTypeASPathSegment(input,true) { }
+	virtual void printMeCompact( );
 
-	const std::list<uint32_t>& getPathSegmentValue(void) const { return pathSegmentValue; };
-//	void setPathSegmentValue(uint32_t value) { pathSegmentValue->push_back(value); };
-	
-	virtual void printMe();
-	virtual void printMeCompact();
-//	virtual AttributeType* clone();
-	
 private:
-	uint8_t pathSegmentType;
-	uint8_t pathSegmentLength; // Number of path segments (not octets!)
-
-	std::list<uint32_t> pathSegmentValue;
-
 	static log4cxx::LoggerPtr Logger;
 };
+
 typedef boost::shared_ptr<AttributeTypeAS4PathSegment> AttributeTypeAS4PathSegmentPtr;
 
 
@@ -88,7 +64,7 @@ public:
 //	std::list<uint32_t>& getPathSegmentValue(void) const;
 //	void setAS4PathSegment(AttributeTypeAS4PathSegment as4ps) { pathSegments->push_back(as4ps); };
 
-	const std::list<AttributeTypeAS4PathSegmentPtr>& getPathSegments(void) const { return pathSegments; }
+	const std::list<AttributeTypeASPathSegmentPtr>& getPathSegments(void) const { return pathSegments; }
 	
 	virtual void printMe();
 	virtual void printMeCompact();
@@ -97,7 +73,7 @@ public:
 	uint32_t getCountOfASNs( ) const;
 	
 private:
-	std::list<AttributeTypeAS4PathSegmentPtr> pathSegments;
+	std::list<AttributeTypeASPathSegmentPtr> pathSegments;
 
 	static log4cxx::LoggerPtr Logger;
 };

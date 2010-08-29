@@ -26,16 +26,21 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <bgpparser.h>
+using namespace std;
+using namespace boost;
+
+#include "AttributeTypeNextHop.h"
+#include "AttributeTypeDumper.h"
+
 #include <string>
 #include <libxml/tree.h>
-#include "AttributeTypeDumper.h"
-#include "AttributeTypeNextHop.h"
 
 extern "C" {
     #include "xmlinternal.h"
 }
 
-AttributeTypeNextHopDumper::AttributeTypeNextHopDumper(AttributeType* attr)
+AttributeTypeNextHopDumper::AttributeTypeNextHopDumper( const AttributeTypePtr &attr )
 : AttributeTypeDumper(attr)
 {}
 
@@ -44,47 +49,42 @@ AttributeTypeNextHopDumper::~AttributeTypeNextHopDumper()
 
 xmlNodePtr AttributeTypeNextHopDumper::genXml()
 {
+    AttributeTypeNextHopPtr attr = dynamic_pointer_cast<AttributeTypeNextHop>( attr_type );
+
+    /* Next hop */
     string nh_str = "";
-    static char str[INET6_ADDRSTRLEN];
-
-    AttributeTypeNextHop *attr = (AttributeTypeNextHop *)attr_type;
-
-	IPAddress addr = attr->getNextHopIPAddress();
 	switch(attr->getNextHopAFI())
 	{
-		case AFI_IPv4: 
-			inet_ntop(AF_INET, &(addr.ipv4), str, INET_ADDRSTRLEN);
+		case AFI_IPv4:
+			nh_str=FORMAT_IPv4_ADDRESS( attr->getNextHopIPAddress().ipv4 );
 			break;
-		case AFI_IPv6: 
-			inet_ntop(AF_INET6, &(addr.ipv6), str, INET6_ADDRSTRLEN);
+		case AFI_IPv6:
+			nh_str=FORMAT_IPv6_ADDRESS( attr->getNextHopIPAddress().ipv6 );
 			break;
 	}
+	xmlNodePtr node = xmlNewNodeString( "NEXT_HOP", nh_str.c_str() );
 
-    nh_str += str;
-    xmlNodePtr node = xmlNewNodeString("NEXT_HOP", (char *)nh_str.c_str());
     return node;
 }
 
 string AttributeTypeNextHopDumper::genAscii()
 {
+    AttributeTypeNextHopPtr attr = dynamic_pointer_cast<AttributeTypeNextHop>( attr_type );
+
+    /* Next hop */
     string nh_str = "";
-    static char str[INET6_ADDRSTRLEN];
-
-    AttributeTypeNextHop *attr = (AttributeTypeNextHop *)attr_type;
-
-	IPAddress addr = attr->getNextHopIPAddress();
 	switch(attr->getNextHopAFI())
 	{
-		case AFI_IPv4: 
-			inet_ntop(AF_INET, &(addr.ipv4), str, INET_ADDRSTRLEN);
+		case AFI_IPv4:
+			nh_str=FORMAT_IPv4_ADDRESS( attr->getNextHopIPAddress().ipv4 );
 			break;
-		case AFI_IPv6: 
-			inet_ntop(AF_INET6, &(addr.ipv6), str, INET6_ADDRSTRLEN);
+		case AFI_IPv6:
+			nh_str=FORMAT_IPv6_ADDRESS( attr->getNextHopIPAddress().ipv6 );
 			break;
 	}
 
-    nh_str += str;
-    return nh_str;
+	return nh_str;
 }
+
 
 // vim: sw=4 ts=4 sts=4 expandtab

@@ -26,16 +26,21 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <bgpparser.h>
+using namespace std;
+using namespace boost;
+
+#include "AttributeTypeOrigin.h"
+#include "AttributeTypeDumper.h"
+
 #include <string>
 #include <libxml/tree.h>
-#include "AttributeTypeDumper.h"
-#include "AttributeTypeOrigin.h"
 
 extern "C" {
     #include "xmlinternal.h"
 }
 
-AttributeTypeOriginDumper::AttributeTypeOriginDumper(AttributeType* attr)
+AttributeTypeOriginDumper::AttributeTypeOriginDumper( const AttributeTypePtr &attr )
 : AttributeTypeDumper(attr)
 {
     attr_type = attr;
@@ -46,7 +51,7 @@ AttributeTypeOriginDumper::~AttributeTypeOriginDumper()
 
 xmlNodePtr AttributeTypeOriginDumper::genXml()
 {
-    AttributeTypeOrigin *attr_origin = (AttributeTypeOrigin *)attr_type;
+    AttributeTypeOriginPtr attr_origin = dynamic_pointer_cast<AttributeTypeOrigin>( attr_type );
 
     string origin_str = "";
 	switch(attr_origin->getOrigin())
@@ -56,15 +61,15 @@ xmlNodePtr AttributeTypeOriginDumper::genXml()
 		default:  origin_str = "INCOMPLETE"; break;
 	}
 
-    xmlNodePtr node = xmlNewNodeString((char *)"ORIGIN", (char *)origin_str.c_str());
-    xmlNewPropInt(node, (char *)"value", attr_origin->getOrigin());
+    xmlNodePtr node = xmlNewNodeString("ORIGIN", origin_str.c_str());
+    xmlNewPropInt(node, "value", attr_origin->getOrigin());
 
     return node;
 }
 
 string AttributeTypeOriginDumper::genAscii()
 {
-    AttributeTypeOrigin *attr_origin = (AttributeTypeOrigin *)attr_type;
+	AttributeTypeOriginPtr attr_origin = dynamic_pointer_cast<AttributeTypeOrigin>( attr_type );
 
     string node = "";
     string origin_str = "";
@@ -78,6 +83,5 @@ string AttributeTypeOriginDumper::genAscii()
 
     return node;
 }
-
 
 // vim: sw=4 ts=4 sts=4 expandtab

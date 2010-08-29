@@ -30,14 +30,9 @@
 #ifndef __MRTTBLDUMPV2DUMPER_H_
 #define __MRTTBLDUMPV2DUMPER_H_
 
-#include <list>
 #include "Dumper.h"
-#include "BGPCommonHeader.h"
-#include "BGPAttribute.h"
 #include "MRTTblDumpV2PeerIndexTbl.h"
 #include "MRTTblDumpV2RibHeader.h"
-
-using namespace std;
 
 #define _XFB_VERSION "0.2" 
 
@@ -48,27 +43,25 @@ public:
 	MRTTblDumpV2Dumper();
 	virtual ~MRTTblDumpV2Dumper();
 	
-	// Factory method for creating a BGP dumper
-	//static class MRTTblDumpV2Dumper* newDumper(BGPMessage*);
-	xmlNodePtr genXml();
-	string     genAscii();
+	xmlNodePtr  genXml();
+	std::string genAscii();
 
-    void setPeerIndexTbl(MRTTblDumpV2PeerIndexTbl* peerIndexTbl)
+    void setPeerIndexTbl(MRTTblDumpV2PeerIndexTblPtr peerIndexTbl)
     {
         this->peerIndexTbl = peerIndexTbl;
     }
 
-    void setTblDumpMsg(MRTTblDumpV2RibHeader* tblDumpMsg)
+    void setTblDumpMsg(MRTTblDumpV2RibHeaderPtr tblDumpMsg)
     {
         this->tblDumpMsg = tblDumpMsg;
     }
 
 protected:
     /* PEER INDEX TABLE */
-    MRTTblDumpV2PeerIndexTbl* peerIndexTbl;
+    MRTTblDumpV2PeerIndexTblPtr peerIndexTbl;
 
     /* RIB TABLE */
-	MRTTblDumpV2RibHeader*    tblDumpMsg;
+	MRTTblDumpV2RibHeaderPtr    tblDumpMsg;
 };
 
 #endif /* __MRTTBLDUMPV2DUMPER_H_ */

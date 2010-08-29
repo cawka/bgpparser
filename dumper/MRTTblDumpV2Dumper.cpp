@@ -26,8 +26,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <libxml/tree.h>
-#include <list>
+#include <bgpparser.h>
+using namespace std;
+using namespace boost;
+
 #include "MRTTblDumpV2Dumper.h"
 #include "MRTTblDumpV2RibIPv4Unicast.h"
 #include "MRTTblDumpV2RibIPv4Multicast.h"
@@ -38,6 +40,13 @@
 #include "BGPCommonHeader.h"
 #include "BGPStructure.h"
 #include "AttributeType.h"
+#include "AttributeTypeMPReachNLRI.h"
+#include "AttributeTypeMPUnreachNLRI.h"
+#include "FakeBGPUpdate.h"
+
+#include <libxml/tree.h>
+#include <list>
+#include <boost/foreach.hpp>
 
 extern "C" {
     #include "xmlinternal.h"
@@ -45,8 +54,6 @@ extern "C" {
 
 MRTTblDumpV2Dumper::MRTTblDumpV2Dumper()
 {
-    peerIndexTbl = NULL;
-    tblDumpMsg   = NULL;
 }
 
 MRTTblDumpV2Dumper::~MRTTblDumpV2Dumper()
@@ -56,198 +63,133 @@ xmlNodePtr MRTTblDumpV2Dumper::genXml()
 {
     xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "BGP_MESSAGES");
 
-    /* [TODO] Check pointer validity */
-    // Prefix
-    /*
-    //cerr << "Subtype1:" <<  this->peerIndexTbl->getSubType() << endl;
-    //cerr << "Subtype2:" <<  this->tblDumpMsg->getSubType() << endl;
-    PRINT_IP_ADDR(tblDumpMsg->getPrefix().ipv4);
-	cout << "/" << (int)(tblDumpMsg->getPrefixLength() & BITMASK_8) << endl;
-    tblDumpMsg->printMeCompact();
-    cout << endl;
-    */
-
     // Prefix / Route
-    NLRIReachable   route(tblDumpMsg->getPrefixLength(), tblDumpMsg->getPrefix());
-    NLRIUnReachable unroute(tblDumpMsg->getPrefixLength(), tblDumpMsg->getPrefix());
+    NLRIReachablePtr   route(   new NLRIReachable(  tblDumpMsg->getPrefixLength(), tblDumpMsg->getPrefix()) );
+    NLRIUnReachablePtr unroute( new NLRIUnReachable(tblDumpMsg->getPrefixLength(), tblDumpMsg->getPrefix()) );
 
-	int i = 0;
-	list<TblDumpV2RibEntry>::iterator iter;
-	list<MRTTblDumpV2PeerIndexTblPeerEntry>::iterator peerIterator;
-	list<MRTTblDumpV2PeerIndexTblPeerEntry> *peerEntries = peerIndexTbl->getPeerEntries();
-	list<TblDumpV2RibEntry>                 *ribs        = tblDumpMsg->getRibEntries();
-
-	for (iter = ribs->begin(); iter != ribs->end(); iter++)
+    /* loop over RIBs */
+	BOOST_FOREACH( const TblDumpV2RibEntryPtr &rib, tblDumpMsg->getRibEntries() )
 	{
-        /* Peer */
-        /* [TODO] Modify for better performance */
-        for (
-             i = 0, peerIterator = peerEntries->begin(); 
-             (i < iter->getPeerIndex()) && (peerIterator != peerEntries->end()); 
-             peerIterator++, i++
-            )
-        {
-        /* find proper location into table */
-        }
+		MRTTblDumpV2PeerIndexTblPeerEntryPtr peer=peerIndexTbl->getPeer( rib->getPeerIndex() );
 
 		//if (peerIterator->IPType == AFI_IPv4) { PRINT_IP_ADDR(peerIterator->peerIP.ipv4);   }
 		//else                                  { PRINT_IPv6_ADDR(peerIterator->peerIP.ipv6); }
 
         /* Each Route Entry */
-        BGPUpdate *update = new BGPUpdate(peerIterator->isAS4);
-
+		shared_ptr<FakeBGPUpdate> update( new FakeBGPUpdate(/*peerIterator->isAS4*/) );
 
         /* Fill in the update members */
-        list<BGPAttribute>* attrs      = iter->getAttributes();
-        list<BGPAttribute>* path_attrs = update->getPathAttributes();
-        list<BGPAttribute>::iterator attrIter;
-        for (attrIter = attrs->begin(); attrIter != attrs->end(); attrIter++)
+        BOOST_FOREACH( const BGPAttributePtr &attr, rib->getAttributes() )
         {
             /* Multiple Protocol */
-            if (attrIter->getAttributeTypeCode() == AttributeType::MP_REACH_NLRI)
-            { 
-                AttributeTypeMPReachNLRI* mp_attr = (AttributeTypeMPReachNLRI*)attrIter->getAttributeValueMutable();
-                mp_attr->setAFI(this->tblDumpMsg->getAFI());
-                mp_attr->setSAFI(this->tblDumpMsg->getSAFI());
-                mp_attr->addNLRI(route);
+            if( attr->getAttributeTypeCode() == AttributeType::MP_REACH_NLRI )
+            {
+                AttributeTypeMPReachNLRIPtr mp_attr = dynamic_pointer_cast<AttributeTypeMPReachNLRI>( attr->getAttributeValueMutable() );
+                mp_attr->setAFI(  this->tblDumpMsg->getAFI() );
+                mp_attr->setSAFI( this->tblDumpMsg->getSAFI() );
+                mp_attr->addNLRI( route );
             }
-            if (attrIter->getAttributeTypeCode() == AttributeType::MP_UNREACH_NLRI)
-            { 
-                AttributeTypeMPUnreachNLRI* mp_attr = (AttributeTypeMPUnreachNLRI*)attrIter->getAttributeValueMutable();
-                mp_attr->setAFI(this->tblDumpMsg->getAFI());
-                mp_attr->setSAFI(this->tblDumpMsg->getSAFI());
-                mp_attr->addNLRI(unroute);
+            if( attr->getAttributeTypeCode() == AttributeType::MP_UNREACH_NLRI )
+            {
+                AttributeTypeMPUnreachNLRIPtr mp_attr = dynamic_pointer_cast<AttributeTypeMPUnreachNLRI>( attr->getAttributeValueMutable() );
+                mp_attr->setAFI(  this->tblDumpMsg->getAFI() );
+                mp_attr->setSAFI( this->tblDumpMsg->getSAFI() );
+                mp_attr->addNLRI( unroute );
             }
-            path_attrs->push_back(*attrIter);
+            update->addPathAttribute( attr );
         }
 
         /* Add IPV4/UNICAST NLRI */
-        if ( this->tblDumpMsg->getAFI() == AFI_IPv4 && this->tblDumpMsg->getSAFI() == SAFI_UNICAST)
+        if ( this->tblDumpMsg->getAFI()==AFI_IPv4 && this->tblDumpMsg->getSAFI()==SAFI_UNICAST )
         {
-            list<Route>* nlri = update->getNlriRoutes();
-            nlri->push_back(route);
+        	update->addAnnouncedRoute( static_pointer_cast<Route>(route) );
         }
 
         /* Message Dumper */
-        BGPMessageDumper *bgpmsg_dumper = new BGPMessageDumper();
+        BGPMessageDumperPtr bgpmsg_dumper ( new BGPMessageDumper(update) );
+
         /* Collect infomation */
         bgpmsg_dumper->setTimestamp(tblDumpMsg->getTimestamp());
         bgpmsg_dumper->setPeering(
-                                    peerIterator->peerIP, // LocalIP
-                                    peerIterator->peerIP, // PeerIP
-                                    peerIterator->peerAS, // LocalAS
-                                    peerIterator->peerAS, // LocalAS
+                                    peer->peerIP, // LocalIP
+                                    peer->peerIP, // PeerIP
+                                    peer->peerAS, // LocalAS
+                                    peer->peerAS, // LocalAS
                                     0,                    // Interface Index
-                                    peerIterator->IPType  // AFI
+                                    peer->IPType  // AFI
                                  );
-        bgpmsg_dumper->setBGPMessage((BGPMessage*)update);
-        xmlAddChild(node, bgpmsg_dumper->genXml());
 
-        delete bgpmsg_dumper;
-        delete update;
+        xmlAddChild(node, bgpmsg_dumper->genXml());
     }
-    xmlNewPropInt(node, (char *)"count", ribs->size());
+    xmlNewPropInt(node, (char *)"count", tblDumpMsg->getRibEntries().size() );
 
     return node;
 }
 
-string MRTTblDumpV2Dumper::genAscii()
+string MRTTblDumpV2Dumper::genAscii( )
 {
-    string node = "";
-
-    /* [TODO] Check pointer validity */
-    // Prefix
-    /*
-    //cerr << "Subtype1:" <<  this->peerIndexTbl->getSubType() << endl;
-    //cerr << "Subtype2:" <<  this->tblDumpMsg->getSubType() << endl;
-    PRINT_IP_ADDR(tblDumpMsg->getPrefix().ipv4);
-	cout << "/" << (int)(tblDumpMsg->getPrefixLength() & BITMASK_8) << endl;
-    tblDumpMsg->printMeCompact();
-    cout << endl;
-    */
+    ostringstream node;
 
     // Prefix / Route
-    NLRIReachable   route(tblDumpMsg->getPrefixLength(), tblDumpMsg->getPrefix());
-    NLRIUnReachable unroute(tblDumpMsg->getPrefixLength(), tblDumpMsg->getPrefix());
+	NLRIReachablePtr   route(   new NLRIReachable(  tblDumpMsg->getPrefixLength(), tblDumpMsg->getPrefix()) );
+	NLRIUnReachablePtr unroute( new NLRIUnReachable(tblDumpMsg->getPrefixLength(), tblDumpMsg->getPrefix()) );
 
-	int i = 0;
-	list<TblDumpV2RibEntry>::iterator iter;
-	list<MRTTblDumpV2PeerIndexTblPeerEntry>::iterator peerIterator;
-	list<MRTTblDumpV2PeerIndexTblPeerEntry> *peerEntries = peerIndexTbl->getPeerEntries();
-	list<TblDumpV2RibEntry>                 *ribs        = tblDumpMsg->getRibEntries();
-
-	for (iter = ribs->begin(); iter != ribs->end(); iter++)
+    /* loop over RIBs */
+	BOOST_FOREACH( const TblDumpV2RibEntryPtr &rib, tblDumpMsg->getRibEntries() )
 	{
-        /* Peer */
-        /* [TODO] Modify for better performance */
-        for (
-             i = 0, peerIterator = peerEntries->begin(); 
-             (i < iter->getPeerIndex()) && (peerIterator != peerEntries->end()); 
-             peerIterator++, i++
-            )
-        {
-        /* find proper location into table */
-        }
+		MRTTblDumpV2PeerIndexTblPeerEntryPtr peer=peerIndexTbl->getPeer( rib->getPeerIndex() );
 
 		//if (peerIterator->IPType == AFI_IPv4) { PRINT_IP_ADDR(peerIterator->peerIP.ipv4);   }
 		//else                                  { PRINT_IPv6_ADDR(peerIterator->peerIP.ipv6); }
 
         /* Each Route Entry */
-        BGPUpdate *update = new BGPUpdate(peerIterator->isAS4);
+		shared_ptr<FakeBGPUpdate> update( new FakeBGPUpdate(/*peerIterator->isAS4*/) );
 
-
-        /* Fill in the update members */
-        list<BGPAttribute>* attrs      = iter->getAttributes();
-        list<BGPAttribute>* path_attrs = update->getPathAttributes();
-        list<BGPAttribute>::iterator attrIter;
-        for (attrIter = attrs->begin(); attrIter != attrs->end(); attrIter++)
-        {
-            /* Multiple Protocol */
-            if (attrIter->getAttributeTypeCode() == AttributeType::MP_REACH_NLRI)
-            { 
-                AttributeTypeMPReachNLRI* mp_attr = (AttributeTypeMPReachNLRI*)attrIter->getAttributeValueMutable();
-                mp_attr->setAFI(this->tblDumpMsg->getAFI());
-                mp_attr->setSAFI(this->tblDumpMsg->getSAFI());
-                mp_attr->addNLRI(route);
-            }
-            if (attrIter->getAttributeTypeCode() == AttributeType::MP_UNREACH_NLRI)
-            { 
-                AttributeTypeMPUnreachNLRI* mp_attr = (AttributeTypeMPUnreachNLRI*)attrIter->getAttributeValueMutable();
-                mp_attr->setAFI(this->tblDumpMsg->getAFI());
-                mp_attr->setSAFI(this->tblDumpMsg->getSAFI());
-                mp_attr->addNLRI(unroute);
-            }
-            path_attrs->push_back(*attrIter);
-        }
+		/* Fill in the update members */
+		BOOST_FOREACH( const BGPAttributePtr &attr, rib->getAttributes() )
+		{
+			/* Multiple Protocol */
+			if( attr->getAttributeTypeCode() == AttributeType::MP_REACH_NLRI )
+			{
+				AttributeTypeMPReachNLRIPtr mp_attr = dynamic_pointer_cast<AttributeTypeMPReachNLRI>( attr->getAttributeValueMutable() );
+				mp_attr->setAFI(  this->tblDumpMsg->getAFI() );
+				mp_attr->setSAFI( this->tblDumpMsg->getSAFI() );
+				mp_attr->addNLRI( route );
+			}
+			if( attr->getAttributeTypeCode() == AttributeType::MP_UNREACH_NLRI )
+			{
+				AttributeTypeMPUnreachNLRIPtr mp_attr = dynamic_pointer_cast<AttributeTypeMPUnreachNLRI>( attr->getAttributeValueMutable() );
+				mp_attr->setAFI(  this->tblDumpMsg->getAFI() );
+				mp_attr->setSAFI( this->tblDumpMsg->getSAFI() );
+				mp_attr->addNLRI( unroute );
+			}
+			update->addPathAttribute( attr );
+		}
 
         /* Add IPV4/UNICAST NLRI */
-        if ( this->tblDumpMsg->getAFI() == AFI_IPv4 && this->tblDumpMsg->getSAFI() == SAFI_UNICAST)
+        if ( this->tblDumpMsg->getAFI()==AFI_IPv4 && this->tblDumpMsg->getSAFI()==SAFI_UNICAST)
         {
-            list<Route>* nlri = update->getNlriRoutes();
-            nlri->push_back(route);
+        	update->addAnnouncedRoute( static_pointer_cast<Route>(route) );
         }
 
         /* Message Dumper */
-        BGPMessageDumper *bgpmsg_dumper = new BGPMessageDumper();
-        /* Collect infomation */
-        bgpmsg_dumper->setTimestamp(tblDumpMsg->getTimestamp());
-        bgpmsg_dumper->setPeering(
-                                    peerIterator->peerIP, // LocalIP
-                                    peerIterator->peerIP, // PeerIP
-                                    peerIterator->peerAS, // LocalAS
-                                    peerIterator->peerAS, // LocalAS
-                                    0,                    // Interface Index
-                                    peerIterator->IPType  // AFI
-                                 );
-        bgpmsg_dumper->setBGPMessage((BGPMessage*)update);
-        bgpmsg_dumper->isTableDump(true);
-        node += bgpmsg_dumper->genAscii();
+        BGPMessageDumperPtr bgpmsg_dumper ( new BGPMessageDumper(update) );
 
-        delete bgpmsg_dumper;
-        delete update;
+        /* Collect infomation */
+        bgpmsg_dumper->setTimestamp( tblDumpMsg->getTimestamp() );
+        bgpmsg_dumper->setPeering(
+                                    peer->peerIP, // LocalIP
+                                    peer->peerIP, // PeerIP
+                                    peer->peerAS, // LocalAS
+                                    peer->peerAS, // LocalAS
+                                    0,            // Interface Index
+                                    peer->IPType  // AFI
+                                 );
+        bgpmsg_dumper->isTableDump( true );
+        node << bgpmsg_dumper->genAscii();
     }
 
-    return node;
+    return node.str( );
 }
 
 // vim: sw=4 ts=4 sts=4 expandtab

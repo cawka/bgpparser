@@ -50,7 +50,6 @@ AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI( AttributeType &header, istre
 	// http://tools.ietf.org/id/draft-ietf-grow-mrt-09.txt
 	if( length == 1 + nextHopAddressLength )
 	{
-		throw BGPTextError( "NOTIFY: ok, we got here" );
 		nextHopAddressLength=input.get( );
 		
 		afi = 0;
@@ -137,6 +136,18 @@ AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI( AttributeType &header, istre
 AttributeTypeMPReachNLRI::~AttributeTypeMPReachNLRI(void)
 {
 }
+
+
+void AttributeTypeMPReachNLRI::addNLRI(NLRIReachablePtr &nlri)
+{
+	/**
+	 * If the actual header contained a full NLRI attribute, there is no need in extra stuff
+	 */
+	if( this->nlri.size()==0 )
+	{
+		this->nlri.push_back( nlri );
+	}
+};
 
 void AttributeTypeMPReachNLRI::printMe() {
 	cout << "ANNOUNCE:";

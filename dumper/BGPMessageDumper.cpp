@@ -26,19 +26,25 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <libxml/tree.h>
+#include <bgpparser.h>
+using namespace std;
+using namespace boost;
+
 #include "BGPDumper.h"
 #include "BGPMessageDumper.h"
 #include "MRTBgp4MPMessage.h"
+#include <libxml/tree.h>
 #include <list>
+#include <boost/foreach.hpp>
 
 extern "C" {
     #include "xmlinternal.h"
 }
 
-BGPMessageDumper::BGPMessageDumper()
+BGPMessageDumper::BGPMessageDumper( const BGPMessagePtr &msg )
 {
     is_tabledump = false;
+    this->bgp_msg = msg;
 }
 
 BGPMessageDumper::~BGPMessageDumper()
@@ -62,24 +68,24 @@ xmlNodePtr BGPMessageDumper::genXml()
     xmlAddChild(bgpmsg_node, peering_node);
 
     xmlNodePtr src_addr_node, dst_addr_node;
-    static char src_addr[INET6_ADDRSTRLEN]; src_addr[0] = '\0';
-    static char dst_addr[INET6_ADDRSTRLEN]; dst_addr[0] = '\0';
+
+    string src_addr, dst_addr;
 	switch(afi)
 	{
 		case AFI_IPv4: 
-			inet_ntop(AF_INET,  &(peer_addr.ipv4),  dst_addr, INET_ADDRSTRLEN);
-			inet_ntop(AF_INET,  &(local_addr.ipv4), src_addr, INET_ADDRSTRLEN);
+			src_addr=FORMAT_IPv4_ADDRESS( local_addr.ipv4 );
+			dst_addr=FORMAT_IPv4_ADDRESS( peer_addr.ipv4 );
 			break;
 		case AFI_IPv6: 
-			inet_ntop(AF_INET6, &(peer_addr.ipv6),  dst_addr, INET6_ADDRSTRLEN);
-			inet_ntop(AF_INET6, &(local_addr.ipv6), src_addr, INET6_ADDRSTRLEN);
+			src_addr=FORMAT_IPv6_ADDRESS( local_addr.ipv6 );
+			dst_addr=FORMAT_IPv6_ADDRESS( peer_addr.ipv6 );
 			break;
 	}
 
-    /* SRC_ADDR */ src_addr_node = xmlNewChildString(peering_node, "SRC_ADDR", src_addr);
+    /* SRC_ADDR */ src_addr_node = xmlNewChildString(peering_node, "SRC_ADDR", src_addr.c_str());
     /* SRC_PORT */ xmlNewChildString(peering_node,    "SRC_PORT", "");
     /* SRC_AS   */ xmlNewChildInt(peering_node,       "SRC_AS",   local_as);
-    /* DST_ADDR */ dst_addr_node = xmlNewChildString(peering_node, "DST_ADDR", dst_addr);
+    /* DST_ADDR */ dst_addr_node = xmlNewChildString(peering_node, "DST_ADDR", dst_addr.c_str());
     /* DST_PORT */ xmlNewChildString(peering_node,    "DST_PORT", "");
     /* DST_AS   */ xmlNewChildInt(peering_node,       "DST_AS",   peer_as);
     /* BGPID    */ //xmlNewChildBGPID(peering_node,  "BGPID",    sp->configInUse.remoteBGPID);
@@ -89,10 +95,9 @@ xmlNodePtr BGPMessageDumper::genXml()
     //xmlNewPropInt(dst_addr_node, "if_index", 0);
 
     /* | Ascii / Octets node | ----------------------------------------------------------- */
-    BGPDumper *bgp_dumper = BGPDumper::newDumper(bgp_msg);
+    BGPDumperPtr bgp_dumper = BGPDumper::newDumper(bgp_msg);
     xmlAddChild(bgpmsg_node, bgp_dumper->genXmlAsciiMsg());
     //xmlAddChild(bgpmsg_node, bgp_dumper->genXmlOctetMsg());
-    delete bgp_dumper;
 
     //[TODO]
     //printNode(bgpmsg_node);
@@ -101,48 +106,43 @@ xmlNodePtr BGPMessageDumper::genXml()
 
 string BGPMessageDumper::genAscii()
 {
-    string bgpmsg_node = "";
+    ostringstream bgpmsg_node;
     
     /* | Peering node | ------------------------------------------------------------------ */
-    static char src_addr[INET6_ADDRSTRLEN]; src_addr[0] = '\0';
-    static char dst_addr[INET6_ADDRSTRLEN]; dst_addr[0] = '\0';
+    string src_addr, dst_addr;
 	switch(afi)
 	{
 		case AFI_IPv4: 
-			inet_ntop(AF_INET,  &(peer_addr.ipv4),  dst_addr, INET_ADDRSTRLEN);
-			inet_ntop(AF_INET,  &(local_addr.ipv4), src_addr, INET_ADDRSTRLEN);
+			src_addr=FORMAT_IPv4_ADDRESS( local_addr.ipv4 );
+			dst_addr=FORMAT_IPv4_ADDRESS( peer_addr.ipv4 );
 			break;
 		case AFI_IPv6: 
-			inet_ntop(AF_INET6, &(peer_addr.ipv6),  dst_addr, INET6_ADDRSTRLEN);
-			inet_ntop(AF_INET6, &(local_addr.ipv6), src_addr, INET6_ADDRSTRLEN);
+			src_addr=FORMAT_IPv6_ADDRESS( local_addr.ipv6 );
+			dst_addr=FORMAT_IPv6_ADDRESS( peer_addr.ipv6 );
 			break;
 	}
-    static char buffer[256]; 
-    buffer[0] = '\0';
-    sprintf(buffer, "%u", peer_as);
+
+    ostringstream peer_buffer;
+    peer_buffer << (int)peer_as;
+
     string   peer_addr_str = dst_addr;
-    string   peer_as_str   = buffer;
+    string   peer_as_str   = peer_buffer.str();
 
-    BGPDumper *bgp_dumper = BGPDumper::newDumper(bgp_msg);
+    BGPDumperPtr bgp_dumper = BGPDumper::newDumper(bgp_msg);
     list<string> bgp_str_list = bgp_dumper->genAsciiMsg(peer_addr_str, peer_as_str, is_tabledump);
-    delete bgp_dumper;
 
-    list<string>::iterator i;
     string msg_type = ( is_tabledump ) ? "TABLE_DUMP" : "BGP4MP";
-    buffer[0] = '\0';
-    for(i=bgp_str_list.begin(); i != bgp_str_list.end(); ++i)
+    BOOST_FOREACH( const string &msg, bgp_str_list )
     {
-        buffer[0] = '\0';
-        sprintf (buffer, "%s|%d|", 
-                         msg_type.c_str(),
-                         (int)timestamp
-                );
-        bgpmsg_node += buffer + *i;
-        bgpmsg_node += "\n";
+        ostringstream buffer;
+        buffer << msg_type << "|" << (int)timestamp << "|";
+
+        bgpmsg_node << buffer.str() << msg
+        			<< endl;
     }
 
     //printNode(bgpmsg_node);
-    return bgpmsg_node;
+    return bgpmsg_node.str();
 }
 
 // vim: sw=4 ts=4 sts=4 expandtab

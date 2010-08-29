@@ -201,7 +201,7 @@ public:
 	uint16_t getLength() { return length; }
 	uint8_t  getType()   { return type; }
 
-	boost::shared_ptr<char> getData() { return data; }
+	const boost::shared_ptr<char> &getData() const { return data; }
 //	uint8_t hasError() { return error; }
 	
 //	BGPMessage_t& getBgpData() { return bgpData; }
@@ -210,18 +210,16 @@ public:
 	static BGPMessagePtr newMessage( std::istream &input, bool isAS4 );
 
 protected:
+	BGPCommonHeader( uint8_t type );
+
+protected:
 	// There is a 16-byte marker that is all 1s
 	uint8_t marker[16];
 	uint16_t length;
 	uint8_t type;
 	boost::shared_ptr<char> data;
 
-//	BGPMessage_t bgpData;
-//	uint8_t error;
-
 private:
-	BGPCommonHeader( ) { ; }
-
 	static log4cxx::LoggerPtr Logger;
 };
 

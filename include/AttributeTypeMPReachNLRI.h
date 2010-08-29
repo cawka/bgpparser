@@ -56,7 +56,7 @@ public:
 	void setNextHopAddressLocal(IPAddress *nextHopAddressLocal) { memcpy(&(this->nextHopAddressLocal), nextHopAddressLocal, sizeof(IPAddress)); };
 	IPAddress getNextHopAddressLocal(void) const { return nextHopAddressLocal; };
 
-	void addNLRI(NLRIReachablePtr &nlri) { this->nlri.push_back(nlri); };
+	void addNLRI(NLRIReachablePtr &nlri);
 	const std::list<NLRIReachablePtr>& getNLRI(void) const { return nlri; };
 
 	void addSNPA(NLRIReachablePtr &snpa) { this->snpa.push_back(snpa); };
@@ -83,5 +83,7 @@ protected:
 
 	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<AttributeTypeMPReachNLRI> AttributeTypeMPReachNLRIPtr;
 
 #endif	/* _ATTRIBUTETYPEMPREACHNLRI_H_ */

@@ -49,5 +49,7 @@ protected:
 	static log4cxx::LoggerPtr Logger;
 };
 
+typedef boost::shared_ptr<AttributeTypeOriginatorID> AttributeTypeOriginatorIDPtr;
+
 #endif	/* _ATTRIBUTETYPEORIGINATORID_H_ */
 

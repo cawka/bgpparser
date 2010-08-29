@@ -33,19 +33,12 @@
 #include "MRTTblDumpV2RibHeader.h"
 #include "MRTTblDumpV2PeerIndexTbl.h"
 
-//#include "TblDumpV2RibEntry.h"
-//#include "AttributeType.h"
-//#include "AttributeTypeOrigin.h"
 #include "AttributeTypeASPath.h"
 #include "AttributeTypeAS4Path.h"
-//#include "AttributeTypeNextHop.h"
-//#include "AttributeTypeMultiExitDisc.h"
-//#include "AttributeTypeLocalPref.h"
-//#include "AttributeTypeAtomicAggregate.h"
-//#include "AttributeTypeAggregator.h"
-//#include "AttributeTypeCommunities.h"
-//#include "AttributeTypeMPReachNLRI.h"
-//#include "AttributeTypeMPUnreachNLRI.h"
+#include "AttributeTypeAggregator.h"
+#include "AttributeTypeAS4Aggregator.h"
+
+using namespace std;
 
 log4cxx::LoggerPtr MRTTblDumpV2RibHeader::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibHeader" );
 
@@ -128,6 +121,30 @@ uint16_t MRTTblDumpV2RibHeader::getSAFI(void) const {
 	else if( as_path!=attributes.end() )
 		boost::dynamic_pointer_cast<AttributeTypeASPath>( (*as_path)->getAttributeValueMutable() )
 			->genPathSegmentsComplete( );
+
+
+	// 2. Merge AGGREGATOR and AS4_AGGREGATOR
+	std::list<BGPAttributePtr>::iterator agg2=
+			find_if( attributes.begin(), attributes.end(), findByType(AttributeType::AGGREGATOR) );
+
+	std::list<BGPAttributePtr>::iterator agg4=
+			find_if( attributes.begin(), attributes.end(), findByType(AttributeType::NEW_AGGREGATOR) );
+
+	if( agg2!=attributes.end() && agg4!=attributes.end() )
+	{
+		AttributeTypeAggregatorPtr    agg_attr     =
+				boost::dynamic_pointer_cast<AttributeTypeAggregator>( (*agg2)->getAttributeValueMutable() );
+
+		AttributeTypeAS4AggregatorPtr as4_agg_attr =
+				boost::dynamic_pointer_cast<AttributeTypeAS4Aggregator>( (*agg4)->getAttributeValueMutable() );
+
+		agg_attr->setAggregatorLastASComplete( as4_agg_attr->getAggregatorLastAS() );
+	}
+	else if( agg2!=attributes.end() )
+	{
+		boost::dynamic_pointer_cast<AttributeTypeAggregator>( (*agg2)->getAttributeValueMutable() )
+			->setAggregatorLastASComplete( );
+	}
 
 	LOG4CXX_TRACE(Logger,"END MRTTblDumpV2RibHeader::processAttributes(...)");
 }

@@ -44,6 +44,7 @@ AttributeTypeAggregator::AttributeTypeAggregator( AttributeType &header, std::is
 						: AttributeType(header)
 {
 	LOG4CXX_TRACE(Logger,"");
+	aggregatorLastASComplete=0;
 	
 	if( length == 6 )
 	{

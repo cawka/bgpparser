@@ -76,6 +76,8 @@ MRTCommonHeader::MRTCommonHeader( istream &input )
 	subtype = ntohs(pkt.subtype);
 	length = ntohl(pkt.length);
 
+	if( length==0 ) return;
+
 	data=boost::shared_ptr<char>( new char[length] );
 	len=io::read( input, data.get(), length );
 	if( len!=length )

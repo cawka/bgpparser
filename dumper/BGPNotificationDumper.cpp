@@ -26,6 +26,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <bgpparser.h>
+using namespace std;
+
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include "BGPDumper.h"
@@ -34,7 +37,7 @@ extern "C" {
     #include "xmlinternal.h"
 }
 
-BGPNotificationDumper::BGPNotificationDumper(BGPMessage* msg) : BGPDumper(msg)
+BGPNotificationDumper::BGPNotificationDumper( const BGPMessagePtr &msg ) : BGPDumper(msg)
 {}
 
 BGPNotificationDumper::~BGPNotificationDumper()

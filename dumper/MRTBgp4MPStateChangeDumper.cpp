@@ -26,30 +26,33 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <libxml/tree.h>
-#include "MRTBgp4MPStateChange.h"
+#include <bgpparser.h>
+using namespace std;
+
 #include "MRTBgp4MPStateChangeDumper.h"
+#include "MRTBgp4MPStateChange.h"
 #include "BGPStateChangeDumper.h"
 
-MRTBgp4MPStateChangeDumper::MRTBgp4MPStateChangeDumper()
+#include <libxml/tree.h>
+
+MRTBgp4MPStateChangeDumper::MRTBgp4MPStateChangeDumper( const MRTBgp4MPStateChangePtr& bgp4mp_sc )
+: bgp4mp_state_change( bgp4mp_sc )
 {}
 
 MRTBgp4MPStateChangeDumper::~MRTBgp4MPStateChangeDumper()
 {}
 
-MRTBgp4MPStateChangeDumper* MRTBgp4MPStateChangeDumper::newDumper(MRTBgp4MPStateChange* bgp4mp_sc)
+MRTBgp4MPStateChangeDumperPtr MRTBgp4MPStateChangeDumper::newDumper( const MRTBgp4MPStateChangePtr& bgp4mp_sc )
 {
-    MRTBgp4MPStateChangeDumper *dumper = new MRTBgp4MPStateChangeDumper();
-    dumper->setMRTBgp4MPStateChange(bgp4mp_sc); 
-    return dumper;
+    return MRTBgp4MPStateChangeDumperPtr( new MRTBgp4MPStateChangeDumper(bgp4mp_sc) );
 }
 
 xmlNodePtr MRTBgp4MPStateChangeDumper::genXml()
 {
     xmlNodePtr node = NULL;
 
-    BGPStateChangeDumper *bgpsc_dumper = new BGPStateChangeDumper();
-    bgpsc_dumper->setTimestamp(bgp4mp_state_change->getTimestamp());
+    BGPStateChangeDumperPtr bgpsc_dumper( new BGPStateChangeDumper() );
+    bgpsc_dumper->setTimestamp( bgp4mp_state_change->getTimestamp() );
     bgpsc_dumper->setPeering(
                                 bgp4mp_state_change->getPeerIP(),
                                 bgp4mp_state_change->getLocalIP(),
@@ -61,7 +64,6 @@ xmlNodePtr MRTBgp4MPStateChangeDumper::genXml()
     bgpsc_dumper->setState(bgp4mp_state_change->getOldState(), bgp4mp_state_change->getNewState());
     bgpsc_dumper->setAFI(bgp4mp_state_change->getAddressFamily());
     node = bgpsc_dumper->genXml();
-    delete bgpsc_dumper;
 
     return node;
 }
@@ -70,8 +72,8 @@ string MRTBgp4MPStateChangeDumper::genAscii()
 {
     string node = "";
 
-    BGPStateChangeDumper *bgpsc_dumper = new BGPStateChangeDumper();
-    bgpsc_dumper->setTimestamp(bgp4mp_state_change->getTimestamp());
+    BGPStateChangeDumperPtr bgpsc_dumper( new BGPStateChangeDumper() );
+    bgpsc_dumper->setTimestamp( bgp4mp_state_change->getTimestamp() );
     bgpsc_dumper->setPeering(
                                 bgp4mp_state_change->getPeerIP(),
                                 bgp4mp_state_change->getLocalIP(),
@@ -83,7 +85,6 @@ string MRTBgp4MPStateChangeDumper::genAscii()
     bgpsc_dumper->setState(bgp4mp_state_change->getOldState(), bgp4mp_state_change->getNewState());
     bgpsc_dumper->setAFI(bgp4mp_state_change->getAddressFamily());
     node = bgpsc_dumper->genAscii();
-    delete bgpsc_dumper;
 
     return node;
 }

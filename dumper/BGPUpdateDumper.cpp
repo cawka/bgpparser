@@ -26,8 +26,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <libxml/tree.h>
-#include <libxml/parser.h>
+#include <bgpparser.h>
+using namespace std;
+using namespace boost;
+
 #include "BGPUpdate.h"
 #include "BGPAttribute.h"
 #include "BGPDumper.h"
@@ -35,76 +37,75 @@
 #include "AttributeTypeMPReachNLRI.h"
 #include "AttributeTypeMPUnreachNLRI.h"
 
+#include <libxml/tree.h>
+#include <libxml/parser.h>
+#include <boost/foreach.hpp>
+
 extern "C" {
     #include "xmlinternal.h"
 }
 
-BGPUpdateDumper::BGPUpdateDumper(BGPMessage* msg) : BGPDumper(msg)
+BGPUpdateDumper::BGPUpdateDumper( const BGPMessagePtr &msg ) : BGPDumper(msg)
 {}
 
 BGPUpdateDumper::~BGPUpdateDumper()
 {}
 
-xmlNodePtr BGPUpdateDumper::genPrefixNode(Route rt, uint32_t afi, uint32_t safi)
+xmlNodePtr BGPUpdateDumper::genPrefixNode( const RoutePtr &rt, uint32_t afi, uint32_t safi)
 {
     xmlNodePtr node = NULL;
 
     //[TODO] afi / safi property
 
     /* generate prefix node */
-    string tt = rt.toString();
-    node = xmlNewNodeString("PREFIX", (char *)tt.c_str());
+    node = xmlNewNodeString("PREFIX", rt->toString().c_str());
 
     return node;
 }
 
-xmlNodePtr BGPUpdateDumper::genUpdateWithdrawnNode(list<Route>* withdrawnRoutes)
+xmlNodePtr BGPUpdateDumper::genUpdateWithdrawnNode( const list<RoutePtr>& withdrawnRoutes)
 {
     xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "WITHDRAWN");
-    xmlNewPropInt(node, "count", withdrawnRoutes->size());
+    xmlNewPropInt(node, "count", withdrawnRoutes.size());
 
-	list<Route>::iterator routeIter;
-    for (routeIter = withdrawnRoutes->begin(); routeIter != withdrawnRoutes->end(); routeIter++)
+    BOOST_FOREACH( const RoutePtr &route, withdrawnRoutes )
     {
-        //Route rt = *routeIter;
-        xmlAddChild(node, genPrefixNode(*routeIter, 1, 1));
+        xmlAddChild(node, genPrefixNode(route, 1, 1));
     }
     return node;
 }
 
-xmlNodePtr BGPUpdateDumper::genUpdateNlriNode(list<Route>* routes)
+xmlNodePtr BGPUpdateDumper::genUpdateNlriNode( const list<RoutePtr>& routes)
 {
     xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "NLRI");
-    xmlNewPropInt(node, "count", routes->size());
+    xmlNewPropInt(node, "count", routes.size());
 
 	list<Route>::iterator routeIter;
-    for (routeIter = routes->begin(); routeIter != routes->end(); routeIter++)
+    BOOST_FOREACH( const RoutePtr &route, routes )
     {
         //Route rt = *routeIter;
-        xmlAddChild(node, genPrefixNode(*routeIter, 1, 1));
+        xmlAddChild(node, genPrefixNode(route, 1, 1));
     }
     return node;
 }
 
-xmlNodePtr BGPUpdateDumper::genUpdateAttributesNode(list<BGPAttribute>* pathAttributes)
+xmlNodePtr BGPUpdateDumper::genUpdateAttributesNode( const list<BGPAttributePtr>& pathAttributes )
 {
     xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "PATH_ATTRIBUTES");
-    xmlNewPropInt(node, "count", pathAttributes->size());
+    xmlNewPropInt(node, "count", pathAttributes.size());
 
 	list<BGPAttribute>::iterator attrIter;
-    for (attrIter = pathAttributes->begin(); attrIter != pathAttributes->end(); attrIter++)
+    BOOST_FOREACH( const BGPAttributePtr &attr, pathAttributes )
     {
-		BGPAttribute *attr = &(*attrIter);
-        BGPAttributeDumper *attr_dumper = BGPAttributeDumper::newDumper(attr);
+        BGPAttributeDumperPtr attr_dumper = BGPAttributeDumper::newDumper( attr );
         xmlAddChild(node, attr_dumper->genXml()); 
-        delete attr_dumper;
     }
     return node;
 }
 
 xmlNodePtr BGPUpdateDumper::genXmlAsciiNode()
 {
-    BGPUpdate *bgp_update = (BGPUpdate *)bgp_msg;
+    BGPUpdatePtr bgp_update = dynamic_pointer_cast<BGPUpdate>( bgp_msg );
 
     /* BGP Update node */
     xmlNodePtr bgp_node = xmlNewNode(NULL, BAD_CAST "UPDATE");
@@ -121,15 +122,13 @@ xmlNodePtr BGPUpdateDumper::genXmlAsciiNode()
 
 list<string> BGPUpdateDumper::genAsciiMsg(string peer_addr, string peer_as, bool is_tabledump=false)
 {
-    BGPUpdate *bgp_update = (BGPUpdate *)bgp_msg;
+    BGPUpdatePtr bgp_update = dynamic_pointer_cast<BGPUpdate>( bgp_msg );
     list<string> bgp_msg_list;
 
-	list<Route> NLRI;
-	list<Route> WITHDRAWN;
+//	list<Route> NLRI;
+//	list<Route> WITHDRAWN;
 
     /* BGP Update node */
-	list<BGPAttribute>::iterator attrIter;
-    string attr_str = "";
     // Attributes
     string as_path     = "";
     string origin      = "";
@@ -140,12 +139,12 @@ list<string> BGPUpdateDumper::genAsciiMsg(string peer_addr, string peer_as, bool
     string aggregator  = "";
     string communities = "";
 
-    BGPAttribute *mp_reach   = NULL;
-    BGPAttribute *mp_unreach = NULL;
-    for (attrIter = bgp_update->getPathAttributes()->begin(); attrIter != bgp_update->getPathAttributes()->end(); attrIter++)
+    BGPAttributePtr mp_reach;
+    BGPAttributePtr mp_unreach;
+
+    BOOST_FOREACH( const BGPAttributePtr &attr, bgp_update->getPathAttributes() )
     {
-		BGPAttribute *attr = &(*attrIter);
-        BGPAttributeDumper *attr_dumper = BGPAttributeDumper::newDumper(attr);
+        BGPAttributeDumperPtr attr_dumper = BGPAttributeDumper::newDumper( attr );
 
         switch (attr->getAttributeTypeCode())
         {
@@ -168,55 +167,49 @@ list<string> BGPUpdateDumper::genAsciiMsg(string peer_addr, string peer_as, bool
             default:
                 break;
         }
-        delete attr_dumper;
     }
-    if (mp_reach != NULL)
-    {
-        string nh_str = "";
-        static char str[INET6_ADDRSTRLEN];
 
-        AttributeTypeMPReachNLRI *attr = (AttributeTypeMPReachNLRI*)mp_reach->getAttributeValue();
-        IPAddress addr = attr->getNextHopAddress();
+    if( mp_reach.get()!=NULL )
+    {
+        AttributeTypeMPReachNLRIPtr attr = dynamic_pointer_cast<AttributeTypeMPReachNLRI>( mp_reach->getAttributeValue() );
         switch(attr->getAFI())
         {
             case AFI_IPv4: 
-                inet_ntop(AF_INET, &(addr.ipv4), str, INET_ADDRSTRLEN);
+            	next_hop=FORMAT_IPv4_ADDRESS( attr->getNextHopAddress().ipv4 );
                 break;
             case AFI_IPv6: 
-                inet_ntop(AF_INET6, &(addr.ipv6), str, INET6_ADDRSTRLEN);
+                next_hop=FORMAT_IPv6_ADDRESS( attr->getNextHopAddress().ipv6 );
                 break;
         }
-        next_hop = str;
     }
 
-    attr_str += "|" + as_path      +
-                "|" + origin       +
-                "|" + next_hop     +
-                "|" + lpref        +
-                "|" + med          +
-                "|" + communities  +
-                "|" + agg          + 
-                "|" + aggregator   + "|"
+    ostringstream attr_str;
+    attr_str << "|" << as_path      <<
+                "|" << origin       <<
+                "|" << next_hop     <<
+                "|" << lpref        <<
+                "|" << med          <<
+                "|" << communities  <<
+                "|" << agg          <<
+                "|" << aggregator   << "|"
                ;
 
-	list<Route>::iterator routeIter;
     /* WITHDRAWN */
-    for (routeIter = bgp_update->getWithdrawnRoutes()->begin(); routeIter != bgp_update->getWithdrawnRoutes()->end(); routeIter++)
+    BOOST_FOREACH( const RoutePtr &route, bgp_update->getWithdrawnRoutes() )
     {
         string with = "";
-        string prefix = ((Route)*routeIter).toString();
+        string prefix = route->toString();
         with = with + "W" + "|" + peer_addr + "|" + peer_as + "|" + prefix;
         bgp_msg_list.push_back(with);
     }
-    if (mp_unreach != NULL)
+
+    if( mp_unreach.get() != NULL )
     {
-        AttributeTypeMPUnreachNLRI *attr = (AttributeTypeMPUnreachNLRI*)mp_unreach->getAttributeValue();
-        list<NLRIUnReachable> *nlri_unreachable = attr->getNLRI();
-        list<NLRIUnReachable>::iterator routeIter;
-        for (routeIter = nlri_unreachable->begin(); routeIter != nlri_unreachable->end(); routeIter++)
+        AttributeTypeMPUnreachNLRIPtr attr = dynamic_pointer_cast<AttributeTypeMPUnreachNLRI>( mp_unreach->getAttributeValue() );
+        BOOST_FOREACH( const NLRIUnReachablePtr &route, attr->getNLRI() )
         {
             string with = "";
-            string prefix = ((Route)*routeIter).toString(attr->getAFI());
+            string prefix = route->toString( attr->getAFI() );
             with = with + "W" + "|" + peer_addr + "|" + peer_as + "|" + prefix;
             bgp_msg_list.push_back(with);
         }
@@ -224,24 +217,23 @@ list<string> BGPUpdateDumper::genAsciiMsg(string peer_addr, string peer_as, bool
 
     /* NLRI */
     string anno_type = ( is_tabledump ) ? "B" : "A";
-    for (routeIter = bgp_update->getNlriRoutes()->begin(); routeIter != bgp_update->getNlriRoutes()->end(); routeIter++)
+    BOOST_FOREACH( const RoutePtr &route, bgp_update->getNlriRoutes() )
     {
         string anno = "";
-        string prefix = ((Route)*routeIter).toString();
-        anno = anno + anno_type + "|" + peer_addr + "|" + peer_as + "|" + prefix + attr_str;
+        string prefix = route->toString( );
+        anno = anno + anno_type + "|" + peer_addr + "|" + peer_as + "|" + prefix + attr_str.str();
         //anno = anno + "A" + "|\%s|\%d|" + prefix;
         bgp_msg_list.push_back(anno);
     }
-    if (mp_reach != NULL)
+
+    if( mp_reach.get()!=NULL )
     {
-        AttributeTypeMPReachNLRI *attr = (AttributeTypeMPReachNLRI*)mp_reach->getAttributeValue();
-        list<NLRIReachable> *nlri_reachable = attr->getNLRI();
-        list<NLRIReachable>::iterator routeIter;
-        for (routeIter = nlri_reachable->begin(); routeIter != nlri_reachable->end(); routeIter++)
+        AttributeTypeMPReachNLRIPtr attr = dynamic_pointer_cast<AttributeTypeMPReachNLRI>( mp_reach->getAttributeValue() );
+        BOOST_FOREACH( const NLRIReachablePtr &route, attr->getNLRI() )
         {
             string anno = "";
-            string prefix = ((Route)*routeIter).toString(attr->getAFI());
-            anno = anno + anno_type + "|" + peer_addr + "|" + peer_as + "|" + prefix + attr_str;
+            string prefix = route->toString(attr->getAFI());
+            anno = anno + anno_type + "|" + peer_addr + "|" + peer_as + "|" + prefix + attr_str.str();
             bgp_msg_list.push_back(anno);
         }
     }

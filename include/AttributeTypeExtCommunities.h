@@ -36,8 +36,6 @@
 
 #include <list>
 
-using namespace std;
-
 typedef struct ExtCommunityValue
 {
 	uint8_t		typeHigh;
@@ -49,17 +47,17 @@ class AttributeTypeExtCommunities :
 	public AttributeType
 {
 public:
-	AttributeTypeExtCommunities(AttributeType &header, std::istream &input);
+	AttributeTypeExtCommunities( AttributeType &header, std::istream &input );
 	virtual ~AttributeTypeExtCommunities( );
 
-	const list<ExtCommunityValue>& getExtCommunityValue(void) const { return extCommunityValues; };
+	const std::list<ExtCommunityValue>& getExtCommunityValue(void) const { return extCommunityValues; };
 //	void setExtCommunityValue(ExtCommunityValue ExtCommunityVal) { this->extCommunityValues->push_back(ExtCommunityVal); };
 
 	void printMe();
 	void printMeCompact();
 
 private:
-	list<ExtCommunityValue> extCommunityValues;
+	std::list<ExtCommunityValue> extCommunityValues;
 
 	static log4cxx::LoggerPtr Logger;
 };

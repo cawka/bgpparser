@@ -41,19 +41,6 @@ class Route
 {
 public:
 	Route( uint8_t aLength, std::istream &input );
-	//	Route(const Route &rt) : length(rt.length), numOctets(rt.numOctets)
-	//	{
-	//		memset(&prefix, 0, sizeof(IPAddress));
-	//		memcpy(&prefix, &rt.prefix, sizeof(IPAddress));
-	//	}
-/* THIS COPY CONSTRUCTOR IS CAUSING A LOT OF WEIRDNESS -- DOES NOT COPY CORRECTLY!
-	// Copy constructor
-	Route(const Route& rt)
-	{
-		PRINT_DBG("  Copying a Route");
-		Route(rt.length, (uint8_t*)(&rt.prefix));
-	}
-*/
 	virtual ~Route() { }
 
 	inline uint8_t getLength() { return length; }

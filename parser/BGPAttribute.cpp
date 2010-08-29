@@ -60,32 +60,8 @@ BGPAttribute::BGPAttribute( istream &input, bool isAS4 )
 
 	setAttributeLength( len );
 
-	data=boost::shared_ptr<char>( new char[len] );
-	io::read( input, data.get(), len );
-
-	io::stream<io::array_source> in( data.get(), len );
-	value = AttributeType::newAttribute( attributeTypeCode, len, in, isAS4 );
+	value = AttributeType::newAttribute( attributeTypeCode, len, input, isAS4 );
 }
-
-//// Copy constructor
-//BGPAttribute::BGPAttribute( const BGPAttribute& bgpA )
-//{
-////	attributeFlags = bgpA.attributeFlags;
-////	attributeTypeCode = bgpA.attributeTypeCode;
-////	attributeLength = bgpA.attributeLength;
-////
-////	/* define an attribute value class here */
-////	LOG4CXX_TRACE(Logger,"Attempting copy value");
-////	//AttributeType* val = bgpA.value; // Hopefully uses copy constructor
-////	//value = val; // Uses assignment, not copy constructor
-////	//value = new AttributeType(*bgpA.value);
-////	//value = bgpA.value;
-////	if (bgpA.value != NULL) {
-////		value = bgpA.value->clone();
-////	} else {
-////		value = NULL;
-////	}
-//}
 
 BGPAttribute::~BGPAttribute(void)
 {

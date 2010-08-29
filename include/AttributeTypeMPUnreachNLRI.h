@@ -47,7 +47,7 @@ public:
 	uint8_t getSAFI(void) const { return safi; };
 
 	void addNLRI(NLRIUnReachablePtr nlri) { this->nlri.push_back(nlri); };
-	const std::list<NLRIUnReachablePtr> getNLRI(void) const { return nlri; };
+	const std::list<NLRIUnReachablePtr> &getNLRI(void) const { return nlri; };
 
 	virtual void printMe();
 	virtual void printMeCompact();
@@ -65,6 +65,8 @@ protected:
 
 	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<AttributeTypeMPUnreachNLRI> AttributeTypeMPUnreachNLRIPtr;
 
 #endif	/* _ATTRIBUTETYPEMPUNREACHNLRI_H_ */
 

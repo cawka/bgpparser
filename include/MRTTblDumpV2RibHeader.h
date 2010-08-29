@@ -84,4 +84,6 @@ protected:
 	static log4cxx::LoggerPtr Logger;
 };
 
+typedef boost::shared_ptr<MRTTblDumpV2RibHeader> MRTTblDumpV2RibHeaderPtr;
+
 #endif	/* _MRTTBLDUMPV2RIBHEADER_H_ */

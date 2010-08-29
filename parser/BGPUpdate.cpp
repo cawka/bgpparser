@@ -44,6 +44,14 @@ namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr BGPUpdate::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPUpdate" );
 
+/*protected*/BGPUpdate::BGPUpdate( )
+		: BGPCommonHeader( BGPCommonHeader::UPDATE )
+{
+	withdrawnRoutesLength=0;
+	pathAttributesLength=0;
+	nlriLength=0;
+}
+
 BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4 )
 		 : BGPCommonHeader(header)
 {
@@ -124,8 +132,12 @@ BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4 )
 		AttributeTypeAS4AggregatorPtr as4_agg_attr =
 				boost::dynamic_pointer_cast<AttributeTypeAS4Aggregator>( (*agg4)->getAttributeValueMutable() );
 
-		uint32_t as = (as4_agg_attr != NULL) ? as4_agg_attr->getAggregatorLastAS() : agg_attr->getAggregatorLastAS();
-		agg_attr->setAggregatorLastASComplete(as);
+		agg_attr->setAggregatorLastASComplete( as4_agg_attr->getAggregatorLastAS() );
+	}
+	else if( agg2!=pathAttributes.end() )
+	{
+		boost::dynamic_pointer_cast<AttributeTypeAggregator>( (*agg2)->getAttributeValueMutable() )
+			->setAggregatorLastASComplete( );
 	}
 
 

@@ -102,8 +102,6 @@ protected:
 	/* define an attribute value class here */
 	AttributeTypePtr value;
 
-	boost::shared_ptr<char> data;
-
 	static log4cxx::LoggerPtr Logger;
 };
 

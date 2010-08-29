@@ -47,6 +47,15 @@
 #include "AttributeTypeOrigin.h"
 #include "AttributeTypeMPReachNLRI.h"
 #include "AttributeTypeMPUnreachNLRI.h"
+#include "Exceptions.h"
+
+#include <boost/iostreams/read.hpp>
+#include <boost/iostreams/skip.hpp>
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
+namespace io = boost::iostreams;
+
+using namespace std;
 
 log4cxx::LoggerPtr AttributeType::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeType" );
 
@@ -58,6 +67,14 @@ AttributeType::AttributeType( uint16_t len, istream &input, bool isAS4 )
 
 	length = len;
 	this->isAS4 = isAS4;
+
+	if( length==0 ) return;
+
+	data=boost::shared_ptr<char>( new char[length] );
+
+	int read=io::read( input, data.get(), length );
+	LOG4CXX_TRACE(Logger,length << " bytes was requested, read only " << read << " bytes");
+	if( read==-1 || read!=length ) throw BGPError( );
 }
 
 AttributeType::~AttributeType(void) {
@@ -68,23 +85,25 @@ AttributeTypePtr AttributeType::newAttribute(uint8_t attrType, uint16_t len, ist
     AttributeTypePtr attr;
     AttributeType header( len, input, isAS4 );
 
+	io::stream<io::array_source> in( header.data.get(), header.length );
+
 	switch(attrType)
 	{
-		case ORIGIN:           { attr =  AttributeTypePtr( new AttributeTypeOrigin(			header, input) );    break; }
-		case AS_PATH:          { attr =  AttributeTypePtr( new AttributeTypeASPath(			header, input) );    break; }
-		case NEXT_HOP:         { attr =  AttributeTypePtr( new AttributeTypeNextHop(		header, input) );    break; }
-		case MULTI_EXIT_DISC:  { attr =  AttributeTypePtr( new AttributeTypeMultiExitDisc(	header, input) );    break; }
-		case LOCAL_PREF:       { attr =  AttributeTypePtr( new AttributeTypeLocalPref(		header, input) );    break; }
-		case ATOMIC_AGGREGATE: { attr =  AttributeTypePtr( new AttributeTypeAtomicAggregate(header, input) );    break; }
-		case AGGREGATOR:       { attr =  AttributeTypePtr( new AttributeTypeAggregator(		header, input) );    break; }
-		case COMMUNITIES:      { attr =  AttributeTypePtr( new AttributeTypeCommunities(	header, input) );    break; }
-		case ORIGINATOR_ID:    { attr =  AttributeTypePtr( new AttributeTypeOriginatorID(	header, input) );    break; }
-		case CLUSTER_LIST:     { attr =  AttributeTypePtr( new AttributeTypeClusterList(	header, input) );    break; }
-		case EXT_COMMUNITIES:  { attr =  AttributeTypePtr( new AttributeTypeExtCommunities(	header, input) );    break; }
-		case MP_REACH_NLRI:    { attr =  AttributeTypePtr( new AttributeTypeMPReachNLRI(	header, input) );    break; }
-		case MP_UNREACH_NLRI:  { attr =  AttributeTypePtr( new AttributeTypeMPUnreachNLRI(	header, input) );    break; }
-		case NEW_AS_PATH:      { attr =  AttributeTypePtr( new AttributeTypeAS4Path(		header, input) );    break; }
-		case NEW_AGGREGATOR:   { attr =  AttributeTypePtr( new AttributeTypeAS4Aggregator(	header, input) );    break; }
+		case ORIGIN:           { attr =  AttributeTypePtr( new AttributeTypeOrigin(			header, in) );    break; }
+		case AS_PATH:          { attr =  AttributeTypePtr( new AttributeTypeASPath(			header, in) );    break; }
+		case NEXT_HOP:         { attr =  AttributeTypePtr( new AttributeTypeNextHop(		header, in) );    break; }
+		case MULTI_EXIT_DISC:  { attr =  AttributeTypePtr( new AttributeTypeMultiExitDisc(	header, in) );    break; }
+		case LOCAL_PREF:       { attr =  AttributeTypePtr( new AttributeTypeLocalPref(		header, in) );    break; }
+		case ATOMIC_AGGREGATE: { attr =  AttributeTypePtr( new AttributeTypeAtomicAggregate(header, in) );    break; }
+		case AGGREGATOR:       { attr =  AttributeTypePtr( new AttributeTypeAggregator(		header, in) );    break; }
+		case COMMUNITIES:      { attr =  AttributeTypePtr( new AttributeTypeCommunities(	header, in) );    break; }
+		case ORIGINATOR_ID:    { attr =  AttributeTypePtr( new AttributeTypeOriginatorID(	header, in) );    break; }
+		case CLUSTER_LIST:     { attr =  AttributeTypePtr( new AttributeTypeClusterList(	header, in) );    break; }
+		case EXT_COMMUNITIES:  { attr =  AttributeTypePtr( new AttributeTypeExtCommunities(	header, in) );    break; }
+		case MP_REACH_NLRI:    { attr =  AttributeTypePtr( new AttributeTypeMPReachNLRI(	header, in) );    break; }
+		case MP_UNREACH_NLRI:  { attr =  AttributeTypePtr( new AttributeTypeMPUnreachNLRI(	header, in) );    break; }
+		case NEW_AS_PATH:      { attr =  AttributeTypePtr( new AttributeTypeAS4Path(		header, in) );    break; }
+		case NEW_AGGREGATOR:   { attr =  AttributeTypePtr( new AttributeTypeAS4Aggregator(	header, in) );    break; }
 		// ADD MORE ATTRIBUTES HERE
 
 		default: {

@@ -3,6 +3,7 @@ AM_CPPFLAGS=-I$(top_srcdir)/include
 bin_PROGRAMS = bgpparser
 
 bgpparser_SOURCES = \
+FakeBGPUpdate.cpp \
 AttributeTypeASPathDumper.cpp \
 AttributeTypeAggregatorDumper.cpp \
 AttributeTypeAtomicAggregateDumper.cpp \
@@ -31,10 +32,21 @@ MRTBgp4MPStateChangeDumper.cpp \
 MRTTblDumpV1Dumper.cpp \
 MRTTblDumpV2Dumper.cpp \
 mrt2xml.cpp \
-xmlinternal.c \
-cfile_tools.c	cfile_tools.h
+xmlinternal.c
 
 bgpparser_LDADD   = ../../src/libbgpparser.la
-bgpparser_LDFLAGS = $(XML_LIBS) -lbz2 -lz $(log4cxx_LIBS) $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB)
-bgpparser_CPPFLAGS= -I$(top_srcdir)/include $(XML_CFLAGS)  $(log4cxx_CFLAGS)
+bgpparser_LDFLAGS = \
+	$(XML_LIBS) \
+	$(log4cxx_LIBS) \
+	$(BOOST_LDFLAGS) \
+		$(BOOST_SYSTEM_LIB) \
+		$(BOOST_FILESYSTEM_LIB) \
+		$(BOOST_PROGRAM_OPTIONS_LIB) \
+		$(BOOST_REGEX_LIB) \
+		$(BOOST_IOSTREAMS_LIB)
+
+bgpparser_CPPFLAGS= -I$(top_srcdir)/include \
+	$(XML_CFLAGS) \
+	$(log4cxx_CFLAGS) \
+	$(BOOST_CPPFLAGS)
 

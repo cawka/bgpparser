@@ -88,6 +88,9 @@ namespace po = boost::program_options;
 #include <boost/iostreams/categories.hpp>
 namespace io = boost::iostreams;
 
+using namespace std;
+using namespace boost;
+
 #define MAX_MRT_TYPE_NUM 49 
 #define MAX_MRT_SUBTYPE_NUM 6
 
@@ -273,23 +276,22 @@ int main(int argc, char** argv)
 	string format=CONFIG.count("format")>0 ? CONFIG["format"].as<string>( ) : "";
 	////////////////////////////////////////////////////////////////////////////
 
-
 	////////////////////////////////////////////////////////////////////////////
 	string filename=CONFIG["file"].as<string>();
-	boost::smatch m;
-	if( boost::regex_match(filename, m, boost::regex("^.*\\.(gz|bz2)$")) ) format=m[1];
+	smatch m;
+	if( regex_match(filename, m, regex("^.*\\.(gz|bz2)$")) ) format=m[1];
 	////////////////////////////////////////////////////////////////////////////
 
 	io::filtering_stream<io::input> in;
 
 	if( format=="gz" )
 	{
-		_log->debug( "Input file has GZIP format" );
+		LOG4CXX_DEBUG( _log, "Input file has GZIP format" );
 		in.push( io::gzip_decompressor() );
 	}
 	else if( format=="bz2" )
 	{
-		_log->debug( "Input file has BZIP2 format" );
+		LOG4CXX_DEBUG( _log, "Input file has BZIP2 format" );
 		in.push( io::bzip2_decompressor() );
 	}
 
@@ -368,7 +370,7 @@ int main(int argc, char** argv)
                         case AFI_IPv4:
                         case AFI_IPv6:
                         {
-                            MRTTblDumpPtr tblDump = boost::dynamic_pointer_cast<MRTTblDump>( msg );
+                            MRTTblDumpPtr tblDump = dynamic_pointer_cast<MRTTblDump>( msg );
                             tblDump->printMeCompact();
                         }
                         break;
@@ -394,7 +396,7 @@ int main(int argc, char** argv)
                         case RIB_IPV4_UNICAST:
                         {
                             MRTTblDumpV2RibIPv4UnicastPtr tblDumpIpv4Msg =
-                            		boost::dynamic_pointer_cast<MRTTblDumpV2RibIPv4Unicast>( msg );
+                            		dynamic_pointer_cast<MRTTblDumpV2RibIPv4Unicast>( msg );
                             // consider passing peerIndexTbl to printMe
                             if (unFlags & PRINT_COMPACT)
                                 tblDumpIpv4Msg->printMeCompact(peerIndexTbl);
@@ -406,7 +408,7 @@ int main(int argc, char** argv)
                         case RIB_IPV4_MULTICAST:
                         {
                             MRTTblDumpV2RibIPv4MulticastPtr tblDumpIpv4Msg =
-                            		boost::dynamic_pointer_cast<MRTTblDumpV2RibIPv4Multicast>( msg );
+                            		dynamic_pointer_cast<MRTTblDumpV2RibIPv4Multicast>( msg );
                             //cout << endl;
                             tblDumpIpv4Msg->printMe(peerIndexTbl);
                         }
@@ -415,7 +417,7 @@ int main(int argc, char** argv)
                         case RIB_IPV6_UNICAST:
                         {
                             MRTTblDumpV2RibIPv6UnicastPtr tblDumpIpv6Msg =
-                            		boost::dynamic_pointer_cast<MRTTblDumpV2RibIPv6Unicast>( msg );
+                            		dynamic_pointer_cast<MRTTblDumpV2RibIPv6Unicast>( msg );
                             //cout << endl;
                             if (unFlags & PRINT_COMPACT)
                                 tblDumpIpv6Msg->printMeCompact(peerIndexTbl);
@@ -427,7 +429,7 @@ int main(int argc, char** argv)
                         case RIB_IPV6_MULTICAST:
                         {
                             MRTTblDumpV2RibIPv6MulticastPtr tblDumpIpv6Msg =
-                            		boost::dynamic_pointer_cast<MRTTblDumpV2RibIPv6Multicast>( msg );
+                            		dynamic_pointer_cast<MRTTblDumpV2RibIPv6Multicast>( msg );
                             //cout << endl;
                             tblDumpIpv6Msg->printMe(peerIndexTbl);
                         }
@@ -436,7 +438,7 @@ int main(int argc, char** argv)
                         case PEER_INDEX_TABLE:
                         {
                             //cout << "  Setting a peer index table." << cout;
-                            peerIndexTbl = boost::dynamic_pointer_cast<MRTTblDumpV2PeerIndexTbl>( msg );
+                            peerIndexTbl = dynamic_pointer_cast<MRTTblDumpV2PeerIndexTbl>( msg );
                             cout << "PEERINDEXTABLE";
                         }
                         break;
@@ -456,7 +458,7 @@ int main(int argc, char** argv)
                             if (unFlags & PRINT_COMPACT ) {
                                 cout << "|" << rrchMRTTypes[msg->getType()];
                             }
-                            MRTBgp4MPMessagePtr bgp4MPmsg = boost::dynamic_pointer_cast<MRTBgp4MPMessage>( msg );
+                            MRTBgp4MPMessagePtr bgp4MPmsg = dynamic_pointer_cast<MRTBgp4MPMessage>( msg );
 
                             BGPMessagePtr bgpMessage = bgp4MPmsg->getPayload();
                             if( bgpMessage.get() == NULL ) { break; }
@@ -515,7 +517,7 @@ int main(int argc, char** argv)
                             if (unFlags & PRINT_COMPACT ) {
                                 cout << "|" << rrchMRTTypes[msg->getType()];
                             }
-                            MRTBgp4MPMessagePtr bgp4MPmsg = boost::dynamic_pointer_cast<MRTBgp4MPMessage>( msg );
+                            MRTBgp4MPMessagePtr bgp4MPmsg = dynamic_pointer_cast<MRTBgp4MPMessage>( msg );
                             BGPMessagePtr bgpMessage = bgp4MPmsg->getPayload();
                             if( bgpMessage.get() == NULL ) { break; }
                             switch(bgpMessage->Type())
@@ -593,7 +595,7 @@ int main(int argc, char** argv)
 
                         case BGP4MP_STATE_CHANGE:
                         {
-                            MRTBgp4MPStateChangePtr bgp4MPmsg = boost::dynamic_pointer_cast<MRTBgp4MPStateChange>( msg );
+                            MRTBgp4MPStateChangePtr bgp4MPmsg = dynamic_pointer_cast<MRTBgp4MPStateChange>( msg );
                             if (unFlags & PRINT_COMPACT ) {
                                 cout << "|" << "STATE" << "|";
                                 bgp4MPmsg->printMeCompact();
@@ -605,7 +607,7 @@ int main(int argc, char** argv)
                         break;
                         case BGP4MP_STATE_CHANGE_AS4:
                         {
-                            MRTBgp4MPStateChangePtr bgp4MPmsg = boost::dynamic_pointer_cast<MRTBgp4MPStateChange>( msg );
+                            MRTBgp4MPStateChangePtr bgp4MPmsg = dynamic_pointer_cast<MRTBgp4MPStateChange>( msg );
                             if (unFlags & PRINT_COMPACT ) {
                                 cout << "|" << "STATE" << "|";
                                 bgp4MPmsg->printMeCompact();
@@ -661,7 +663,7 @@ int main(int argc, char** argv)
 //	}
 
 
-	_log->info( "Parsing ended" );
+	LOG4CXX_INFO( _log, "Parsing ended" );
 	return 0;
 }
 

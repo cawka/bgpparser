@@ -47,7 +47,7 @@ public:
 	static std::string getTypeStr(uint8_t attrType);
 
 	uint16_t getLength() { return length; }
-//	uint8_t* getValue() { return value; }
+	const boost::shared_ptr<char> &getData() const { return data; }
 //	uint8_t hasError() { return error; }
 //	void setValue(uint8_t* value) { this->value = value; };
 	bool getAS4() { return isAS4; }
@@ -85,6 +85,8 @@ private:
 protected:
 	uint16_t length;
     bool isAS4;
+
+	boost::shared_ptr<char> data;
 
 	static log4cxx::LoggerPtr Logger;
 };
