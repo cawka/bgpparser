@@ -50,6 +50,7 @@ TblDumpV2RibEntry.cpp
 
 libbgpparser_la_HEADERS = \
 ../include/bgpparser.h \
+../include/Exceptions.h \
 ../include/AttributeType.h \
 ../include/AttributeTypeAS4Aggregator.h \
 ../include/AttributeTypeAS4Path.h \
