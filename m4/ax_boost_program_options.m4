@@ -1,6 +1,6 @@
-# ===========================================================================
-#    http://www.nongnu.org/autoconf-archive/ax_boost_program_options.html
-# ===========================================================================
+# ============================================================================
+#  http://www.gnu.org/software/autoconf-archive/ax_boost_program_options.html
+# ============================================================================
 #
 # SYNOPSIS
 #
@@ -26,7 +26,10 @@
 #
 #   Copying and distribution of this file, with or without modification, are
 #   permitted in any medium without royalty provided the copyright notice
-#   and this notice are preserved.
+#   and this notice are preserved. This file is offered as-is, without any
+#   warranty.
+
+#serial 15
 
 AC_DEFUN([AX_BOOST_PROGRAM_OPTIONS],
 [
@@ -92,6 +95,9 @@ AC_DEFUN([AX_BOOST_PROGRAM_OPTIONS],
                                    [link_program_options="no"])
                   done
                 fi
+            if test "x$ax_lib" = "x"; then
+                AC_MSG_ERROR(Could not find a version of the library!)
+            fi
 				if test "x$link_program_options" != "xyes"; then
 					AC_MSG_ERROR([Could not link against [$ax_lib] !])
 				fi

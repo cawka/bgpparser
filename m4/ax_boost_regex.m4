@@ -1,5 +1,5 @@
 # ===========================================================================
-#         http://www.nongnu.org/autoconf-archive/ax_boost_regex.html
+#      http://www.gnu.org/software/autoconf-archive/ax_boost_regex.html
 # ===========================================================================
 #
 # SYNOPSIS
@@ -27,7 +27,10 @@
 #
 #   Copying and distribution of this file, with or without modification, are
 #   permitted in any medium without royalty provided the copyright notice
-#   and this notice are preserved.
+#   and this notice are preserved. This file is offered as-is, without any
+#   warranty.
+
+#serial 15
 
 AC_DEFUN([AX_BOOST_REGEX],
 [
@@ -72,7 +75,7 @@ AC_DEFUN([AX_BOOST_REGEX],
 			AC_DEFINE(HAVE_BOOST_REGEX,,[define if the Boost::Regex library is available])
             BOOSTLIBDIR=`echo $BOOST_LDFLAGS | sed -e 's/@<:@^\/@:>@*//'`
             if test "x$ax_boost_user_regex_lib" = "x"; then
-                for libextension in `ls $BOOSTLIBDIR/libboost_regex*.{so,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^lib\(boost_regex.*\)\.so.*$;\1;' -e 's;^lib\(boost_regex.*\)\.a*$;\1;'` ; do
+                for libextension in `ls $BOOSTLIBDIR/libboost_regex*.so* $BOOSTLIBDIR/libboost_regex*.a* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^lib\(boost_regex.*\)\.so.*$;\1;' -e 's;^lib\(boost_regex.*\)\.a*$;\1;'` ; do
                      ax_lib=${libextension}
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_REGEX_LIB="-l$ax_lib"; AC_SUBST(BOOST_REGEX_LIB) link_regex="yes"; break],
@@ -93,6 +96,9 @@ AC_DEFUN([AX_BOOST_REGEX],
                                    [BOOST_REGEX_LIB="-l$ax_lib"; AC_SUBST(BOOST_REGEX_LIB) link_regex="yes"; break],
                                    [link_regex="no"])
                done
+            fi
+            if test "x$ax_lib" = "x"; then
+                AC_MSG_ERROR(Could not find a version of the library!)
             fi
 			if test "x$link_regex" != "xyes"; then
 				AC_MSG_ERROR(Could not link against $ax_lib !)

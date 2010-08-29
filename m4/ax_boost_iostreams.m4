@@ -1,5 +1,5 @@
 # ===========================================================================
-#       http://www.nongnu.org/autoconf-archive/ax_boost_iostreams.html
+#    http://www.gnu.org/software/autoconf-archive/ax_boost_iostreams.html
 # ===========================================================================
 #
 # SYNOPSIS
@@ -26,7 +26,10 @@
 #
 #   Copying and distribution of this file, with or without modification, are
 #   permitted in any medium without royalty provided the copyright notice
-#   and this notice are preserved.
+#   and this notice are preserved. This file is offered as-is, without any
+#   warranty.
+
+#serial 14
 
 AC_DEFUN([AX_BOOST_IOSTREAMS],
 [
@@ -76,7 +79,7 @@ AC_DEFUN([AX_BOOST_IOSTREAMS],
 			AC_DEFINE(HAVE_BOOST_IOSTREAMS,,[define if the Boost::IOStreams library is available])
             BOOSTLIBDIR=`echo $BOOST_LDFLAGS | sed -e 's/@<:@^\/@:>@*//'`
             if test "x$ax_boost_user_iostreams_lib" = "x"; then
-                for libextension in `ls $BOOSTLIBDIR/libboost_iostreams*.{so,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^lib\(boost_iostreams.*\)\.so.*$;\1;' -e 's;^lib\(boost_iostreams.*\)\.a*$;\1;'` ; do
+                for libextension in `ls $BOOSTLIBDIR/libboost_iostreams*.so* $BOOSTLIBDIR/libboost_iostreams*.a* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^lib\(boost_iostreams.*\)\.so.*$;\1;' -e 's;^lib\(boost_iostreams.*\)\.a*$;\1;'` ; do
                      ax_lib=${libextension}
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_IOSTREAMS_LIB="-l$ax_lib"; AC_SUBST(BOOST_IOSTREAMS_LIB) link_iostreams="yes"; break],
@@ -98,6 +101,9 @@ AC_DEFUN([AX_BOOST_IOSTREAMS],
                                    [link_iostreams="no"])
                   done
 
+            fi
+            if test "x$ax_lib" = "x"; then
+                AC_MSG_ERROR(Could not find a version of the library!)
             fi
 			if test "x$link_iostreams" != "xyes"; then
 				AC_MSG_ERROR(Could not link against $ax_lib !)
