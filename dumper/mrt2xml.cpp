@@ -237,11 +237,11 @@ int main(int argc, char** argv)
 		PropertyConfigurator::configureAndWatch( "log4cxx.properties" );
 	else
 	{
-		PatternLayoutPtr   layout   ( new PatternLayout("%d{HH:mm:ss} %-7p %-25c{1} %m%n") );
-		ConsoleAppenderPtr appender ( new ConsoleAppender( layout ) );
-
-		BasicConfigurator::configure( appender );
-		Logger::getRootLogger()->setLevel( log4cxx::Level::getError() );
+//		PatternLayoutPtr   layout   ( new PatternLayout("%d{HH:mm:ss} %-7p %-25c{1} %m%n") );
+//		ConsoleAppenderPtr appender ( new ConsoleAppender( layout ) );
+//
+//		BasicConfigurator::configure( appender );
+		Logger::getRootLogger()->setLevel( log4cxx::Level::getOff() );
 	}
 
     LOG4CXX_INFO( _log,  "Parsing file [" << fileName << "]" );

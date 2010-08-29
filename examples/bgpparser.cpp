@@ -253,15 +253,15 @@ int main(int argc, char** argv)
 	// configure Logger
 	if( CONFIG.count("log")>0 )
 		PropertyConfigurator::configureAndWatch( CONFIG["log"].as<string>() );
-	if( fs::exists("log4cxx.properties") )
+	else if( fs::exists("log4cxx.properties") )
 		PropertyConfigurator::configureAndWatch( "log4cxx.properties" );
 	else
 	{
-		PatternLayoutPtr   layout   ( new PatternLayout("%d{HH:mm:ss} %p %c{1} - %m%n") );
-		ConsoleAppenderPtr appender ( new ConsoleAppender( layout ) );
+//		PatternLayoutPtr   layout   ( new PatternLayout("%d{HH:mm:ss} %p %c{1} - %m%n") );
+//		ConsoleAppenderPtr appender ( new ConsoleAppender( layout ) );
 
-		BasicConfigurator::configure( appender );
-		Logger::getRootLogger()->setLevel( log4cxx::Level::getError() );
+//		BasicConfigurator::configure( appender );
+		Logger::getRootLogger()->setLevel( log4cxx::Level::getOff() );
 	}
 
 	if( CONFIG.count("file")==0 )
