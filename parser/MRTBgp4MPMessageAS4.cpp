@@ -47,5 +47,5 @@ MRTBgp4MPMessageAS4::MRTBgp4MPMessageAS4( MRTCommonHeader &header, istream &inpu
 	addressFamily = ntohs(pkt.addressFamily);
 
 	processIPs( input );
-	processMessage( input, true );
+	payload = BGPCommonHeader::newMessage( input, true );
 }

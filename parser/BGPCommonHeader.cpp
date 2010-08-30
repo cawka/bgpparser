@@ -82,35 +82,39 @@ BGPCommonHeader::~BGPCommonHeader()
 BGPMessagePtr BGPCommonHeader::newMessage( istream &input, bool isAS4 )
 {
 	BGPMessagePtr bgpMsg;
-	BGPCommonHeader header( input );
+	BGPMessagePtr header( new BGPCommonHeader(input) );
 
-	io::stream<io::array_source> in( header.data.get(), header.length );
+	io::stream<io::array_source> in( header->data.get(), header->length );
 
-	switch( header.getType() )
+	switch( header->getType() )
 	{
 	case BGPCommonHeader::OPEN:
 		LOG4CXX_INFO(Logger,"BGP_OPEN");
-		bgpMsg = BGPMessagePtr( new BGPOpen(header,input) );
+		bgpMsg = BGPMessagePtr( new BGPOpen(*header,input) );
 		break;
 
 	case BGPCommonHeader::UPDATE:
 		LOG4CXX_INFO(Logger,"BGP_UPDATE");
-		bgpMsg = BGPMessagePtr( new BGPUpdate(header,in,isAS4) );
+		bgpMsg = BGPMessagePtr( new BGPUpdate(*header,in,isAS4) );
 		break;
 
 	case BGPCommonHeader::NOTIFICATION:
 		LOG4CXX_INFO(Logger,"BGP_NOTIFICAION");
-		bgpMsg = BGPMessagePtr( new BGPNotification(header,in) );
+		bgpMsg = BGPMessagePtr( new BGPNotification(*header,in) );
 		break;
 
 	case BGPCommonHeader::KEEPALIVE:
 		LOG4CXX_INFO(Logger,"BGP_KEEPALIVE");
-		bgpMsg = BGPMessagePtr( new BGPKeepAlive(header,in) );
+		bgpMsg = BGPMessagePtr( new BGPKeepAlive(*header,in) );
 		break;
 
 	case BGPCommonHeader::ROUTE_REFRESH:
 		LOG4CXX_INFO(Logger,"BGP_ROUTE_REFRESH");
-		bgpMsg = BGPMessagePtr( new BGPRouteRefresh(header,in) );
+		bgpMsg = BGPMessagePtr( new BGPRouteRefresh(*header,in) );
+		break;
+	default:
+		LOG4CXX_ERROR(Logger,"Unsupported BGP message type");
+		bgpMsg = header;
 		break;
 	}
 	return bgpMsg;

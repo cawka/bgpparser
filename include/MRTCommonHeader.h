@@ -47,6 +47,7 @@ public:
 	uint16_t getSubType(void) const;
 	uint32_t getLength(void) const;
 
+	const MRTCommonHeaderPacket   &getHeader( ) const { return pkt; }
 	const boost::shared_ptr<char> &getData( ) const { return data; }
 
 	/* static interface... uint8_t pointer will be updated to new location in file after call */
@@ -64,7 +65,8 @@ protected:
 	uint16_t subtype;	/* subtype of message in MRT payload */
 	uint32_t length;	/* length of payload in MRT */
 
-	boost::shared_ptr<char> data;
+	MRTCommonHeaderPacket   pkt; 	/* original MRT packet header */
+	boost::shared_ptr<char> data;	/* raw data of MRT packet */
 
 private:
 	static log4cxx::LoggerPtr Logger;

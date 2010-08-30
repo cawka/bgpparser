@@ -55,7 +55,7 @@ MRTBgp4MPMessage::MRTBgp4MPMessage( MRTCommonHeader &header, istream &input )
 	addressFamily = ntohs(pkt.addressFamily);
 
 	processIPs( input );
-	processMessage( input, false );
+	payload = BGPCommonHeader::newMessage( input, false );
 }
 
 void MRTBgp4MPMessage::processIPs( istream &input )
@@ -70,71 +70,6 @@ void MRTBgp4MPMessage::processIPs( istream &input )
 
 	io::read( input, reinterpret_cast<char*>(&peerIP),  len );
 	io::read( input, reinterpret_cast<char*>(&localIP), len );
-}
-
-void MRTBgp4MPMessage::processMessage( std::istream &input, bool isAS4 )
-{
-	BGPMessagePtr bgpMsg = BGPCommonHeader::newMessage( input, isAS4 );
-
-	if( bgpMsg )
-	{
-		switch( bgpMsg->getType( ) )
-		{
-		case BGPCommonHeader::OPEN:
-		{
-			LOG4CXX_TRACE(Logger,"case BGPCommonHeader::OPEN");
-			BGPOpenPtr bgpOpen = boost::dynamic_pointer_cast<BGPOpen>( bgpMsg );
-//			BGPOpen* bgpOpen = (BGPOpen*)bgpMsg;
-			payload = bgpMsg;
-			break;
-		}
-		case BGPCommonHeader::UPDATE:
-		{
-			BGPUpdatePtr bgpUpdate = boost::dynamic_pointer_cast<BGPUpdate>( bgpMsg );
-			LOG4CXX_TRACE(Logger,"bgpUpdate->length = " << bgpUpdate->getLength());
-			LOG4CXX_TRACE(Logger,"bgpUpdate->withdrawnRoutesLength = " << bgpUpdate->getWithdrawnRoutesLength());
-			LOG4CXX_TRACE(Logger,"bgpUpdate->pathAttributesLength = " << bgpUpdate->getPathAttributesLength());
-			LOG4CXX_TRACE(Logger,"bgpUpdate->nlriLength = " << bgpUpdate->getNlriLength());
-
-			if( bgpUpdate->getWithdrawnRoutesLength( ) == 0
-					&& bgpUpdate->getPathAttributesLength( ) == 0
-					&& bgpUpdate->getNlriLength( ) == 0 )
-			{
-				payload.reset( );
-			}
-			else
-			{
-				payload = bgpMsg;
-			}
-			break;
-		}
-		case BGPCommonHeader::NOTIFICATION:
-		{
-			BGPNotificationPtr bgpNotification = boost::dynamic_pointer_cast<BGPNotification>( bgpMsg );
-			payload = bgpMsg;
-			break;
-		}
-		case BGPCommonHeader::KEEPALIVE:
-		{
-			BGPKeepAlivePtr bgpKeepAlive = boost::dynamic_pointer_cast<BGPKeepAlive>( bgpMsg );
-			payload = bgpMsg;
-			break;
-		}
-		case BGPCommonHeader::ROUTE_REFRESH:
-		{
-			BGPRouteRefreshPtr bgpRouteRefresh = boost::dynamic_pointer_cast<BGPRouteRefresh>( bgpMsg );
-			payload = bgpMsg;
-			break;
-		}
-		default:
-			LOG4CXX_ERROR(Logger,"Unknown value of bgpMsg->getType( )");
-			break;
-		}
-	}
-	else
-	{
-		LOG4CXX_ERROR( Logger, "bgp message is NULL." );
-	}
 }
 
 MRTBgp4MPMessage::~MRTBgp4MPMessage(void)

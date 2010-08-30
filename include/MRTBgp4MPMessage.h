@@ -61,7 +61,6 @@ public:
 protected:
 	MRTBgp4MPMessage( MRTCommonHeader &header ) : MRTCommonHeader( header ) { ; }
 	void processIPs( std::istream &input );
-	void processMessage( std::istream &input, bool isAS4 );
 
 protected:
 	uint32_t peerAS;		/* consider making private */

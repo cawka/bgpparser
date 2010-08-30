@@ -66,7 +66,6 @@ MRTCommonHeader::MRTCommonHeader(void) {
 
 MRTCommonHeader::MRTCommonHeader( istream &input )
 {
-	MRTCommonHeaderPacket pkt;
 	int len=io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTCommonHeaderPacket) );
 	if( len<0 ) throw EOFException( );
 	if( len!=sizeof(MRTCommonHeaderPacket) ) throw MRTException( "MRT format error" );
