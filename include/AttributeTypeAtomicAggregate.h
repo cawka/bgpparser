@@ -37,14 +37,14 @@ class AttributeTypeAtomicAggregate :
 	public AttributeType
 {
 public:
-	AttributeTypeAtomicAggregate(void);
-	AttributeTypeAtomicAggregate(uint16_t len, uint8_t* msg);
-	AttributeTypeAtomicAggregate(const AttributeTypeAtomicAggregate&);
+	AttributeTypeAtomicAggregate(AttributeType &header, std::istream &input);
 	virtual ~AttributeTypeAtomicAggregate(void);
 	
 	virtual void printMe();
 	virtual void printMeCompact();
-	virtual AttributeType* clone();
+
+private:
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _ATTRIBUTETYPEATOMICAGGREGATE_H_ */

@@ -84,8 +84,8 @@ replace_str(char *str, char *orig, char *rep);
  * Output:  the AFI number for the address, currently support 1:IPv4 and 2:IPv6)
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
-int 
-get_afi(char* addr);
+//int
+//get_afi(char* addr);
 
 /*----------------------------------------------------------------------------------------
  * Purpose: Basic utiliy functions that add a property (attribute) to an existing xml node
@@ -95,11 +95,11 @@ get_afi(char* addr);
  * Output:  the xml node
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
-/* Integer */ xmlNodePtr xmlNewPropInt   (xmlNodePtr node, char *name, int   value);   
-/* Float   */ xmlNodePtr xmlNewPropFloat (xmlNodePtr node, char *name, float value);  
-/* String  */ xmlNodePtr xmlNewPropString(xmlNodePtr node, char *name, char *value);
-/* AFI     */ xmlNodePtr xmlNewPropAFI   (xmlNodePtr node,             int   value);
-/* SAFI    */ xmlNodePtr xmlNewPropSAFI  (xmlNodePtr node,             int   value);
+/* Integer */ xmlNodePtr xmlNewPropInt   (xmlNodePtr node, const char *name, int   		 value);
+/* Float   */ xmlNodePtr xmlNewPropFloat (xmlNodePtr node, const char *name, float 	     value);
+/* String  */ xmlNodePtr xmlNewPropString(xmlNodePtr node, const char *name, const char *value);
+/* AFI     */ xmlNodePtr xmlNewPropAFI   (xmlNodePtr node,             		 int   	 	 value);
+/* SAFI    */ xmlNodePtr xmlNewPropSAFI  (xmlNodePtr node,             		 int   		 value);
 
 /*----------------------------------------------------------------------------------------
  * Purpose: Basic utility functions that generate a plain xml node, for example: <mytag>myvalue</mytag>
@@ -108,15 +108,15 @@ get_afi(char* addr);
  * Output:  the xml node
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
-/* Integer */ xmlNodePtr xmlNewNodeInt         (char *tag, int       value);
-/* u_int   */ xmlNodePtr xmlNewNodeUnsignedInt (char *tag, u_int32_t value);
-/* Float   */ xmlNodePtr xmlNewNodeFloat       (char *tag, float     value);
-/* String  */ xmlNodePtr xmlNewNodeString      (char *tag, char     *value);
-/* Time    */ xmlNodePtr xmlNewNodeGmtTime     (char *tag, time_t    value);
-/* Octet   */ xmlNodePtr xmlNewNodeOctets      (char *tag, u_char   *value, int len); /* len: octet length */
-/* IP      */ xmlNodePtr xmlNewNodeIP          (char *tag, u_int32_t value);
-/* AFI     */ xmlNodePtr xmlNewNodeAFI         (char *tag, int       value);
-/* SAFI    */ xmlNodePtr xmlNewNodeSAFI        (char *tag, int       value);
+/* Integer */ xmlNodePtr xmlNewNodeInt         (const char *tag, int        	value);
+/* u_int   */ xmlNodePtr xmlNewNodeUnsignedInt (const char *tag, u_int32_t  	value);
+/* Float   */ xmlNodePtr xmlNewNodeFloat       (const char *tag, float      	value);
+/* String  */ xmlNodePtr xmlNewNodeString      (const char *tag, const char*	value);
+/* Time    */ xmlNodePtr xmlNewNodeGmtTime     (const char *tag, time_t     	value);
+/* Octet   */ xmlNodePtr xmlNewNodeOctets      (const char *tag, const u_char *	value, int len); /* len: octet length */
+/* IP      */ xmlNodePtr xmlNewNodeIP          (const char *tag, u_int32_t 		value);
+/* AFI     */ xmlNodePtr xmlNewNodeAFI         (const char *tag, int       		value);
+/* SAFI    */ xmlNodePtr xmlNewNodeSAFI        (const char *tag, int       		value);
 
 /*----------------------------------------------------------------------------------------
  * Purpose: Basic utility functions that generate a plain xml node, 
@@ -127,15 +127,15 @@ get_afi(char* addr);
  * Output:  the newly created child node
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
-/* Integer */ xmlNodePtr xmlNewChildInt         (xmlNodePtr parent_node, char *tag, int       value);
-/* u_int   */ xmlNodePtr xmlNewChildUnsignedInt (xmlNodePtr parent_node, char *tag, u_int32_t value);
-/* Float   */ xmlNodePtr xmlNewChildFloat       (xmlNodePtr parent_node, char *tag, float     value);
-/* String  */ xmlNodePtr xmlNewChildString      (xmlNodePtr parent_node, char *tag, char     *value);
-/* IP      */ xmlNodePtr xmlNewChildIP          (xmlNodePtr parent_node, char *tag, u_int32_t value);
-/* Time    */ xmlNodePtr xmlNewChildGmtTime     (xmlNodePtr parent_node, char *tag, time_t    value);
-/* Octet   */ xmlNodePtr xmlNewChildOctets      (xmlNodePtr parent_node, char *tag, u_char   *value, int len); /* len: octet length */
-/* AFI     */ xmlNodePtr xmlNewChildAFI         (xmlNodePtr parent_node, char *tag, int       value);
-/* SAFI    */ xmlNodePtr xmlNewChildSAFI        (xmlNodePtr parent_node, char *tag, int       value);
+/* Integer */ xmlNodePtr xmlNewChildInt         (xmlNodePtr parent_node, const char *tag, int       	value);
+/* u_int   */ xmlNodePtr xmlNewChildUnsignedInt (xmlNodePtr parent_node, const char *tag, u_int32_t 	value);
+/* Float   */ xmlNodePtr xmlNewChildFloat       (xmlNodePtr parent_node, const char *tag, float      	value);
+/* String  */ xmlNodePtr xmlNewChildString      (xmlNodePtr parent_node, const char *tag, const char* 	value);
+/* IP      */ xmlNodePtr xmlNewChildIP          (xmlNodePtr parent_node, const char *tag, u_int32_t   	value);
+/* Time    */ xmlNodePtr xmlNewChildGmtTime     (xmlNodePtr parent_node, const char *tag, time_t    	value);
+/* Octet   */ xmlNodePtr xmlNewChildOctets      (xmlNodePtr parent_node, const char *tag, const u_char* value, int len); /* len: octet length */
+/* AFI     */ xmlNodePtr xmlNewChildAFI         (xmlNodePtr parent_node, const char *tag, int       	value);
+/* SAFI    */ xmlNodePtr xmlNewChildSAFI        (xmlNodePtr parent_node, const char *tag, int       	value);
 
 /*----------------------------------------------------------------------------------------
  * Purpose: print the xml node

@@ -33,30 +33,27 @@
 #include "Dumper.h"
 #include "MRTBgp4MPMessage.h"
 
-using namespace std;
+class MRTBgp4MPMessageDumper;
+typedef boost::shared_ptr<MRTBgp4MPMessageDumper> MRTBgp4MPMessageDumperPtr;
 
 /* Common Dumper */
 class MRTBgp4MPMessageDumper : public Dumper
 {
 public:
-	MRTBgp4MPMessageDumper();
 	virtual ~MRTBgp4MPMessageDumper();
 	
 	// Factory method for creating a dumper
-	static class MRTBgp4MPMessageDumper* newDumper(MRTBgp4MPMessage*);
+	static MRTBgp4MPMessageDumperPtr newDumper( const MRTBgp4MPMessagePtr &bgp4mp_msg );
 
 	xmlNodePtr genXml();
-	string     genAscii();
+	std::string     genAscii();
 
-    void setMRTBgp4MPMessagese(MRTBgp4MPMessage* bgp4mp_msg)
-    {
-        this->bgp4mp_msg = bgp4mp_msg;
-    }
-
+private:
+	MRTBgp4MPMessageDumper();
 
 protected:
     /* Pointer to BGP4MP_MESSAGE */
-    MRTBgp4MPMessage *bgp4mp_msg;
+    MRTBgp4MPMessagePtr bgp4mp_msg;
 };
 
 #endif /* __MRTBGP4MPMSGDUMPER__ */

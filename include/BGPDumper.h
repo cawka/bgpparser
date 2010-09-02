@@ -35,17 +35,17 @@
 #include "BGPAttribute.h"
 #include <list>
 
-using namespace std;
+class BGPDumper;
+typedef boost::shared_ptr<BGPDumper> BGPDumperPtr;
 
 /* Common Dumper */
 class BGPDumper : public Dumper
 {
 public:
-	BGPDumper(BGPMessage*);
 	virtual ~BGPDumper();
 	
 	// Factory method for creating a BGP dumper
-	static class BGPDumper* newDumper(BGPMessage*);
+	static BGPDumperPtr newDumper( const BGPMessagePtr &msg );
 
     // XML output
 	virtual xmlNodePtr genXml();
@@ -54,19 +54,28 @@ public:
 	virtual xmlNodePtr genXmlAsciiNode();
 
     // Ascii output
-	virtual string genAscii();
+	virtual std::string genAscii();
     //virtual list<string> genAsciiMsg(); 
-    virtual list<string> genAsciiMsg(string peer_addr, string peer_as, bool is_tabledump); 
+    virtual std::list<std::string> genAsciiMsg(string peer_addr, string peer_as, bool is_tabledump);
 
 protected:
-    BGPMessage* bgp_msg;
+	BGPDumper( const BGPMessagePtr &msg );
+
+private:
+    BGPDumper( ) { }
+
+protected:
+    BGPMessagePtr bgp_msg;
+
+private:
+    static log4cxx::LoggerPtr Logger;
 };
 
 /* Open */
 class BGPOpenDumper : public BGPDumper 
 {
 public:
-	BGPOpenDumper(BGPMessage*);
+	BGPOpenDumper(const BGPMessagePtr &msg);
 	virtual ~BGPOpenDumper();
 protected:
 };
@@ -75,14 +84,14 @@ protected:
 class BGPUpdateDumper : public BGPDumper 
 {
 public:
-	BGPUpdateDumper(BGPMessage*);
+	BGPUpdateDumper(const BGPMessagePtr &msg);
 	virtual ~BGPUpdateDumper();
 
     // XML output
-	xmlNodePtr genUpdateWithdrawnNode(list<Route>* Routes);
-	xmlNodePtr genUpdateNlriNode(list<Route>* Routes);
-	xmlNodePtr genPrefixNode(Route, uint32_t afi, uint32_t safi);
-	xmlNodePtr genUpdateAttributesNode(list<BGPAttribute>* pathAttributes);
+	xmlNodePtr genUpdateWithdrawnNode(const list<RoutePtr>& Routes);
+	xmlNodePtr genUpdateNlriNode(const list<RoutePtr>& Routes);
+	xmlNodePtr genPrefixNode( const RoutePtr &route, uint32_t afi, uint32_t safi);
+	xmlNodePtr genUpdateAttributesNode(const std::list<BGPAttributePtr>& pathAttributes);
 	virtual xmlNodePtr genXmlAsciiNode();
 
     // Ascii output
@@ -95,7 +104,7 @@ protected:
 class BGPKeepAliveDumper : public BGPDumper 
 {
 public:
-	BGPKeepAliveDumper(BGPMessage*);
+	BGPKeepAliveDumper(const BGPMessagePtr &msg);
 	virtual ~BGPKeepAliveDumper();
 protected:
 };
@@ -104,7 +113,7 @@ protected:
 class BGPNotificationDumper : public BGPDumper 
 {
 public:
-	BGPNotificationDumper(BGPMessage*);
+	BGPNotificationDumper(const BGPMessagePtr &msg);
 	virtual ~BGPNotificationDumper();
 protected:
 };
@@ -113,7 +122,7 @@ protected:
 class BGPRouteRefreshDumper : public BGPDumper 
 {
 public:
-	BGPRouteRefreshDumper(BGPMessage*);
+	BGPRouteRefreshDumper(const BGPMessagePtr &msg);
 	virtual ~BGPRouteRefreshDumper();
 protected:
 };

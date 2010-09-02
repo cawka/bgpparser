@@ -26,6 +26,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <bgpparser.h>
+using namespace std;
+
 #include <libxml/tree.h>
 #include "BGPAttribute.h"
 #include "BGPAttributeDumper.h"
@@ -35,7 +38,7 @@ extern "C" {
     #include "xmlinternal.h"
 }
 
-BGPAttributeDumper::BGPAttributeDumper(BGPAttribute* attr)
+BGPAttributeDumper::BGPAttributeDumper( const BGPAttributePtr &attr )
 {
     bgp_attr = attr;
 }
@@ -43,11 +46,9 @@ BGPAttributeDumper::BGPAttributeDumper(BGPAttribute* attr)
 BGPAttributeDumper::~BGPAttributeDumper()
 {}
 
-BGPAttributeDumper* BGPAttributeDumper::newDumper(BGPAttribute* attr)
+BGPAttributeDumperPtr BGPAttributeDumper::newDumper( const BGPAttributePtr &attr )
 {
-    BGPAttributeDumper* attr_dumper = NULL;
-    attr_dumper = new BGPAttributeDumper(attr);
-    return attr_dumper;
+    return BGPAttributeDumperPtr( new BGPAttributeDumper(attr) );
 }
 
 xmlNodePtr BGPAttributeDumper::genXml()
@@ -67,13 +68,14 @@ xmlNodePtr BGPAttributeDumper::genXml()
 
     /* Type */
     string type_str = bgp_attr->getAttributeTypeStr();
-    xmlNodePtr type_node = xmlNewChildString(node, "TYPE", (char *)type_str.c_str());
+    xmlNodePtr type_node = xmlNewChildString( node, "TYPE", type_str.c_str() );
     xmlNewPropInt(type_node, "value", bgp_attr->getAttributeTypeCode());
 
     /* Attribute xml node */
-    AttributeTypeDumper *attr_dumper = AttributeTypeDumper::newDumper(bgp_attr->getAttributeTypeCode(), bgp_attr->getAttributeTypeStr(), bgp_attr->getAttributeValue());
-    xmlAddChild(node, attr_dumper->genXml());
-    delete attr_dumper;
+    AttributeTypeDumperPtr attr_dumper =
+    		AttributeTypeDumper::newDumper( bgp_attr->getAttributeTypeCode(), bgp_attr->getAttributeTypeStr(), bgp_attr->getAttributeValue() );
+
+    xmlAddChild( node, attr_dumper->genXml() );
 
     return node;
 }
@@ -83,9 +85,9 @@ string BGPAttributeDumper::genAscii()
     string node = "";
 
     /* Attribute xml node */
-    AttributeTypeDumper *attr_dumper = AttributeTypeDumper::newDumper(bgp_attr->getAttributeTypeCode(), bgp_attr->getAttributeTypeStr(), bgp_attr->getAttributeValue());
+    AttributeTypeDumperPtr attr_dumper =
+    		AttributeTypeDumper::newDumper(bgp_attr->getAttributeTypeCode(), bgp_attr->getAttributeTypeStr(), bgp_attr->getAttributeValue());
     node += attr_dumper->genAscii();
-    delete attr_dumper;
 
     return node;
 }

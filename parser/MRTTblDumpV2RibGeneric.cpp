@@ -27,69 +27,58 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "MRTTblDumpV2RibGeneric.h"
+#include "Exceptions.h"
 
-MRTTblDumpV2RibGeneric::MRTTblDumpV2RibGeneric(void) {
-	/* nothing */
-}
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
 
+log4cxx::LoggerPtr MRTTblDumpV2RibGeneric::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibGeneric" );
 
-MRTTblDumpV2RibGeneric::MRTTblDumpV2RibGeneric(uint8_t **ptr) 
-					   : MRTTblDumpV2RibHeader((const uint8_t **)ptr) {
-	uint8_t *p;
-	uint16_t addressFamily;
-	uint8_t subsequentAddressFamily;
-
-	/* add sizeof(MRTCommonHeaderPacket) to ptr since ptr points to base of message */
-	p = const_cast<uint8_t *>(*ptr) + sizeof(MRTCommonHeaderPacket);
-
+MRTTblDumpV2RibGeneric::MRTTblDumpV2RibGeneric( MRTCommonHeader &header, std::istream &input )
+					   : MRTTblDumpV2RibHeader(header)
+{
 	/* copy out the sequence number, increment the pointer, and convert to host order */
-	memcpy(&sequenceNumber, p, sizeof(uint32_t));
-	p += sizeof(uint32_t);
+	io::read( input, reinterpret_cast<char*>(&sequenceNumber), sizeof(uint32_t) );
 	sequenceNumber = ntohl(sequenceNumber);
 
 	/* copy out the AFI, increment the pointer, and convert to host order */
-	memcpy(&addressFamily, p, sizeof(uint16_t));
-	p += sizeof(uint16_t);
-	addressFamily = ntohs(addressFamily);
+	io::read( input, reinterpret_cast<char*>(&afi), sizeof(uint16_t) );
 
-	if (addressFamily == AFI_IPv4) {
-		afi = AFI_IPv4;
-	} else if (addressFamily == AFI_IPv6) {
-		afi = AFI_IPv6;
-	} else {
-		Logger::err("rib generic has unknown address family [%u]", addressFamily);
+	if( afi!=AFI_IPv4 && afi!=AFI_IPv6 )
+	{
+		LOG4CXX_ERROR( Logger,"rib generic has unknown address family ["<< afi <<"]" );
+		throw BGPError( );
 	}
 
 	/* copy out the SAFI, increment the pointer */
-	subsequentAddressFamily = *p++;
+	uint8_t subsequentAddressFamily;
+	subsequentAddressFamily = input.get( );
 
 	if (subsequentAddressFamily == SAFI_UNICAST) {
 		safi = (uint16_t) subsequentAddressFamily;
 	} else if (subsequentAddressFamily == SAFI_MULTICAST) {
 		safi = (uint16_t) subsequentAddressFamily;
 	} else {
-		Logger::err("rib generic has unknown subsequent address family [%u]", subsequentAddressFamily);
+		LOG4CXX_ERROR( Logger,"rib generic has unknown subsequent address family ["<< subsequentAddressFamily <<"]" );
+		throw BGPError( );
 	}
 
-	prefixLength = *p++;
-
-	memset(&prefix, 0, sizeof(IPAddress));
-	memcpy(&prefix, p, ((uint32_t)prefixLength + 7) / 8);
-	p += (((uint32_t)prefixLength + 7) / 8);
+	prefixLength = input.get( );
+	NLRIReachable route( prefixLength, input );
+	prefix=route.getPrefix( );
 
 	/* copy out the entry count, increment the pointer, and convert to host order */
-	memcpy(&entryCount, p, sizeof(uint16_t));
-	p += sizeof(uint16_t);
+	io::read( input, reinterpret_cast<char*>(&entryCount), sizeof(uint16_t) );
 	entryCount = ntohs(entryCount);
 
-	/* TODO: parse each RIB entry... */
-	MRTTblDumpV2RibHeader::parseRibEntry(ribs, entryCount, &p);
-
-	/* TODO: increment the pointer to the new location in the file stream */
-	*ptr = p;
+	for( int i=0; i<entryCount; i++ )
+		ribs.push_back( TblDumpV2RibEntryPtr( new TblDumpV2RibEntry( input )) );
 }
 
 MRTTblDumpV2RibGeneric::~MRTTblDumpV2RibGeneric(void) {
 	/* nothing */
 }
+

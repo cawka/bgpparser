@@ -29,25 +29,15 @@
 #ifndef _TBLDUMPV2RIBENTRY_H_
 #define _TBLDUMPV2RIBENTRY_H_
 
-#ifdef WIN32
-#define _USE_32BIT_TIME_T
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#else
-#include <netinet/in.h>
-#endif	/* WIN32 */
-
 #include "MRTTblDumpV2PeerIndexTbl.h"
 #include "BGPAttribute.h"
 
 #include <list>
-using namespace std;
 
 class TblDumpV2RibEntry
 {
 public:
-	TblDumpV2RibEntry(void);
-	TblDumpV2RibEntry(const TblDumpV2RibEntry& val); // Copy constructor
+	TblDumpV2RibEntry( std::istream &input );
 	virtual ~TblDumpV2RibEntry(void);
 
 	uint16_t getPeerIndex(void) const { return peerIndex; };
@@ -59,20 +49,25 @@ public:
 	uint16_t getAttributeLength(void) const { return attributeLength; };
 	void setAttributeLength(uint16_t attributeLength) { this->attributeLength = attributeLength; };
 
-	list<BGPAttribute> *getAttributes(void) const { return attributes; };
+	const std::list<BGPAttributePtr> &getAttributes(void) const { return attributes; };
 	
 	virtual void printMe();
-	virtual void printMe(MRTTblDumpV2PeerIndexTbl*);
+	virtual void printMe( const MRTTblDumpV2PeerIndexTblPtr &peerIndexTbl );
 	virtual void printMeCompact();
-	virtual void printMeCompact(MRTTblDumpV2PeerIndexTbl*);
+	virtual void printMeCompact( const MRTTblDumpV2PeerIndexTblPtr &peerIndexTbl );
 
 protected:
 	uint16_t peerIndex; // This is an index into the PEER_INDEX_TABLE MRT record
-	time_t originatedTime;
+	uint32_t originatedTime;
 	uint16_t attributeLength;		/* consider removing attribute length field */
 	
 	/* add list of BGPAttributes */
-	list<BGPAttribute> *attributes;
+	std::list<BGPAttributePtr> attributes;
+
+private:
+	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<TblDumpV2RibEntry> TblDumpV2RibEntryPtr;
 
 #endif	/* _TBLDUMPV2RIBENTRY_H_ */

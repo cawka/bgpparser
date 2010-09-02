@@ -34,33 +34,39 @@
 #include "Dumper.h"
 #include "AttributeType.h"
 
-using namespace std;
+class AttributeTypeDumper;
+typedef boost::shared_ptr<AttributeTypeDumper> AttributeTypeDumperPtr;
 
 class AttributeTypeDumper : public Dumper /* AKA BGPMessage */
 {
 public:
-	AttributeTypeDumper(AttributeType*);
+	AttributeTypeDumper( const AttributeTypePtr &attr );
 	virtual ~AttributeTypeDumper();
 	
 	// Factory method for creating a attribute dumper instance.
-	static class AttributeTypeDumper* newDumper(uint8_t attrType, string attrTypeStr, AttributeType*);
+	static AttributeTypeDumperPtr newDumper( uint8_t attrType, string attrTypeStr, const AttributeTypePtr &attr );
+
 	virtual xmlNodePtr genXml();
 	virtual string     genAscii();
 
-    string  getTypeStr(void)        {return type_str;      };
-	void    setTypeStr(string ts)   {this->type_str = ts;  };
-    uint8_t getTypeCode(void)       {return type_code;     };
-	void    setTypeCode(uint8_t tc) {this->type_code = tc; };
+    string  getTypeStr(void)       		{ return type_str;      };
+	void    setTypeStr(std::string ts)  { this->type_str = ts;  };
+    uint8_t getTypeCode(void)       	{ return type_code;     };
+	void    setTypeCode(uint8_t tc) 	{ this->type_code = tc; };
+
 protected:
-    AttributeType* attr_type;
-    string  type_str;     
+    AttributeTypePtr attr_type;
+    std::string  type_str;
     uint8_t type_code;     
+
+private:
+    static log4cxx::LoggerPtr Logger;
 };
 
 class AttributeTypeOriginDumper : public AttributeTypeDumper
 {
 public:
-	AttributeTypeOriginDumper(AttributeType*);
+	AttributeTypeOriginDumper( const AttributeTypePtr &attr );
 	virtual ~AttributeTypeOriginDumper();
 	virtual xmlNodePtr genXml();
 	virtual string     genAscii();
@@ -69,7 +75,7 @@ public:
 class AttributeTypeNextHopDumper : public AttributeTypeDumper
 {
 public:
-	AttributeTypeNextHopDumper(AttributeType*);
+	AttributeTypeNextHopDumper( const AttributeTypePtr &attr );
 	virtual ~AttributeTypeNextHopDumper();
 	virtual xmlNodePtr genXml();
 	virtual string     genAscii();
@@ -78,7 +84,7 @@ public:
 class AttributeTypeLocalPrefDumper : public AttributeTypeDumper
 {
 public:
-	AttributeTypeLocalPrefDumper(AttributeType*);
+	AttributeTypeLocalPrefDumper( const AttributeTypePtr &attr );
 	virtual ~AttributeTypeLocalPrefDumper();
 	virtual xmlNodePtr genXml();
 	virtual string     genAscii();
@@ -87,7 +93,7 @@ public:
 class AttributeTypeMultiExitDiscDumper : public AttributeTypeDumper
 {
 public:
-	AttributeTypeMultiExitDiscDumper(AttributeType*);
+	AttributeTypeMultiExitDiscDumper( const AttributeTypePtr &attr );
 	virtual ~AttributeTypeMultiExitDiscDumper();
 	virtual xmlNodePtr genXml();
 	virtual string     genAscii();
@@ -96,7 +102,7 @@ public:
 class AttributeTypeCommunitiesDumper : public AttributeTypeDumper
 {
 public:
-	AttributeTypeCommunitiesDumper(AttributeType*);
+	AttributeTypeCommunitiesDumper( const AttributeTypePtr &attr );
 	virtual ~AttributeTypeCommunitiesDumper();
 	virtual xmlNodePtr genXml();
 	virtual string     genAscii();
@@ -105,7 +111,7 @@ public:
 class AttributeTypeAggregatorDumper : public AttributeTypeDumper
 {
 public:
-	AttributeTypeAggregatorDumper(AttributeType*);
+	AttributeTypeAggregatorDumper( const AttributeTypePtr &attr );
 	virtual ~AttributeTypeAggregatorDumper();
 	virtual xmlNodePtr genXml();
 	virtual string     genAscii();
@@ -114,7 +120,7 @@ public:
 class AttributeTypeAtomicAggregateDumper : public AttributeTypeDumper
 {
 public:
-	AttributeTypeAtomicAggregateDumper(AttributeType*);
+	AttributeTypeAtomicAggregateDumper( const AttributeTypePtr &attr );
 	virtual ~AttributeTypeAtomicAggregateDumper();
 	virtual xmlNodePtr genXml();
 	virtual string     genAscii();
@@ -123,7 +129,7 @@ public:
 class AttributeTypeASPathDumper : public AttributeTypeDumper
 {
 public:
-	AttributeTypeASPathDumper(AttributeType*);
+	AttributeTypeASPathDumper( const AttributeTypePtr &attr );
 	virtual ~AttributeTypeASPathDumper();
 	virtual xmlNodePtr genXml();
 	virtual string     genAscii();
@@ -133,27 +139,27 @@ public:
 class AttributeTypeMPReachNLRIDumper : public AttributeTypeDumper
 {
 public:
-	AttributeTypeMPReachNLRIDumper(AttributeType*);
+	AttributeTypeMPReachNLRIDumper( const AttributeTypePtr &attr );
 	virtual ~AttributeTypeMPReachNLRIDumper();
 	virtual xmlNodePtr genXml();
 	//virtual string     genAscii();
-    xmlNodePtr genPrefixNode(Route rt, int afi, int safi);
+    xmlNodePtr genPrefixNode(const NLRIReachablePtr &rt, int afi, int safi);
 };
 
 class AttributeTypeMPUnreachNLRIDumper : public AttributeTypeDumper
 {
 public:
-	AttributeTypeMPUnreachNLRIDumper(AttributeType*);
+	AttributeTypeMPUnreachNLRIDumper( const AttributeTypePtr &attr );
 	virtual ~AttributeTypeMPUnreachNLRIDumper();
 	virtual xmlNodePtr genXml();
 	//virtual string     genAscii();
-    xmlNodePtr genPrefixNode(Route rt, int afi, int safi);
+    xmlNodePtr genPrefixNode(const NLRIUnReachablePtr &rt, int afi, int safi);
 };
 
 class AttributeTypeOriginatorIDDumper : public AttributeTypeDumper
 {
 public:
-	AttributeTypeOriginatorIDDumper(AttributeType*);
+	AttributeTypeOriginatorIDDumper( const AttributeTypePtr &attr );
 	virtual ~AttributeTypeOriginatorIDDumper();
 	virtual xmlNodePtr genXml();
 	virtual string     genAscii();
@@ -162,7 +168,7 @@ public:
 class AttributeTypeClusterListDumper : public AttributeTypeDumper
 {
 public:
-	AttributeTypeClusterListDumper(AttributeType*);
+	AttributeTypeClusterListDumper( const AttributeTypePtr &attr );
 	virtual ~AttributeTypeClusterListDumper();
 	virtual xmlNodePtr genXml();
 	virtual string     genAscii();

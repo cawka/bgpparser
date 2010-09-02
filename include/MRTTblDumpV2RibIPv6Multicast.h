@@ -47,15 +47,13 @@ class MRTTblDumpV2RibIPv6Multicast :
 	public MRTTblDumpV2RibHeader
 {
 public:
-	MRTTblDumpV2RibIPv6Multicast(uint8_t **);
+	MRTTblDumpV2RibIPv6Multicast(MRTCommonHeader &header, std::istream &input);
 	virtual ~MRTTblDumpV2RibIPv6Multicast(void);
 
-	virtual void printMe();
-	virtual void printMe(MRTTblDumpV2PeerIndexTbl*);
-	virtual void printMeCompact();
-	virtual void printMeCompact(MRTTblDumpV2PeerIndexTbl*);
 private:
-	MRTTblDumpV2RibIPv6Multicast(void);
+	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<MRTTblDumpV2RibIPv6Multicast> MRTTblDumpV2RibIPv6MulticastPtr;
 
 #endif	/* _MRTTBLDUMPV2RIBIPV6MULTICAST_H_ */

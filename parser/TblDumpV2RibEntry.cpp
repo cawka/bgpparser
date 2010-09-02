@@ -27,72 +27,86 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "TblDumpV2RibEntry.h"
+#include "MRTTblDumpV2RibHeader.h"
+using namespace std;
 
-TblDumpV2RibEntry::TblDumpV2RibEntry(void) {
-	attributes = new list<BGPAttribute>();
-}
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
 
-TblDumpV2RibEntry::TblDumpV2RibEntry(const TblDumpV2RibEntry& val) {
-	peerIndex = val.peerIndex;
-	originatedTime = val.originatedTime;
-	attributeLength = val.attributeLength;
-	
-	attributes = new list<BGPAttribute>();
-	
-	list<BGPAttribute>::iterator iter;
-	iter = val.attributes->begin();
-	
-	for (uint32_t i=0; i < val.attributes->size(); i++, iter++) {
-		attributes->push_back(*iter);
-	}
+log4cxx::LoggerPtr TblDumpV2RibEntry::Logger = log4cxx::Logger::getLogger( "bgpparser.TblDumpV2RibEntry" );
+
+TblDumpV2RibEntry::TblDumpV2RibEntry( std::istream &input )
+{
+	LOG4CXX_TRACE(Logger,"TblDumpV2RibEntry::TblDumpV2RibEntry");
+
+	io::read( input, reinterpret_cast<char*>(&peerIndex), sizeof(uint16_t) );
+	peerIndex = ntohs(peerIndex);
+
+	LOG4CXX_TRACE(Logger,"set peer index to " << peerIndex);
+
+	MRTTblDumpV2PeerIndexTblPeerEntryPtr peer=MRTTblDumpV2RibHeader::getPeerIndexTbl()->getPeer( peerIndex );
+
+	io::read( input, reinterpret_cast<char*>(&originatedTime), sizeof(uint32_t) );
+	originatedTime = ntohl(originatedTime);
+	LOG4CXX_TRACE(Logger,"set originated time to " << (uint32_t)originatedTime);
+
+	io::read( input, reinterpret_cast<char*>(&attributeLength), sizeof(uint16_t) );
+	attributeLength = ntohs(attributeLength);
+	LOG4CXX_TRACE(Logger,"set attribute length to " << (uint32_t)attributeLength);
+
+	MRTTblDumpV2RibHeader::processAttributes( attributes, input, attributeLength, peer->isAS4);
+
+	LOG4CXX_TRACE(Logger,"END MRTTblDumpV2RibHeader::parseRibEntry(...)");
 }
 
 TblDumpV2RibEntry::~TblDumpV2RibEntry(void)
 {
-	delete attributes;
-	attributes = NULL;
 }
 
 // TODO: Can we print from this abstract of a level?
 //       Seems like we don't know AFI, SAFI...
-void TblDumpV2RibEntry::printMe(MRTTblDumpV2PeerIndexTbl* peerIndexTbl) { 
+void TblDumpV2RibEntry::printMe( const MRTTblDumpV2PeerIndexTblPtr &peerIndexTbl )
+{
 	cout << "TblDumpV2RibEntry with Peer Index Table" << endl; 
 	cout << "Peer Index: " << peerIndex;
 	fflush(stdout);
-	list<struct _MRTTblDumpV2PeerIndexTblPeerEntry>::iterator iter;
-	
+
+	vector<MRTTblDumpV2PeerIndexTblPeerEntryPtr>::const_iterator iter;
 	int i=0;
-	for (iter = peerIndexTbl->getPeerEntries()->begin(); i < peerIndex; iter++, i++)
+	for (iter = peerIndexTbl->getPeerEntries().begin(); i < peerIndex; iter++, i++)
 	{ /* Do nothing -- looking up the correct index */ }
 	cout << "iter should be at " << i;
 }	
 
 void TblDumpV2RibEntry::printMe() { 
 	struct tm  *ts;
-	ts = gmtime(&originatedTime);
+	time_t time=originatedTime;
+	ts = gmtime( &time );
 	char buf[80];
 	strftime(buf, sizeof(buf), "%m/%d/%Y %H:%M:%S", ts);
 	cout << "  ORIGINATED: " << buf;
 	// Print out the BGP Attributes
-	list<BGPAttribute>::iterator iter;
-	for (iter = attributes->begin(); iter != attributes->end(); iter++) {
+	list<BGPAttributePtr>::iterator iter;
+	for (iter = attributes.begin(); iter != attributes.end(); iter++) {
 		cout << endl << "  ";
-		(*iter).printMe();		
+		(*iter)->printMe();
 	}
 }	
 
 void TblDumpV2RibEntry::printMeCompact() {
-	list<BGPAttribute>::iterator iter;
+	list<BGPAttributePtr>::iterator iter;
 
-	cout << "ATTR_CNT: " << attributes->size() << "|";
-	for (iter = attributes->begin(); iter != attributes->end(); iter++) {
-		iter->printMeCompact();
+	cout << "ATTR_CNT: " << attributes.size() << "|";
+	for (iter = attributes.begin(); iter != attributes.end(); iter++) {
+		(*iter)->printMeCompact();
 		cout << "|";
 	}
 }
 
-void TblDumpV2RibEntry::printMeCompact(MRTTblDumpV2PeerIndexTbl *tbl) {
+void TblDumpV2RibEntry::printMeCompact(const MRTTblDumpV2PeerIndexTblPtr &peerIndexTbl) {
 	/* nothing */
 }
 

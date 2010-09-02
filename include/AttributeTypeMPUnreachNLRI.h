@@ -38,10 +38,7 @@ class AttributeTypeMPUnreachNLRI :
 	public AttributeType
 {
 public:
-	AttributeTypeMPUnreachNLRI(void);
-	AttributeTypeMPUnreachNLRI(const AttributeTypeMPUnreachNLRI &);
-	/* TODO: define this */
-	AttributeTypeMPUnreachNLRI(uint16_t len, uint8_t* msg);
+	AttributeTypeMPUnreachNLRI( AttributeType &header, std::istream &input );
 	virtual ~AttributeTypeMPUnreachNLRI(void);
 
 	void setAFI(uint16_t afi) { this->afi = afi; };
@@ -49,8 +46,8 @@ public:
 	void setSAFI(uint8_t safi) { this->safi = safi; };
 	uint8_t getSAFI(void) const { return safi; };
 
-	void addNLRI(NLRIUnReachable nlri) { this->nlri->push_back(nlri); };
-	list<NLRIUnReachable> *getNLRI(void) const { return nlri; };
+	void addNLRI(NLRIUnReachablePtr nlri) { this->nlri.push_back(nlri); };
+	const std::list<NLRIUnReachablePtr> &getNLRI(void) const { return nlri; };
 
 	virtual void printMe();
 	virtual void printMeCompact();
@@ -62,10 +59,14 @@ public:
 protected:
 	uint16_t afi;
 	uint8_t safi;
-	list<NLRIUnReachable> *nlri;
+	std::list<NLRIUnReachablePtr> nlri;
 	
 	bool corrupt;
+
+	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<AttributeTypeMPUnreachNLRI> AttributeTypeMPUnreachNLRIPtr;
 
 #endif	/* _ATTRIBUTETYPEMPUNREACHNLRI_H_ */
 

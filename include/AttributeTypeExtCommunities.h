@@ -36,12 +36,10 @@
 
 #include <list>
 
-using namespace std;
-
 typedef struct ExtCommunityValue
 {
-	uint16_t	typeHigh;
-	uint16_t	typeLow;
+	uint8_t		typeHigh;
+	uint8_t		typeLow;
 	uint8_t		rchValue[6];
 } ExtCommunityValue;
 
@@ -49,20 +47,19 @@ class AttributeTypeExtCommunities :
 	public AttributeType
 {
 public:
-	AttributeTypeExtCommunities(void);
-	AttributeTypeExtCommunities(uint16_t len, uint8_t* msg);
-	AttributeTypeExtCommunities(const AttributeTypeExtCommunities&);
-	virtual ~AttributeTypeExtCommunities(void);
+	AttributeTypeExtCommunities( AttributeType &header, std::istream &input );
+	virtual ~AttributeTypeExtCommunities( );
 
-	list<ExtCommunityValue>* getExtCommunityValue(void) const { return extCommunityValues; };
-	void setExtCommunityValue(ExtCommunityValue ExtCommunityVal) { this->extCommunityValues->push_back(ExtCommunityVal); };
+	const std::list<ExtCommunityValue>& getExtCommunityValue(void) const { return extCommunityValues; };
+//	void setExtCommunityValue(ExtCommunityValue ExtCommunityVal) { this->extCommunityValues->push_back(ExtCommunityVal); };
 
 	void printMe();
 	void printMeCompact();
-	AttributeType* clone();
 
 private:
-	list<ExtCommunityValue>* extCommunityValues;
+	std::list<ExtCommunityValue> extCommunityValues;
+
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _ATTRIBUTETYPEEXTCOMMUNITIES_H_ */

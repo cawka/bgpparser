@@ -38,31 +38,32 @@ class AttributeTypeMPReachNLRI :
 	public AttributeType
 {
 public:
-	AttributeTypeMPReachNLRI(void);
-	AttributeTypeMPReachNLRI(const AttributeTypeMPReachNLRI &);
-	/* TODO: define this */
-	AttributeTypeMPReachNLRI(uint16_t len, uint8_t* msg, bool isCompact=false);
+	AttributeTypeMPReachNLRI( AttributeType &header, std::istream &input );
 	virtual ~AttributeTypeMPReachNLRI(void);
 
 	void setAFI(uint16_t afi) { this->afi = afi; };
 	uint16_t getAFI(void) const { return afi; };
+
 	void setSAFI(uint8_t safi) { this->safi = safi; };
 	uint8_t getSAFI(void) const { return safi; };
+
 	void setNextHopAddressLength(uint8_t nextHopAddressLength) { this->nextHopAddressLength = nextHopAddressLength; };
 	uint8_t getNextHopAddressLength(void) const { return nextHopAddressLength; };
+
 	void setNextHopAddress(IPAddress *nextHopAddress) { memcpy(&(this->nextHopAddress), nextHopAddress, sizeof(IPAddress)); };
 	IPAddress getNextHopAddress(void) const { return nextHopAddress; };
+
 	void setNextHopAddressLocal(IPAddress *nextHopAddressLocal) { memcpy(&(this->nextHopAddressLocal), nextHopAddressLocal, sizeof(IPAddress)); };
 	IPAddress getNextHopAddressLocal(void) const { return nextHopAddressLocal; };
 
-	void addNLRI(NLRIReachable &nlri) { this->nlri->push_back(nlri); };
-	list<NLRIReachable> *getNLRI(void) const { return nlri; };
-	void addSNPA(NLRIReachable &snpa) { this->snpa->push_back(snpa); };
-	list<NLRIReachable> *getSNPA(void) const { return snpa; };
+	void addNLRI(NLRIReachablePtr &nlri);
+	const std::list<NLRIReachablePtr>& getNLRI(void) const { return nlri; };
+
+	void addSNPA(NLRIReachablePtr &snpa) { this->snpa.push_back(snpa); };
+	const std::list<NLRIReachablePtr>& getSNPA(void) const { return snpa; };
 	
 	virtual void printMe();
 	virtual void printMeCompact();
-	virtual AttributeType* clone();
 	
 	void setCorrupt(bool c) { corrupt = c; };
 	bool getCorrupt(void) { return corrupt; };
@@ -75,10 +76,14 @@ protected:
 	IPAddress nextHopAddressLocal;
 	
 	//uint8_t snpaLength; // Number of snpa (not octets!)
-	list<NLRIReachable> *snpa;
-	list<NLRIReachable> *nlri;
+	std::list<NLRIReachablePtr> snpa;
+	std::list<NLRIReachablePtr> nlri;
 	
 	bool corrupt;
+
+	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<AttributeTypeMPReachNLRI> AttributeTypeMPReachNLRIPtr;
 
 #endif	/* _ATTRIBUTETYPEMPREACHNLRI_H_ */

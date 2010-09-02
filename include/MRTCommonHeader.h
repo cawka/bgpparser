@@ -29,55 +29,47 @@
 #ifndef _MRTCOMMONHEADER_H_
 #define _MRTCOMMONHEADER_H_
 
-#include <stdint.h>
-
-#ifdef WIN32
-/* enable 32-bit time_t structure */
-#define _USE_32BIT_TIME_T
-#include <winsock2.h>
-#else
-#include <netinet/in.h>
-#endif	/* WIN32 */
-
-#include <iostream>
-#include <cstdio>
-#include <cstdlib>
-#include <ctime>
-#include <cstring>
-
 #include "MRTStructure.h"
+#include <iostream>
 
-using namespace std;
+/* the MRTCommonHeader is a MRTMessage */
+typedef class MRTCommonHeader	MRTMessage;
+typedef class boost::shared_ptr<MRTCommonHeader> MRTMessagePtr;
 
 /* Common header defined by all MRT packets */
 class MRTCommonHeader
 {
 public:
-	MRTCommonHeader(const uint8_t **);
 	virtual ~MRTCommonHeader(void);
 
 	time_t getTimestamp(void) const;
 	uint16_t getType(void) const;
 	uint16_t getSubType(void) const;
 	uint32_t getLength(void) const;
-	uint8_t hasError() { return error; }
-	void setType(uint16_t);
-	void setSubType(uint16_t);
-	void setLength(uint32_t);
-	void* getPayload() const { return payload; }
+
+	const MRTCommonHeaderPacket   &getHeader( ) const { return pkt; }
+	const boost::shared_ptr<char> &getData( ) const { return data; }
 
 	/* static interface... uint8_t pointer will be updated to new location in file after call */
-	static MRTMessage * newMessage(uint8_t **);
+	static MRTMessagePtr newMessage( std::istream &input );
 
 protected:
-	MRTCommonHeader(void);	/* disable default constructor for anything other than subclasses */
+	MRTCommonHeader( std::istream &input );
 
+private:
+	MRTCommonHeader( );	/* disable default constructor */
+
+protected:
 	time_t timestamp;		/* timestamp of MRT message */
 	uint16_t type;	/* type of message in MRT payload */
 	uint16_t subtype;	/* subtype of message in MRT payload */
 	uint32_t length;	/* length of payload in MRT */
-	void* payload;
-	uint8_t error;
+
+	MRTCommonHeaderPacket   pkt; 	/* original MRT packet header */
+	boost::shared_ptr<char> data;	/* raw data of MRT packet */
+
+private:
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _MRTCOMMONHEADER_H_ */

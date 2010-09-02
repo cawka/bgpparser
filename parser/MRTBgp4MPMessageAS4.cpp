@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -25,36 +25,27 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <bgpparser.h>
 
-#ifndef _LOGGER_H_
-#define _LOGGER_H_
+#include "MRTBgp4MPMessageAS4.h"
+using namespace std;
 
-#include <stdint.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
-#include <ctime>
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
 
-#define LOG_BUF_SIZE 1024
-#define TIME_BUF_SIZE 128
+log4cxx::LoggerPtr MRTBgp4MPMessageAS4::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTBgp4MPMessageAS4" );
 
-class Logger
+MRTBgp4MPMessageAS4::MRTBgp4MPMessageAS4( MRTCommonHeader &header, istream &input )
+: MRTBgp4MPMessage( header )
 {
-public:
-    static int init(void);
-    static int out(const char [], ... );
-    static int err(const char [], ... );
-    static int finalize(void);
-	
-private:
-    static FILE *fdout;
-    static FILE *fderr;
-    static time_t t;
-    static struct tm *ts;
-    static char msgbuf[LOG_BUF_SIZE];
-    static char timebuf[TIME_BUF_SIZE];
-};
+	MRTBgp4MPMessageAS4Packet pkt;
+	io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPMessageAS4Packet) );
 
-#endif	/* _LOGGER_H_ */
+	peerAS = ntohl(pkt.peerAS);
+	localAS = ntohl(pkt.localAS);
+	interfaceIndex = ntohs(pkt.interfaceIndex);
+	addressFamily = ntohs(pkt.addressFamily);
 
-// vim: sw=4 ts=4 sts=4 expandtab
+	processIPs( input );
+	payload = BGPCommonHeader::newMessage( input, true );
+}

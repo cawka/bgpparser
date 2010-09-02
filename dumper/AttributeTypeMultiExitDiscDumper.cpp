@@ -26,6 +26,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <bgpparser.h>
+using namespace std;
+using namespace boost;
+
 #include <string>
 #include <libxml/tree.h>
 #include "AttributeTypeDumper.h"
@@ -35,7 +39,7 @@ extern "C" {
     #include "xmlinternal.h"
 }
 
-AttributeTypeMultiExitDiscDumper::AttributeTypeMultiExitDiscDumper(AttributeType* attr)
+AttributeTypeMultiExitDiscDumper::AttributeTypeMultiExitDiscDumper( const AttributeTypePtr &attr )
 : AttributeTypeDumper(attr)
 {}
 
@@ -44,20 +48,18 @@ AttributeTypeMultiExitDiscDumper::~AttributeTypeMultiExitDiscDumper()
 
 xmlNodePtr AttributeTypeMultiExitDiscDumper::genXml()
 {
-    AttributeTypeMultiExitDisc *attr = (AttributeTypeMultiExitDisc *)attr_type;
+    AttributeTypeMultiExitDiscPtr attr = dynamic_pointer_cast<AttributeTypeMultiExitDisc>( attr_type );
     xmlNodePtr node = xmlNewNodeInt("MULTI_EXIT_DISC", attr->getMultiExitDiscValue());
     return node;
 }
 
 string AttributeTypeMultiExitDiscDumper::genAscii()
 {
-    AttributeTypeMultiExitDisc *attr = (AttributeTypeMultiExitDisc *)attr_type;
-    string node = "";
-    char buffer[32];
-    buffer[0] = '\0';
-    sprintf(buffer, "%d", attr->getMultiExitDiscValue());
-    node += buffer;
-    return node;
+    AttributeTypeMultiExitDiscPtr attr = dynamic_pointer_cast<AttributeTypeMultiExitDisc>( attr_type );
+
+    ostringstream node;
+    node << attr->getMultiExitDiscValue();
+    return node.str( );
 }
 
 // vim: sw=4 ts=4 sts=4 expandtab

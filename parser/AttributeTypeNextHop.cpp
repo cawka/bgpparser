@@ -28,30 +28,35 @@
 
 // Author: Jason Ryder, Paul Wang
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "AttributeTypeNextHop.h"
+#include "Exceptions.h"
+using namespace std;
 
-AttributeTypeNextHop::AttributeTypeNextHop(void) {
-	/* nothing */
-}
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
 
-AttributeTypeNextHop::AttributeTypeNextHop(const AttributeTypeNextHop& attrNextHop)
-					 : AttributeType(attrNextHop) {
-	memcpy(&nextHop, &attrNextHop.nextHop, sizeof(IPAddress));
-}
+log4cxx::LoggerPtr AttributeTypeNextHop::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeNextHop" );
 
-AttributeTypeNextHop::AttributeTypeNextHop(uint16_t len, uint8_t* msg)
-					 : AttributeType(len, msg) {
-	PRINT_DBG("AttributeTypeNextHop::AttributeTypeNextHop()");
-	if (len > 0) {
-		if (len == 4) {
-			afi = AFI_IPv4;
-		} else {
-			afi = AFI_IPv6;
-		}
-		memcpy(&nextHop, msg, sizeof(IPAddress));
-	} else {
-		memset(&nextHop, 0, sizeof(IPAddress));
+AttributeTypeNextHop::AttributeTypeNextHop( AttributeType &header, istream &input )
+					 : AttributeType(header)
+{
+	LOG4CXX_TRACE( Logger,"" );
+
+	if( length==sizeof(nextHop.ipv4) )
+	{
+		afi = AFI_IPv4;
+		io::read( input, reinterpret_cast<char*>(&nextHop), sizeof(nextHop.ipv4) );
 	}
+	else if( length==sizeof(nextHop.ipv6) )
+	{
+		memset(&nextHop, 0, sizeof(IPAddress));
+		afi = AFI_IPv6;
+		io::read( input, reinterpret_cast<char*>(&nextHop), sizeof(nextHop.ipv6) );
+	}
+	else
+		throw BGPError( );
 }
 
 AttributeTypeNextHop::~AttributeTypeNextHop(void) {
@@ -59,7 +64,7 @@ AttributeTypeNextHop::~AttributeTypeNextHop(void) {
 }
 
 void AttributeTypeNextHop::printMeCompact() {
-	cout << "NEXT_HOP: ";
+	std::cout << "NEXT_HOP: ";
 	switch(afi) {
 		case AFI_IPv4: PRINT_IP_ADDR(nextHop.ipv4); break;
 		case AFI_IPv6: PRINT_IPv6_ADDR(nextHop.ipv6); break;
@@ -67,18 +72,9 @@ void AttributeTypeNextHop::printMeCompact() {
 }
 
 void AttributeTypeNextHop::printMe() {
-	cout << "NEXT_HOP: ";
+	std::cout << "NEXT_HOP: ";
 	switch(afi) {
 		case AFI_IPv4: PRINT_IP_ADDR(nextHop.ipv4); break;
 		case AFI_IPv6: PRINT_IPv6_ADDR(nextHop.ipv6); break;
 	}
-}
-
-AttributeType* AttributeTypeNextHop::clone() {
-	IPAddress ipaddr;
-	AttributeTypeNextHop *patNH = new AttributeTypeNextHop();
-	patNH->setNextHopAFI(getNextHopAFI());
-	ipaddr = getNextHopIPAddress();
-	patNH->setNextHopIPAddress(&ipaddr);
-	return patNH;
 }

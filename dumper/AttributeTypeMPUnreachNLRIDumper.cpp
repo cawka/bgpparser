@@ -26,54 +26,57 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <bgpparser.h>
+using namespace std;
+using namespace boost;
+
+#include "AttributeTypeMPUnreachNLRI.h"
+#include "AttributeTypeDumper.h"
 #include <string>
 #include <libxml/tree.h>
-#include "AttributeTypeDumper.h"
-#include "AttributeTypeMPUnreachNLRI.h"
+#include <boost/foreach.hpp>
 
 extern "C" {
     #include "xmlinternal.h"
 }
 
-AttributeTypeMPUnreachNLRIDumper::AttributeTypeMPUnreachNLRIDumper(AttributeType* attr)
+AttributeTypeMPUnreachNLRIDumper::AttributeTypeMPUnreachNLRIDumper( const AttributeTypePtr &attr )
 : AttributeTypeDumper(attr)
 {}
 
 AttributeTypeMPUnreachNLRIDumper::~AttributeTypeMPUnreachNLRIDumper()
 {}
 
-xmlNodePtr AttributeTypeMPUnreachNLRIDumper::genPrefixNode(Route rt, int afi, int safi)
+xmlNodePtr AttributeTypeMPUnreachNLRIDumper::genPrefixNode(const NLRIUnReachablePtr &rt, int afi, int safi)
 {
     xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "PREFIX");
 
     //[TODO] afi / safi
 
     /* generate prefix node */
-    string tt = rt.toString(afi);
-    node = xmlNewNodeString((char *)"PREFIX", (char *)tt.c_str());
+    node = xmlNewNodeString((char *)"PREFIX", rt->toString(afi).c_str());
 
     return node;
 }
 
 xmlNodePtr AttributeTypeMPUnreachNLRIDumper::genXml()
 {
-    AttributeTypeMPUnreachNLRI *attr = (AttributeTypeMPUnreachNLRI *)attr_type;
-    xmlNodePtr node = xmlNewNode(NULL, BAD_CAST (char *)type_str.c_str()); /* AS_PATH or AS4_PATH */
+	AttributeTypeMPUnreachNLRIPtr attr = dynamic_pointer_cast<AttributeTypeMPUnreachNLRI>( attr_type );
+
+	xmlNodePtr node = xmlNewNode(NULL, BAD_CAST (char *)type_str.c_str()); /* AS_PATH or AS4_PATH */
 
     /* afi / safi */
     xmlAddChild(node, xmlNewNodeAFI((char *)"AFI",   attr->getAFI()));
     xmlAddChild(node, xmlNewNodeSAFI((char *)"SAFI", attr->getSAFI()));
 
     /* withdrawn */
-	list<NLRIUnReachable> *nlri_unreachable = attr->getNLRI();
     xmlNodePtr with_node = xmlNewNode(NULL, BAD_CAST "WITHDRAWN");
-    xmlNewPropInt(with_node, "count", nlri_unreachable->size());
+    xmlNewPropInt(with_node, "count", attr->getNLRI().size());
     xmlAddChild(node, with_node);
 
 	list<NLRIUnReachable>::iterator routeIter;
-    for (routeIter = nlri_unreachable->begin(); routeIter != nlri_unreachable->end(); routeIter++)
+    BOOST_FOREACH(const NLRIUnReachablePtr &rt, attr->getNLRI() )
     {
-        Route rt = *routeIter;
         xmlAddChild(with_node, genPrefixNode(rt, attr->getAFI(), attr->getSAFI()));
     }
     return node;

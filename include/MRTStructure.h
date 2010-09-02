@@ -29,130 +29,6 @@
 #ifndef _MRTSTRUCTURE_H_
 #define _MRTSTRUCTURE_H_
 
-#include <stdint.h>
-#include "Logger.h"
-
-#ifdef WIN32
-/* enable 32-bit time_t structure */
-#define _USE_32BIT_TIME_T
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#else
-#include <ctime>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#endif	/* WIN32 */
-
-#define BITMASK_8 0x000000FF
-#define BITMASK_16 0x0000FFFF
-
-// Comment out DEBUG to turn off debugging
-//#define DEBUG
-
-#ifdef DEBUG
-#	define DBG_LEVEL 5
-#	define PRINT_HEX_VALL(l,x,name) { if( l>=DBG_LEVEL ) { printf("  %s value: 0x%02x%02x%02x%02x\n", name, \
-															 *x & BITMASK_8, \
-															 *(x+1) & BITMASK_8, \
-															 *(x+2) & BITMASK_8, \
-															 *(x+3) & BITMASK_8 ); } }
-#	define PRINT_IP_ADDR_DBGL(l,x) { if( l>=DBG_LEVEL ) { fprintf(stderr,"%01i.%01i.%01i.%01i", *(uint8_t*)&x & BITMASK_8, \
-															*(((uint8_t*)&x)+1) & BITMASK_8, \
-															*(((uint8_t*)&x)+2) & BITMASK_8, \
-															*(((uint8_t*)&x)+3) & BITMASK_8 ); } }
-#	define PRINT_INC_IP_ADDR_DBGL(l,x,numOctets) { if( l>=DBG_LEVEL ) { \
-			numOctets > 0 ? fprintf(stderr,"%01i", *(uint8_t*)&x & BITMASK_8); \
-			for (int i=1; i < numOctets; i++) fprintf(stderr,".%01i", *(((uint8_t*)&x)+i) & BITMASK_8 ); } }
-#	define PRINT_IPv6_ADDR_DBGL(l,x) \
-			{ if( l>=DBG_LEVEL ) { \
-				fprintf(stderr,"%01x:%01x:%01x:%01x:%01x:%01x:%01x:%01x", *(uint16_t*)&x & BITMASK_16, \
-																*(((uint16_t*)&x)+1) & BITMASK_16, \
-																*(((uint16_t*)&x)+2) & BITMASK_16, \
-																*(((uint16_t*)&x)+3) & BITMASK_16, \
-																*(((uint16_t*)&x)+4) & BITMASK_16, \
-																*(((uint16_t*)&x)+5) & BITMASK_16, \
-																*(((uint16_t*)&x)+6) & BITMASK_16, \
-																*(((uint16_t*)&x)+7) & BITMASK_16 ); } }
-#	define PRINT_ADDRL(l,x,name) { if( l>=DBG_LEVEL ) { fprintf(stderr,"  %s addr: 0x%08x\n", name, x); } }
-
-#	define PRINT_HEX_VAL(x,name) PRINT_HEX_VALL(1,x,name)
-#	define PRINT_IP_ADDR_DBG(x) PRINT_IP_ADDR_DBGL(1,x)
-#	define PRINT_INC_IP_ADDR_DBG(x,numOctets) PRINT_INC_IP_ADDR_DBGL(1,x,numOctets) 
-#	define PRINT_IPv6_ADDR_DBG(x) PRINT_IPv6_ADDR_DBGL(1,x)
-#	define PRINT_ADDR(x,name) PRINT_ADDRL(1,x,name)
-
-#	define PRINT_DBGL(l,x) { if( l>=DBG_LEVEL ) { cerr << "debug: " << x << endl; }; fflush(NULL); }
-#	define PRINT_DBG2L(l,msg,val) { if( l>=DBG_LEVEL ) { cerr << msg << val << endl; } }
-
-#	define PRINT_DBG(x) PRINT_DBGL(1,x)
-#	define PRINT_DBG2(msg,val) 
-
-#	ifndef WIN32
-#  		define PRINT_DBGFL(l,msg,param...) { if( l>=DBG_LEVEL ) { fprintf(stderr,"debug: "); fprintf(stderr,msg, param); }; fflush(NULL); }
-#		define PRINT_DBGF(msg,param...) PRINT_DBGFL(1,msg,param)
-#	else
-#		define PRINT_DBGFL(l,msg, param) { }
-#		define PRINT_DBGF(msg, param) PRINT_DBGFL(1, msg, param)
-#	endif	/* #ifndef WIN32 */
-#else
-#	define PRINT_HEX_VAL(x,name) { }
-#	define PRINT_IP_ADDR_DBG(x) { }
-#	define PRINT_INC_IP_ADDR_DBG(x,numOctets) { }
-#	define PRINT_IPv6_ADDR_DBG(x) { }
-#	define PRINT_ADDR(x,name) { }
-#	define PRINT_DBG(x) { }
-#	define PRINT_DBGL(l,x) { }
-#	define PRINT_DBG2(msg,val) { }
-#	define PRINT_DBG2L(l,msg,val) { }
-#	ifndef WIN32
-#		define PRINT_DBGFL(l,msg,param...) { }
-#		define PRINT_DBGF(msg,param...) { }
-#	else
-#		define PRINT_DBGFL(l,msg,...) { }
-#		define PRINT_DBGF(msg,...) { }
-#	endif
-#endif
-
-// Comment out INFO to turn off informational messages
-//#define INFO 
-
-#ifdef INFO
-#		define PRINT_INFO(x) { cout << x << endl; }
-#else
-#		define PRINT_INFO(x) { }
-#endif
-
-#ifdef WIN32
-	#define PRINT_IP_ADDR(x) { printf("%01i.%01i.%01i.%01i", *(uint8_t*)&x & BITMASK_8, \
-															*(((uint8_t*)&x)+1) & BITMASK_8, \
-															*(((uint8_t*)&x)+2) & BITMASK_8, \
-															*(((uint8_t*)&x)+3) & BITMASK_8 ); }
-	#define PRINT_INC_IP_ADDR(x,numOctets) { \
-					numOctets > 0 ? printf("%01i", *(uint8_t*)&x & BITMASK_8) : printf(""); \
-					for (int i=1; i < numOctets ; i++) printf(".%01i",	*(((uint8_t*)&x)+i) & BITMASK_8 ); }
-	#define PRINT_IPv6_ADDR(x) \
-					{ printf("%01x:%01x:%01x:%01x:%01x:%01x:%01x:%01x", *(uint16_t*)&x & BITMASK_16, \
-																		*(((uint16_t*)&x)+1) & BITMASK_16, \
-																		*(((uint16_t*)&x)+2) & BITMASK_16, \
-																		*(((uint16_t*)&x)+3) & BITMASK_16, \
-																		*(((uint16_t*)&x)+4) & BITMASK_16, \
-																		*(((uint16_t*)&x)+5) & BITMASK_16, \
-																		*(((uint16_t*)&x)+6) & BITMASK_16, \
-																		*(((uint16_t*)&x)+7) & BITMASK_16 ); }
-#else
-	// inet_ntoa uses a static buffer which is overwritten with each write.  No need to free memory.
-	#define PRINT_IP_ADDR(x) { /*in_addr addr; addr.s_addr = x;*/ cout << inet_ntoa(x); } 
-	#define PRINT_INC_IP_ADDR(x,numOctets) { \
-					numOctets > 0 ? printf("%01i", *(uint8_t*)&x & BITMASK_8) : printf(""); \
-					for (int i=1; i < numOctets ; i++) printf(".%01i",	*(((uint8_t*)&x)+i) & BITMASK_8 ); }
-	#define PRINT_IPv6_ADDR(x) \
-					{  /*inet_ntoa6(x);*/ \
-					char ip[128]; \
-					memset(ip, 0, 128); \
-					cout << inet_ntop(AF_INET6, (const void *)&x, ip, 128); \
-					}
-#endif
-
 /* Address Families... consider moving to common code */
 enum {
 	AFI_IPv4 = 1,
@@ -322,11 +198,6 @@ enum {
 	MALFORMED_AS_PATH = 11
 };
 
-
-/* the MRTCommonHeader is a MRTMessage */
-typedef class MRTCommonHeader	MRTMessage;
-
-
 /* IP addresses... consider moving to common code */
 typedef union _IPAddress {
 	in_addr ipv4;
@@ -353,14 +224,22 @@ typedef struct _MRTCommonHeaderPacket {
 
 
 /* Peer entry for a TABLE_DUMP_V2 PEER_INDEXT_TABLE subtype */
-typedef struct _MRTTblDumpV2PeerIndexTblPeerEntry {
+struct MRTTblDumpV2PeerIndexTblPeerEntry
+{
+	MRTTblDumpV2PeerIndexTblPeerEntry( )
+	:IPType(0), isAS4(false), peerBGPId(0),peerAS(0)
+	{
+		memset( &peerIP, 0, sizeof(peerIP) );
+	}
+
 	uint16_t IPType;
 	bool isAS4;
 	uint32_t peerBGPId;
 	IPAddress peerIP;
 	uint32_t peerAS;
-} MRTTblDumpV2PeerIndexTblPeerEntry;
+};
 
+typedef boost::shared_ptr<MRTTblDumpV2PeerIndexTblPeerEntry> MRTTblDumpV2PeerIndexTblPeerEntryPtr;
 
 /* RIB entry for a TABLE_DUMP_V2 RIB_IPV4_UNICAST subtype */
 /*

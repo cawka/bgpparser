@@ -37,18 +37,20 @@ class AttributeTypeLocalPref :
 	public AttributeType
 {
 public:
-	AttributeTypeLocalPref(void);
-	AttributeTypeLocalPref(uint16_t len, uint8_t* msg);
-	AttributeTypeLocalPref(const AttributeTypeLocalPref&);
+	AttributeTypeLocalPref( AttributeType &header, std::istream &input );
 	virtual ~AttributeTypeLocalPref(void);
 
 	uint32_t getLocalPrefValue(void) const { return localPref; };
 	void setLocalPrefValue(uint32_t val) { localPref = val; };
 	void printMe();
 	void printMeCompact();
-	virtual AttributeType *clone();
+
 protected:
 	uint32_t localPref;
+
+	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<AttributeTypeLocalPref> AttributeTypeLocalPrefPtr;
 
 #endif	/* _ATTRIBUTETYPELOCALPREF_H_ */

@@ -30,32 +30,21 @@
 #define _MRTBGP4MPSNAPSHOT_H_
 
 #include "MRTCommonHeader.h"
-
-#ifdef WIN32
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#else
-#include <netinet/in.h>
-#endif	/* WIN32 */
-
 #include "MRTStructure.h"
 
 class MRTBgp4MPSnapshot :
 	public MRTCommonHeader
 {
 public:
-	MRTBgp4MPSnapshot(uint8_t **);
+	MRTBgp4MPSnapshot(MRTCommonHeader &header, std::istream &input);
 	~MRTBgp4MPSnapshot(void);
 
-	uint16_t getViewNumber(void) const;
-	string getFileName(void) const;
+	uint16_t getViewNumber(void) const { return viewNumber; }
+	const std::string& getFileName(void) const { return fileName; }
 
 protected:
 	uint16_t viewNumber;
-	string fileName;
-
-private:
-	MRTBgp4MPSnapshot(void);
+	std::string fileName;
 };
 
 #endif	/* _MRTBGP4MPSNAPSHOT_H_ */

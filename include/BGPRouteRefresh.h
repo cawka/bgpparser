@@ -37,11 +37,11 @@ class BGPRouteRefresh : public BGPCommonHeader
 
 
 public:
-	BGPRouteRefresh(uint8_t **msg);
+	BGPRouteRefresh( BGPCommonHeader &header, std::istream &input );
 	virtual ~BGPRouteRefresh();
 	
 	virtual BGP_MESSAGE_TYPE Type()    { return ROUTE_REFRESH;   }
-	virtual string           TypeStr() { return "ROUTE_REFRESH"; };
+	virtual std::string      TypeStr() { return "ROUTE_REFRESH"; };
 
 	virtual void printMe();
 	virtual void printMeCompact();
@@ -51,6 +51,10 @@ protected:
 	uint8_t res;
 	uint8_t safi;
 	
+private:
+	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<BGPRouteRefresh> BGPRouteRefreshPtr;
 
 #endif /* __BGPROUTEREFRESH_H__ */

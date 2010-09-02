@@ -42,7 +42,7 @@
  * output:  the length of generated xml string
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/ 
-int BMF2XMLDATA(BMF bmf, char *xml, int maxlen);
+int BMF2XMLDATA(BMF bmf, const char *xml, int maxlen);
 
 #endif /*XMLDATA_H_*/
 

@@ -30,13 +30,8 @@
 #ifndef __MRTTBLDUMPV1DUMPER_H_
 #define __MRTTBLDUMPV1DUMPER_H_
 
-#include <list>
 #include "Dumper.h"
-#include "BGPCommonHeader.h"
-#include "BGPAttribute.h"
 #include "MRTTblDump.h"
-
-using namespace std;
 
 #define _XFB_VERSION "0.2" 
 
@@ -47,20 +42,20 @@ public:
 	MRTTblDumpV1Dumper();
 	virtual ~MRTTblDumpV1Dumper();
 	
-	// Factory method for creating a BGP dumper
-	//static class MRTTblDumpV1Dumper* newDumper(BGPMessage*);
-	xmlNodePtr genXml();
-	string     genAscii();
+	xmlNodePtr  genXml();
+	std::string genAscii();
 
-    void setTblDumpMsg(MRTTblDump* tblDumpMsg)
+    void setTblDumpMsg(MRTTblDumpPtr tblDumpMsg)
     {
         this->tblDumpMsg = tblDumpMsg;
     }
 
 protected:
     /* TABLE_DUMPV1 */
-	MRTTblDump*    tblDumpMsg;
+	MRTTblDumpPtr    tblDumpMsg;
 };
+
+typedef boost::shared_ptr<MRTTblDumpV1Dumper> MRTTblDumpV1DumperPtr;
 
 #endif /* __MRTTBLDUMPV2DUMPER_H_ */
 

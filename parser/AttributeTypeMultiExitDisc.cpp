@@ -28,21 +28,22 @@
 
 // Author: Jason Ryder, Paul Wang
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "AttributeTypeMultiExitDisc.h"
+using namespace std;
 
-AttributeTypeMultiExitDisc::AttributeTypeMultiExitDisc(void) {
-	/* nothing */
-}
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
 
-AttributeTypeMultiExitDisc::AttributeTypeMultiExitDisc(uint16_t len, uint8_t* msg)
-						   : AttributeType(len, msg) {
-	PRINT_DBG("AttributeTypeMultiExitDisc::AttributeTypeMultiExitDisc()");
-	memcpy(&discriminator, msg, len);
+log4cxx::LoggerPtr AttributeTypeMultiExitDisc::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeMultiExitDisc" );
+
+AttributeTypeMultiExitDisc::AttributeTypeMultiExitDisc(AttributeType &header, istream &input)
+						   : AttributeType(header) {
+	LOG4CXX_TRACE(Logger,"");
+
+	io::read( input, reinterpret_cast<char*>(&discriminator), sizeof(discriminator) );
 	discriminator = ntohl(discriminator);
-}
-
-AttributeTypeMultiExitDisc::AttributeTypeMultiExitDisc(const AttributeTypeMultiExitDisc& attr) {
-	this->discriminator = attr.discriminator;
 }
 
 AttributeTypeMultiExitDisc::~AttributeTypeMultiExitDisc(void) {
@@ -50,15 +51,9 @@ AttributeTypeMultiExitDisc::~AttributeTypeMultiExitDisc(void) {
 }
 
 void AttributeTypeMultiExitDisc::printMeCompact() {
-	cout << "MULTI_EXIT_DISC: " << discriminator;
+	std::cout << "MULTI_EXIT_DISC: " << discriminator;
 }
 
 void AttributeTypeMultiExitDisc::printMe() {
-	cout << "MULTI_EXIT_DISC: " << discriminator;
-}
-
-AttributeType* AttributeTypeMultiExitDisc::clone() {
-	AttributeTypeMultiExitDisc *atMED = new AttributeTypeMultiExitDisc();
-	atMED->setMultiExitDiscValue(getMultiExitDiscValue());
-	return atMED;
+	std::cout << "MULTI_EXIT_DISC: " << discriminator;
 }

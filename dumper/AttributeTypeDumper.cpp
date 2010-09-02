@@ -26,17 +26,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <libxml/tree.h>
+#include <bgpparser.h>
+using namespace std;
+
+#include "AttributeTypeDumper.h"
+#include "BGPAttributeDumper.h"
 #include "BGPAttribute.h"
 
-#include "BGPAttributeDumper.h"
-#include "AttributeTypeDumper.h"
+#include <libxml/tree.h>
 
 extern "C" {
     #include "xmlinternal.h"
 }
 
-AttributeTypeDumper::AttributeTypeDumper(AttributeType* attr)
+log4cxx::LoggerPtr AttributeTypeDumper::Logger = log4cxx::Logger::getLogger( "bgpdump.AttributeTypeDumper" );
+
+AttributeTypeDumper::AttributeTypeDumper( const AttributeTypePtr &attr )
 {
     attr_type = attr;
 }
@@ -44,30 +49,30 @@ AttributeTypeDumper::AttributeTypeDumper(AttributeType* attr)
 AttributeTypeDumper::~AttributeTypeDumper()
 {}
 
-AttributeTypeDumper* AttributeTypeDumper::newDumper(uint8_t attrType, string attrTypeStr, AttributeType* attr)
+AttributeTypeDumperPtr AttributeTypeDumper::newDumper( uint8_t attrType, string attrTypeStr, const AttributeTypePtr &attr )
 {
-	AttributeTypeDumper* attr_dumper = NULL;
+	AttributeTypeDumperPtr attr_dumper;
 
 	switch(attrType)
 	{
-		case AttributeType::ORIGIN:           { attr_dumper = new AttributeTypeOriginDumper(attr);          break; }
-		case AttributeType::AS_PATH:          { attr_dumper = new AttributeTypeASPathDumper(attr);          break; }
-		case AttributeType::NEXT_HOP:         { attr_dumper = new AttributeTypeNextHopDumper(attr);         break; }
-		case AttributeType::MULTI_EXIT_DISC:  { attr_dumper = new AttributeTypeMultiExitDiscDumper(attr);   break; }
-		case AttributeType::LOCAL_PREF:       { attr_dumper = new AttributeTypeLocalPrefDumper(attr);       break; }
-		case AttributeType::ATOMIC_AGGREGATE: { attr_dumper = new AttributeTypeAtomicAggregateDumper(attr); break; }
-		case AttributeType::AGGREGATOR:       { attr_dumper = new AttributeTypeAggregatorDumper(attr);      break; }
-		case AttributeType::COMMUNITIES:      { attr_dumper = new AttributeTypeCommunitiesDumper(attr);     break; }
-        case AttributeType::ORIGINATOR_ID:    { attr_dumper = new AttributeTypeOriginatorIDDumper(attr);    break; }
-        case AttributeType::CLUSTER_LIST:     { attr_dumper = new AttributeTypeClusterListDumper(attr);     break; }
-		case AttributeType::MP_REACH_NLRI:    { attr_dumper = new AttributeTypeMPReachNLRIDumper(attr);     break; }
-		case AttributeType::MP_UNREACH_NLRI:  { attr_dumper = new AttributeTypeMPUnreachNLRIDumper(attr);   break; }
-		case AttributeType::NEW_AS_PATH:      { attr_dumper = new AttributeTypeASPathDumper(attr);          break; }
-		case AttributeType::NEW_AGGREGATOR:   { attr_dumper = new AttributeTypeAggregatorDumper(attr);      break; }
+		case AttributeType::ORIGIN:           { attr_dumper = AttributeTypeDumperPtr( new AttributeTypeOriginDumper(attr) );          break; }
+		case AttributeType::AS_PATH:          { attr_dumper = AttributeTypeDumperPtr( new AttributeTypeASPathDumper(attr) );          break; }
+		case AttributeType::NEXT_HOP:         { attr_dumper = AttributeTypeDumperPtr( new AttributeTypeNextHopDumper(attr) );         break; }
+		case AttributeType::MULTI_EXIT_DISC:  { attr_dumper = AttributeTypeDumperPtr( new AttributeTypeMultiExitDiscDumper(attr) );   break; }
+		case AttributeType::LOCAL_PREF:       { attr_dumper = AttributeTypeDumperPtr( new AttributeTypeLocalPrefDumper(attr) );       break; }
+		case AttributeType::ATOMIC_AGGREGATE: { attr_dumper = AttributeTypeDumperPtr( new AttributeTypeAtomicAggregateDumper(attr) ); break; }
+		case AttributeType::AGGREGATOR:       { attr_dumper = AttributeTypeDumperPtr( new AttributeTypeAggregatorDumper(attr) );      break; }
+		case AttributeType::COMMUNITIES:      { attr_dumper = AttributeTypeDumperPtr( new AttributeTypeCommunitiesDumper(attr) );     break; }
+        case AttributeType::ORIGINATOR_ID:    { attr_dumper = AttributeTypeDumperPtr( new AttributeTypeOriginatorIDDumper(attr) );    break; }
+        case AttributeType::CLUSTER_LIST:     { attr_dumper = AttributeTypeDumperPtr( new AttributeTypeClusterListDumper(attr) );     break; }
+		case AttributeType::MP_REACH_NLRI:    { attr_dumper = AttributeTypeDumperPtr( new AttributeTypeMPReachNLRIDumper(attr) );     break; }
+		case AttributeType::MP_UNREACH_NLRI:  { attr_dumper = AttributeTypeDumperPtr( new AttributeTypeMPUnreachNLRIDumper(attr) );   break; }
+		case AttributeType::NEW_AS_PATH:      { attr_dumper = AttributeTypeDumperPtr( new AttributeTypeASPathDumper(attr) );          break; }
+		case AttributeType::NEW_AGGREGATOR:   { attr_dumper = AttributeTypeDumperPtr( new AttributeTypeAggregatorDumper(attr) );      break; }
 		default:
 		{
-			PRINT_INFO("  Unhandled attribute type code");
-			attr_dumper = new AttributeTypeDumper(attr);
+			LOG4CXX_INFO(Logger, "Unhandled attribute type code [" <<(int)attrType<<"]" );
+			attr_dumper = AttributeTypeDumperPtr( new AttributeTypeDumper(attr) );
 			break;
 		}
 	}
@@ -81,7 +86,7 @@ xmlNodePtr AttributeTypeDumper::genXml()
 {
     xmlNodePtr node, octets_node;
     node        = xmlNewNode(NULL, BAD_CAST (char *)type_str.c_str());
-    octets_node = xmlAddChild(node, xmlNewNodeOctets("OCTETS", attr_type->getValue(), attr_type->getLength()));
+    octets_node = xmlAddChild(node, xmlNewNodeOctets("OCTETS", (u_char*)attr_type->getData().get(), attr_type->getLength()));
     return node;
 }
 

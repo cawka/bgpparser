@@ -169,7 +169,7 @@ printNode(xmlNodePtr node)
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewPropInt(xmlNodePtr node, char *name, int value)
+xmlNewPropInt(xmlNodePtr node, const char *name, int value)
 {
     static char str[XML_TEMP_BUFFER_LEN];
     snprintf(str, XML_TEMP_BUFFER_LEN, "%d", value);
@@ -186,7 +186,7 @@ xmlNewPropInt(xmlNodePtr node, char *name, int value)
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewPropFloat(xmlNodePtr node, char *name, float value)
+xmlNewPropFloat(xmlNodePtr node, const char *name, float value)
 {
     static char str[XML_TEMP_BUFFER_LEN];
     snprintf(str, XML_TEMP_BUFFER_LEN, "%f", value);
@@ -203,7 +203,7 @@ xmlNewPropFloat(xmlNodePtr node, char *name, float value)
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewPropString( xmlNodePtr node, char *name, char *value )
+xmlNewPropString( xmlNodePtr node, const const char *name, const char *value )
 {
     xmlNewProp(node, BAD_CAST name, BAD_CAST value);
     return node;
@@ -217,7 +217,7 @@ xmlNewPropString( xmlNodePtr node, char *name, char *value )
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewNodeString(char *tag, char *value)
+xmlNewNodeString(const char *tag, const char *value)
 {
     xmlNodePtr node = xmlNewNode(NULL, BAD_CAST tag);
     xmlNodePtr text = xmlNewText(BAD_CAST value);
@@ -234,7 +234,7 @@ xmlNewNodeString(char *tag, char *value)
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewChildString(xmlNodePtr parent_node, char *tag, char *value)
+xmlNewChildString(xmlNodePtr parent_node, const char *tag, const char *value)
 {
     return xmlAddChild(parent_node, xmlNewNodeString(tag, value));
 }
@@ -247,7 +247,7 @@ xmlNewChildString(xmlNodePtr parent_node, char *tag, char *value)
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewNodeInt(char *tag, int value)
+xmlNewNodeInt(const char *tag, int value)
 {
     static char str[XML_TEMP_BUFFER_LEN];
     snprintf(str, XML_TEMP_BUFFER_LEN, "%d", value);
@@ -263,7 +263,7 @@ xmlNewNodeInt(char *tag, int value)
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewChildInt(xmlNodePtr parent_node, char *tag, int value)
+xmlNewChildInt(xmlNodePtr parent_node, const char *tag, int value)
 {
     return xmlAddChild(parent_node, xmlNewNodeInt(tag, value));
 }
@@ -276,7 +276,7 @@ xmlNewChildInt(xmlNodePtr parent_node, char *tag, int value)
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewNodeUnsignedInt(char *tag, u_int32_t value)
+xmlNewNodeUnsignedInt(const char *tag, u_int32_t value)
 {
     static char str[XML_TEMP_BUFFER_LEN];
     snprintf( str, XML_TEMP_BUFFER_LEN, "%u", value);
@@ -292,7 +292,7 @@ xmlNewNodeUnsignedInt(char *tag, u_int32_t value)
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewChildUnsignedInt(xmlNodePtr parent_node, char *tag, u_int32_t value)
+xmlNewChildUnsignedInt(xmlNodePtr parent_node, const char *tag, u_int32_t value)
 {
     return xmlAddChild(parent_node, xmlNewNodeUnsignedInt(tag, value));
 }
@@ -306,7 +306,7 @@ xmlNewChildUnsignedInt(xmlNodePtr parent_node, char *tag, u_int32_t value)
  * He Yan @ Jun 22, 2008
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewNodeFloat(char *tag, float value)
+xmlNewNodeFloat(const char *tag, float value)
 {
     static char str[XML_TEMP_BUFFER_LEN];
     snprintf(str, XML_TEMP_BUFFER_LEN, "%f", value);
@@ -322,7 +322,7 @@ xmlNewNodeFloat(char *tag, float value)
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewChildFloat(xmlNodePtr parent_node, char *tag, float value)
+xmlNewChildFloat(xmlNodePtr parent_node, const char *tag, float value)
 {
     return xmlAddChild(parent_node, xmlNewNodeFloat(tag, value));
 }
@@ -336,7 +336,7 @@ xmlNewChildFloat(xmlNodePtr parent_node, char *tag, float value)
  * He Yan @ Jun 22, 2008
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewNodeIP(char *tag, u_int32_t ip)
+xmlNewNodeIP(const char *tag, u_int32_t ip)
 {
     static struct in_addr in;
     in.s_addr = ip;
@@ -354,7 +354,7 @@ xmlNewNodeIP(char *tag, u_int32_t ip)
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewChildIP(xmlNodePtr parent_node, char *tag, u_int32_t ip)
+xmlNewChildIP(xmlNodePtr parent_node, const char *tag, u_int32_t ip)
 {
     return xmlAddChild(parent_node, xmlNewNodeIP(tag, ip));
 }
@@ -369,7 +369,7 @@ xmlNewChildIP(xmlNodePtr parent_node, char *tag, u_int32_t ip)
  * He Yan @ Jun 22, 2008
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewNodeGmtTime(char *tag, time_t timestamp )
+xmlNewNodeGmtTime(const char *tag, time_t timestamp )
 {
     static char gmttime[XML_TEMP_BUFFER_LEN];
     strftime(gmttime, XML_TEMP_BUFFER_LEN, "%Y-%m-%dT%H:%M:%SZ", gmtime(&timestamp));
@@ -385,7 +385,7 @@ xmlNewNodeGmtTime(char *tag, time_t timestamp )
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
 inline xmlNodePtr
-xmlNewChildGmtTime(xmlNodePtr parent_node,  char *tag, time_t timestamp)
+xmlNewChildGmtTime(xmlNodePtr parent_node, const char *tag, time_t timestamp)
 {
     return xmlAddChild(parent_node, xmlNewNodeGmtTime(tag, timestamp));
 }
@@ -400,7 +400,7 @@ xmlNewChildGmtTime(xmlNodePtr parent_node,  char *tag, time_t timestamp)
  * He Yan @ Jun 22, 2008
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewNodeOctets(char *tag, u_char *octets, int len)
+xmlNewNodeOctets(const char *tag, const u_char *octets, int len)
 {
     xmlNodePtr node = NULL;
     static char tmpbuffs[XML_BUFFER_LEN];
@@ -434,7 +434,7 @@ xmlNewNodeOctets(char *tag, u_char *octets, int len)
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewChildOctets(xmlNodePtr parent_node, char *tag, u_char *octets, int len)
+xmlNewChildOctets(xmlNodePtr parent_node, const char *tag, const u_char *octets, int len)
 {
     return xmlAddChild(parent_node, xmlNewNodeOctets(tag, octets, len));
 }
@@ -500,7 +500,7 @@ xmlNewPropSAFI(xmlNodePtr node, int safi)
  * Ex: <AFI value="1">IPV4</AFI>
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewNodeAFI(char *tag, int afi)
+xmlNewNodeAFI(const char *tag, int afi)
 {
     xmlNodePtr node = NULL;
     char *afi_str   = "";
@@ -528,7 +528,7 @@ xmlNewNodeAFI(char *tag, int afi)
  * Ex: <SAFI value="1">UNICAST</AFI>
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewNodeSAFI(char *tag, int safi)
+xmlNewNodeSAFI(const char *tag, int safi)
 {
     xmlNodePtr node = NULL;
     char *safi_str   = "";

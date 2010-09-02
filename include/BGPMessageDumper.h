@@ -35,21 +35,17 @@
 #include "BGPAttribute.h"
 #include "MRTBgp4MPMessage.h"
 
-using namespace std;
-
 #define _XFB_VERSION "0.2" 
 
 /* Common Dumper */
 class BGPMessageDumper : public Dumper
 {
 public:
-	BGPMessageDumper();
+	BGPMessageDumper( const BGPMessagePtr &msg );
 	virtual ~BGPMessageDumper();
 	
-	// Factory method for creating a BGP dumper
-	//static class BGPMessageDumper* newDumper(BGPMessage**);
-	xmlNodePtr genXml();
-	string     genAscii();
+	xmlNodePtr  genXml();
+	std::string genAscii();
 
     void setPeering(IPAddress peer_addr, IPAddress local_addr, uint32_t peer_as, uint32_t local_as, uint16_t if_idx, uint16_t afi) 
     {
@@ -66,11 +62,6 @@ public:
         this->timestamp  = timestamp;
     };
 
-    void setBGPMessage(BGPMessage* bgp_msg)
-    {
-        this->bgp_msg = bgp_msg;
-    };
-
     bool isTableDump(bool is_tabledump)
     {
         this->is_tabledump  = is_tabledump;
@@ -81,6 +72,9 @@ public:
     {
         return this->is_tabledump;
     };
+
+private:
+    BGPMessageDumper( ) { }
 
 protected:
     /* Time */
@@ -98,8 +92,10 @@ protected:
 	uint16_t afi;
 
     /* BGP messsage */
-    BGPMessage* bgp_msg;
+    BGPMessagePtr bgp_msg;
 };
+
+typedef boost::shared_ptr<BGPMessageDumper> BGPMessageDumperPtr;
 
 #endif /* __BGPMSGDUMPER_H_ */
 

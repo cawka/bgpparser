@@ -28,34 +28,22 @@
 
 // Author: Jason Ryder, Paul Wang
 // Modified: Jonathan Park
+#include <bgpparser.h>
+
 #include "AttributeTypeOrigin.h"
+using namespace std;
 
-AttributeTypeOrigin::AttributeTypeOrigin(void) {
-	/* nothing */
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
+
+log4cxx::LoggerPtr AttributeTypeOrigin::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeOrigin" );
+
+AttributeTypeOrigin::AttributeTypeOrigin( AttributeType &header, istream &input )
+					: AttributeType(header)
+{
+	LOG4CXX_TRACE(Logger,"");
+	origin = static_cast<Origin>( input.get() );
 }
-
-AttributeTypeOrigin::AttributeTypeOrigin(uint16_t len, uint8_t* msg)
-					: AttributeType(len, msg) {
-	PRINT_DBG("AttributeTypeOrigin::AttributeTypeOrigin()");
-	origin = (Origin)*msg;
-}
-
-AttributeTypeOrigin::AttributeTypeOrigin(uint16_t len, Origin org, uint8_t* msg)
-					: AttributeType(len, msg) {
-	origin = org;
-}
-
-AttributeTypeOrigin::AttributeTypeOrigin(const AttributeTypeOrigin& attr) {
-	length = attr.length;
-	origin = attr.origin;
-	if (attr.value) {
-		value = (uint8_t*)malloc(length);
-		memcpy(value, attr.value, length);
-	} else {
-		value = NULL;
-	}
-}
-
 
 AttributeTypeOrigin::~AttributeTypeOrigin(void) {
 	/* nothing */

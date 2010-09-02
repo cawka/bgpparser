@@ -28,36 +28,50 @@
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
 
+#include <bgpparser.h>
+
 #include "BGPNotification.h"
 
-BGPNotification::BGPNotification(uint8_t **ptr) : BGPCommonHeader((uint8_t *)*ptr) {
-	uint8_t *p;
-	uint8_t *endptr;
-	uint32_t dataLength;
+#include <boost/iostreams/read.hpp>
+#include <boost/iostreams/skip.hpp>
+namespace io = boost::iostreams;
 
-	p = *ptr + MESSAGE_HEADER_SIZE;
+using namespace std;
 
-	errorCode = (uint32_t)*p;
-	p++;
+log4cxx::LoggerPtr BGPNotification::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPNotification" );
 
-	subErrorCode = (uint32_t)*p;
-	p++;
+/*
+      0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      | Error code    | Error subcode |   Data (variable)             |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+ Note that the length of the Data field can be determined from
+ the message Length field by the formula:
+
+		  Message Length = 21 + Data Length
+
+ */
+
+BGPNotification::BGPNotification( BGPCommonHeader &header, istream &input )
+: BGPCommonHeader( header )
+{
+	io::read( input, reinterpret_cast<char*>(&errorCode),    sizeof(uint8_t) );
+	io::read( input, reinterpret_cast<char*>(&subErrorCode), sizeof(uint8_t) );
 
 	/* calculate the data length */
-	dataLength = this->getLength() - MESSAGE_HEADER_SIZE - 2;
+	uint32_t dataLength = getLength() - 21;
 
-	if (dataLength > 0) {
+	if (dataLength > 0)
+	{
 		/* dynamically allocated memory for the data */
-		data = (uint8_t *)malloc(sizeof(uint8_t) * dataLength);
+		data = boost::shared_ptr<uint8_t>( new uint8_t[dataLength] );
+
 		/* copy the data from the notification to the */
 		/* dynamically allocated memory */
-		memcpy(data, p, sizeof(uint8_t) * dataLength);
-	} else {
-		data = NULL;
+		io::read( input, reinterpret_cast<char*>(data.get()), dataLength );
 	}
-
-	/* find the end data chunk */
-	endptr = p + (sizeof(uint8_t) * dataLength);
 
 	switch (errorCode) {
 	case BGP_NOTIFICATION_MSG_HEADER_ERROR: {
@@ -69,9 +83,9 @@ BGPNotification::BGPNotification(uint8_t **ptr) : BGPCommonHeader((uint8_t *)*pt
 			case BAD_MESSAGE_LENGTH: {
 					uint16_t temp;
 					/* data should store the length value - a 2 octet short value */
-					memcpy(&temp, data, sizeof(uint16_t));
+					memcpy(&temp, data.get(), sizeof(uint16_t));
 					temp = ntohs(temp);
-					memcpy(data, &temp, sizeof(uint16_t));
+					memcpy(data.get(), &temp, sizeof(uint16_t));
 				}
 				break;
 			case BAD_MESSAGE_TYPE: {
@@ -80,7 +94,7 @@ BGPNotification::BGPNotification(uint8_t **ptr) : BGPCommonHeader((uint8_t *)*pt
 				}
 				break;
 			default:
-				Logger::err("unknown sub-error code [%u] in BGP Notification", subErrorCode );
+				LOG4CXX_ERROR( Logger,"unknown sub-error code ["<< subErrorCode <<"] in BGP Notification" );
 				break;
 			}
 		}
@@ -92,9 +106,9 @@ BGPNotification::BGPNotification(uint8_t **ptr) : BGPCommonHeader((uint8_t *)*pt
 			case UNSUPPORTED_VERSION_NUMBER: {
 					uint16_t temp;
 					/* data should store the version number supported */
-					memcpy(&temp, data, sizeof(uint16_t));
+					memcpy(&temp, data.get(), sizeof(uint16_t));
 					temp = ntohs(temp);
-					memcpy(data, &temp, sizeof(uint16_t));
+					memcpy(data.get(), &temp, sizeof(uint16_t));
 				}
 				break;
 			case BAD_PEER_AS:
@@ -108,7 +122,7 @@ BGPNotification::BGPNotification(uint8_t **ptr) : BGPCommonHeader((uint8_t *)*pt
 			case UNACCEPTABLE_HOLD_TIME:
 				break;
 			default:
-				Logger::err("unknown sub-error code [%u] in BGP Open", subErrorCode );
+				LOG4CXX_ERROR( Logger,"unknown sub-error code ["<< subErrorCode <<"] in BGP Open" );
 				break;
 			}
 		}
@@ -151,22 +165,12 @@ BGPNotification::BGPNotification(uint8_t **ptr) : BGPCommonHeader((uint8_t *)*pt
 	case BGP_NOTIFICATION_CEASE:
 		break;
 	default:
-		Logger::err("unknown error code [%u] in BGP Notification", errorCode);
+		LOG4CXX_ERROR( Logger,"unknown error code ["<< errorCode <<"] in BGP Notification" );
 		break;
 	}
-
-	/* pointer p now points to beginning of notification data */
-	p += dataLength;
-
-	/* update ptr to p */
-	*ptr = p;
 }
 
 BGPNotification::~BGPNotification(void) {
-	if (data != NULL) {
-		free(data);
-	}
-	data = NULL;
 }
 
 void BGPNotification::printMe() {
@@ -174,8 +178,5 @@ void BGPNotification::printMe() {
 }
 
 void BGPNotification::printMeCompact() {
-	cout << errorCode << "|" << subErrorCode;
+	std::cout << errorCode << "|" << subErrorCode;
 }
-
-
-

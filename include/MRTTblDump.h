@@ -44,14 +44,13 @@
 #include "MRTTblDumpV2RibHeader.h"
 
 #include <list>
-using namespace std;
 
 /* MRT type TABLE_DUMP */
 class MRTTblDump :
 	public MRTCommonHeader
 {
 public:
-	MRTTblDump(uint8_t **);
+	MRTTblDump( MRTCommonHeader &header, std::istream &input );
 	virtual ~MRTTblDump(void);
 
 	uint16_t getViewNumber(void) const;
@@ -64,10 +63,10 @@ public:
 	uint16_t getPeerAS(void) const;
 	uint16_t getAttributeLength(void) const;
 	
-	virtual void printMe() { cout << "MRTTblDump"; };
+	virtual void printMe() { std::cout << "MRTTblDump"; };
 	virtual void printMeCompact();
 
-	list<BGPAttribute> *getAttributes(void) const { return attributes; };
+	const std::list<BGPAttributePtr> &getAttributes(void) const { return attributes; };
 protected:
 	uint16_t viewNumber;
 	uint16_t sequenceNumber;
@@ -79,10 +78,13 @@ protected:
 	uint16_t peerAS;
 	uint16_t attributeLength;
 
-	list<BGPAttribute> *attributes;
+	std::list<BGPAttributePtr> attributes;
+
 private:
-	MRTTblDump(void);
+	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<MRTTblDump> MRTTblDumpPtr;
 
 #endif	/* _MRTTBLDUMP_H_ */
 

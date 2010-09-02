@@ -37,9 +37,7 @@ class AttributeTypeMultiExitDisc :
 	public AttributeType
 {
 public:
-	AttributeTypeMultiExitDisc(void);
-	AttributeTypeMultiExitDisc(uint16_t len, uint8_t* msg);
-	AttributeTypeMultiExitDisc(const AttributeTypeMultiExitDisc&);
+	AttributeTypeMultiExitDisc( AttributeType &header, std::istream &input );
 	virtual ~AttributeTypeMultiExitDisc(void);
 
 	uint32_t getMultiExitDiscValue(void) const { return discriminator; };
@@ -47,11 +45,14 @@ public:
 	
 	void printMe();
 	void printMeCompact();
-	AttributeType* clone();
 
 protected:
 	uint32_t discriminator;
+
+	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<AttributeTypeMultiExitDisc> AttributeTypeMultiExitDiscPtr;
 
 #endif	/* _ATTRIBUTETYPEMULTIEXITDISC_H_ */
 

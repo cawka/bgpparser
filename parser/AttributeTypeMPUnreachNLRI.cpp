@@ -27,111 +27,78 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "AttributeTypeMPUnreachNLRI.h"
+using namespace std;
 
-AttributeTypeMPUnreachNLRI::AttributeTypeMPUnreachNLRI(void) {
-	nlri = new list<NLRIUnReachable>();
+#include <boost/iostreams/read.hpp>
+#include <boost/iostreams/skip.hpp>
+#include <boost/foreach.hpp>
+namespace io = boost::iostreams;
+
+log4cxx::LoggerPtr AttributeTypeMPUnreachNLRI::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeMPUnreachNLRI" );
+
+AttributeTypeMPUnreachNLRI::AttributeTypeMPUnreachNLRI( AttributeType &header, std::istream &input )
+						   : AttributeType(header)
+{
+	LOG4CXX_TRACE(Logger,"");
 	corrupt = 0;
-}
 
-AttributeTypeMPUnreachNLRI::AttributeTypeMPUnreachNLRI(const AttributeTypeMPUnreachNLRI &attrMPUnreachNLRI) 
-						   : AttributeType(attrMPUnreachNLRI) {
-	afi = attrMPUnreachNLRI.afi;
-	safi = attrMPUnreachNLRI.safi;
-	corrupt = attrMPUnreachNLRI.corrupt;
-
-	nlri = new list<NLRIUnReachable>(attrMPUnreachNLRI.nlri->begin(),attrMPUnreachNLRI.nlri->end());
-}
-
-AttributeTypeMPUnreachNLRI::AttributeTypeMPUnreachNLRI(uint16_t len, uint8_t* msg) 
-						   : AttributeType(len, msg) {
-	uint8_t *ptr = msg;
-	uint8_t *endMsg = AttributeType::getEndMsg();
-
-	nlri = new list<NLRIUnReachable>();
-	corrupt = 0;
-	memcpy(&afi, ptr, sizeof(uint16_t));
-	ptr += sizeof(uint16_t);
+	io::read( input, reinterpret_cast<char*>(&afi), sizeof(uint16_t) );
 	afi = ntohs(afi);
-
-	if ((afi != AFI_IPv4) &&  (afi != AFI_IPv6)) {
-		Logger::err("unknown address family %u", afi);
+	if((afi != AFI_IPv4) &&  (afi != AFI_IPv6)) {
+		LOG4CXX_ERROR(Logger,"unknown address family " << afi );
 		corrupt = 1;
 		return;
 	}
 
-	safi = *ptr++;
+	safi = input.get( );
 	if ((((uint32_t)safi & BITMASK_8) != SAFI_UNICAST) && (((uint32_t)safi & BITMASK_8) != SAFI_MULTICAST)) {
-		Logger::err("unknown subsequent address family %u", safi);
+		LOG4CXX_ERROR(Logger,"unknown subsequent address family " << (uint32_t)safi );
 	}
 
-	while (ptr < (msg + len) && ptr < endMsg ) {
-		uint8_t prefixLength = BITMASK_8 & (*ptr);
-		ptr++;
-		if( ptr > endMsg ) {
-			Logger::err("message truncated! cannot read mbgp prefix.");
-			break;
-		}
+	int left=length - 2 - 1;
+
+	while( left>0 )
+	{
+		uint8_t prefixLength = input.get( );
+
 		if( prefixLength > sizeof(IPAddress)*8) { 
-			Logger::err("abnormal prefix-length [%u]. skip this record.", prefixLength );
+			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< prefixLength <<"]. skip this record." );
 			break;
 		}
-		NLRIUnReachable route(prefixLength, ptr);
-		if( route.getNumOctets()+ptr > endMsg ) { 
-			Logger::err("message (mbgp w) truncated! need to read [%d], but only have [%d] bytes.",
-						 route.getNumOctets(), endMsg-ptr);
-			break;
-		}
-		nlri->push_back(route);
-		ptr += route.getNumOctets();
+		NLRIUnReachablePtr route( new NLRIUnReachable(prefixLength, input) );
+//		if( route.getNumOctets()+ptr > endMsg ) {
+//			LOG4CXX_ERROR(Logger,"message (mbgp w) truncated! need to read ["<< route.getNumOctets()
+//					<<"], but only have ["<< (int)(endMsg-ptr) <<"] bytes." );
+//			break;
+//		}
+		left -= 1+route->getNumOctets();
+		nlri.push_back(route);
 	}
 }
 
 AttributeTypeMPUnreachNLRI::~AttributeTypeMPUnreachNLRI(void) {
-	if (nlri != NULL) {
-		delete nlri;
-	}
-	nlri = NULL;
-}
-
-AttributeType* AttributeTypeMPUnreachNLRI::clone() {
-	AttributeTypeMPUnreachNLRI *atMPU = new AttributeTypeMPUnreachNLRI();
-	
-	atMPU->setAFI(getAFI());
-	atMPU->setSAFI(getSAFI());
-	atMPU->setCorrupt(getCorrupt());
-
-	list<NLRIUnReachable>::iterator it;
-	for(it = nlri->begin(); it != nlri->end(); it++) {
-		atMPU->addNLRI(*it);
-	}
-	return atMPU;
 }
 
 void AttributeTypeMPUnreachNLRI::printMe() {
 	cout << "MBGP-WITHDRAWN: ";
-	list<NLRIUnReachable>::iterator iter;
 	
-	for(iter = nlri->begin(); iter != nlri->end(); iter++) {
+	BOOST_FOREACH( NLRIUnReachablePtr entry, nlri )
+	{
 		cout << endl;
-		(*iter).printMe();
+		entry->printMe( afi );
 	}
 }
 
 void AttributeTypeMPUnreachNLRI::printMeCompact()
 {
 	cout << "MBGP-WITHDRAWN:";
-	list<NLRIUnReachable>::iterator iter;
-	for(iter = nlri->begin(); iter != nlri->end(); iter++) {
+
+	BOOST_FOREACH( NLRIUnReachablePtr entry, nlri )
+	{
 		cout << " ";
-		if( afi == AFI_IPv4 ) {
-			/* ipv4 */
-			(*iter).printMeCompact();
-		} else {
-			/* ipv6 */
-			PRINT_IPv6_ADDR((*iter).getPrefix().ipv6);
-			cout << "/";
-			printf("%u", (*iter).getLength());
-		}
+		entry->printMeCompact( afi );
 	}
 }

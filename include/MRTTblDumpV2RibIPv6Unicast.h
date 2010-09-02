@@ -47,16 +47,14 @@ class MRTTblDumpV2RibIPv6Unicast :
 	public MRTTblDumpV2RibHeader
 {
 public:
-	MRTTblDumpV2RibIPv6Unicast(uint8_t **);
+	MRTTblDumpV2RibIPv6Unicast(MRTCommonHeader &header, std::istream &input);
 	virtual ~MRTTblDumpV2RibIPv6Unicast(void);
 
-	virtual void printMe();
-	virtual void printMe(MRTTblDumpV2PeerIndexTbl*);
-	virtual void printMeCompact();
-	virtual void printMeCompact(MRTTblDumpV2PeerIndexTbl*);
 private:
-	MRTTblDumpV2RibIPv6Unicast(void);
+	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<MRTTblDumpV2RibIPv6Unicast> MRTTblDumpV2RibIPv6UnicastPtr;
 
 #endif	/* _MRTTBLDUMPV2RIBIPV6UNICAST_H_ */
 

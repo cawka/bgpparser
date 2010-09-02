@@ -28,6 +28,8 @@
 
 // Author: Jason Ryder, Paul Wang
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "AttributeType.h"
 
 #include "AttributeTypeAggregator.h"
@@ -45,88 +47,75 @@
 #include "AttributeTypeOrigin.h"
 #include "AttributeTypeMPReachNLRI.h"
 #include "AttributeTypeMPUnreachNLRI.h"
+#include "Exceptions.h"
 
-uint8_t *AttributeType::endMsg = NULL;
+#include <boost/iostreams/read.hpp>
+#include <boost/iostreams/skip.hpp>
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
+namespace io = boost::iostreams;
 
-AttributeType::AttributeType(void) {
-	length = 0;
-	value = NULL;
-    error = 0;
-}
+using namespace std;
 
-AttributeType::AttributeType(uint16_t len, uint8_t* msg, bool isAS4) {
-	PRINT_DBG("AttributeType::AttributeType()");
-	PRINT_DBG2("  length = ", len);
+log4cxx::LoggerPtr AttributeType::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeType" );
+
+//uint8_t *AttributeType::endMsg = NULL;
+
+AttributeType::AttributeType( uint16_t len, istream &input, bool isAS4 )
+{
+	LOG4CXX_TRACE(Logger,"length = " << (int)len);
+
 	length = len;
-	value = (uint8_t*)malloc(length);
-	memcpy(value, msg, length);
-    this->isAS4 = isAS4;
-    error = 0;
-}
+	this->isAS4 = isAS4;
 
-AttributeType::AttributeType(uint16_t len, uint8_t* msg) {
-	PRINT_DBG("AttributeType::AttributeType()");
-	PRINT_DBG2("  length = ", len);
-	length = len;
-	value = (uint8_t*)malloc(length);
-	memcpy(value, msg, length);
-    isAS4 = false;
-    error = 0;
-}
+	if( length==0 ) return;
 
-AttributeType::AttributeType(const AttributeType& attr) {
-	length = attr.length;
-    isAS4  = attr.isAS4;
-	if (attr.value)
-	{
-		value = (uint8_t*)malloc(length);
-		PRINT_DBG("  Creating AttributeType Copy");
-		memcpy(value, attr.value, length);
-	} else {
-		value = NULL;
-    }
-    error = 0;
+	data=boost::shared_ptr<char>( new char[length] );
+
+	int read=io::read( input, data.get(), length );
+	LOG4CXX_TRACE(Logger,length << " bytes was requested, read only " << read << " bytes");
+	if( read==-1 || read!=length ) throw BGPError( );
 }
 
 AttributeType::~AttributeType(void) {
-	if (value) {
-		free(value);	
-		value = NULL;
-	}
 }
 
-AttributeType* AttributeType::newAttribute(uint8_t attrType, uint16_t len, uint8_t* msg, bool isAS4) {
-    AttributeType* attr = NULL;
+AttributeTypePtr AttributeType::newAttribute(uint8_t attrType, uint16_t len, istream &input, bool isAS4)
+{
+    AttributeTypePtr attr;
+    AttributeType header( len, input, isAS4 );
 
-	switch(attrType) {
-        PRINT_DBG("  Creating new Attribute(len, msg);");
-		case ORIGIN:           { attr =  new AttributeTypeOrigin(len, msg);           break; }
-		case AS_PATH:          { attr =  new AttributeTypeASPath(len, msg, isAS4);    break; }
-		case NEXT_HOP:         { attr =  new AttributeTypeNextHop(len, msg);          break; }
-		case MULTI_EXIT_DISC:  { attr =  new AttributeTypeMultiExitDisc(len, msg);    break; }
-		case LOCAL_PREF:       { attr =  new AttributeTypeLocalPref(len, msg);        break; }
-		case ATOMIC_AGGREGATE: { attr =  new AttributeTypeAtomicAggregate();          break; }
-		case AGGREGATOR:       { attr =  new AttributeTypeAggregator(len, msg);       break; }
-		case COMMUNITIES:      { attr =  new AttributeTypeCommunities(len, msg);      break; }
-		case ORIGINATOR_ID:    { attr =  new AttributeTypeOriginatorID(len, msg);     break; }
-		case CLUSTER_LIST:     { attr =  new AttributeTypeClusterList(len, msg);      break; }
-		case EXT_COMMUNITIES:  { attr =  new AttributeTypeExtCommunities(len, msg);   break; }
-		case MP_REACH_NLRI:    { attr =  new AttributeTypeMPReachNLRI(len, msg);      break; }
-		case MP_UNREACH_NLRI:  { attr =  new AttributeTypeMPUnreachNLRI(len, msg);    break; }
-		case NEW_AS_PATH:      { attr =  new AttributeTypeAS4Path(len, msg);          break; }
-		case NEW_AGGREGATOR:   { attr =  new AttributeTypeAS4Aggregator(len, msg);    break; }
+	io::stream<io::array_source> in( header.data.get(), header.length );
+
+	switch(attrType)
+	{
+		case ORIGIN:           { attr =  AttributeTypePtr( new AttributeTypeOrigin(			header, in) );    break; }
+		case AS_PATH:          { attr =  AttributeTypePtr( new AttributeTypeASPath(			header, in) );    break; }
+		case NEXT_HOP:         { attr =  AttributeTypePtr( new AttributeTypeNextHop(		header, in) );    break; }
+		case MULTI_EXIT_DISC:  { attr =  AttributeTypePtr( new AttributeTypeMultiExitDisc(	header, in) );    break; }
+		case LOCAL_PREF:       { attr =  AttributeTypePtr( new AttributeTypeLocalPref(		header, in) );    break; }
+		case ATOMIC_AGGREGATE: { attr =  AttributeTypePtr( new AttributeTypeAtomicAggregate(header, in) );    break; }
+		case AGGREGATOR:       { attr =  AttributeTypePtr( new AttributeTypeAggregator(		header, in) );    break; }
+		case COMMUNITIES:      { attr =  AttributeTypePtr( new AttributeTypeCommunities(	header, in) );    break; }
+		case ORIGINATOR_ID:    { attr =  AttributeTypePtr( new AttributeTypeOriginatorID(	header, in) );    break; }
+		case CLUSTER_LIST:     { attr =  AttributeTypePtr( new AttributeTypeClusterList(	header, in) );    break; }
+		case EXT_COMMUNITIES:  { attr =  AttributeTypePtr( new AttributeTypeExtCommunities(	header, in) );    break; }
+		case MP_REACH_NLRI:    { attr =  AttributeTypePtr( new AttributeTypeMPReachNLRI(	header, in) );    break; }
+		case MP_UNREACH_NLRI:  { attr =  AttributeTypePtr( new AttributeTypeMPUnreachNLRI(	header, in) );    break; }
+		case NEW_AS_PATH:      { attr =  AttributeTypePtr( new AttributeTypeAS4Path(		header, in) );    break; }
+		case NEW_AGGREGATOR:   { attr =  AttributeTypePtr( new AttributeTypeAS4Aggregator(	header, in) );    break; }
 		// ADD MORE ATTRIBUTES HERE
 
 		default: {
-			PRINT_INFO("  Unhandled attribute type code");
-			attr =  new AttributeType(len, msg, isAS4);
+			LOG4CXX_ERROR(Logger,"Unknown attribute type code");
+			attr =  AttributeTypePtr( new AttributeType(header) );
 			break;
 		}
 	}
     return attr;
 }
 
-string AttributeType::getTypeStr(uint8_t attrType) {
+std::string AttributeType::getTypeStr(uint8_t attrType) {
 	switch(attrType) {
 		case ORIGIN:           { return "ORIGIN";           break; }
 		case AS_PATH:          { return "AS_PATH";          break; }
@@ -150,5 +139,3 @@ string AttributeType::getTypeStr(uint8_t attrType) {
 	}
 	return "";
 }
-
-// vim: sw=4 ts=4 sts=4 expandtab

@@ -28,55 +28,62 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.62)
-AC_INIT(bgpparser, 0.1.0, rveloso@cs.ucla.edu)
-AC_CONFIG_SRCDIR([include/AttributeType.h])
-AC_CONFIG_SRCDIR([parser/AttributeType.cc])
-AC_CONFIG_SRCDIR([dumper/AttributeTypeASPathDumper.cpp])
-AC_CONFIG_HEADERS([parser/config.h])
-AC_CONFIG_HEADERS([dumper/config.h])
+AC_INIT([bgpparser], [0.1.2], [rveloso@cs.ucla.edu])
+AC_CONFIG_SRCDIR([parser/AttributeType.cpp])
+AC_CONFIG_HEADERS([include/config.h])
 
+AM_INIT_AUTOMAKE
 
+PKG_CHECK_MODULES( XML, [libxml-2.0] )
+AC_SUBST(XML_CFLAGS)
+AC_SUBST(XML_LIBS)
 
-AC_ARG_WITH(xml2-lib-dir,
- AC_HELP_STRING(
-[--with-xml2-lib-dir],
-[XML2 library directory]),
-[xml2_lib_dir=$withval])
+PKG_CHECK_MODULES( log4cxx, [liblog4cxx] )
+AC_SUBST(log4cxx_CFLAGS)
+AC_SUBST(log4cxx_LIBS)
 
+#AX_BOOST_BASE( [1.30] )
+AX_BOOST_BASE( [1.30],, [AC_MSG_ERROR([Boost C++ Libraries are not installed, but are required by libbgpparser])] ) 
+AX_BOOST_SYSTEM
+AX_BOOST_FILESYSTEM
+AX_BOOST_PROGRAM_OPTIONS
+AX_BOOST_REGEX
+AX_BOOST_IOSTREAMS
 
-AC_CHECK_LIB(xml2, xmlNewNode, XML2_LIBS=" ", XML2_LIBS= )
-# hunt through several directories trying to find the libraries
-if test "x$XML2_LIBS" = "x"; then
-  old_LDFLAGS="$LDFLAGS"
-  for try in $xml2_lib_dir /usr/lib /usr/local/lib /opt/local/lib; do
-    LDFLAGS="$old_LDFLAGS -L$try"
-    unset ac_cv_lib_xml2_xmlNewNode
-    AC_CHECK_LIB(xml2, xmlNewNode,
-      XML2_LIBS="-L$try",
-      XML2_LIBS=
-    )
-    if test "x$XML2_LIBS" != "x"; then
-      break;
-    fi
-  done
-  LDFLAGS="$old_LDFLAGS $XML2_LIBS"
-fi
-if test "x$XML2_LIBS" = "x"; then
-  AC_MSG_ERROR([XML2 libraries not found.  Use --with-xml2-lib-dir=<path>])
-fi
-# don't forget to add xml2 to the list of libraries
-LIBS="-lxml2 $LIBS"
-
-AC_PATH_TOOL(AR, ar, [false])
-if test $AR = false; then
-  AC_MSG_ERROR([Cannot find 'ar', please extend PATH to include it])
-fi
-
+AC_PROG_LIBTOOL
+AC_PROG_RANLIB
 
 # Checks for programs.
-AC_PROG_CC
+# AC_PROG_CC
+AM_PROG_CC_C_O
+AC_PROG_CXX
+
+# AM_SILENT_RULES([no])
+
+##########################################################################
+# debug compilation support
+##########################################################################
+
+AC_MSG_CHECKING([whether to build with debug information])
+AC_ARG_ENABLE([debug],
+			  [AS_HELP_STRING([--enable-debug],
+							  [enable debug data generation (def=no)])],
+							  [debugit="$enableval"],
+							  [debugit=no])
+AC_MSG_RESULT([$debugit])
+
+if test x"$debugit" = x"yes"; then
+	AC_DEFINE([DEBUG],[],[Debug Mode])
+	AM_CXXFLAGS="$AM_CXXFLAGS -g -Wall -Werror -Wno-uninitialized -O0"
+else
+	AC_DEFINE([NDEBUG],[],[No-debug Mode])
+	AM_CXXFLAGS="$AM_CXXFLAGS -O3"
+fi
+
+##########################################################################
 
 # Checks for libraries.
+
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdint.h string.h sys/socket.h unistd.h])
@@ -90,11 +97,19 @@ AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
 
+
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([inet_ntoa memset])
+AC_CHECK_FUNCS([memmove])
+AC_CHECK_FUNCS([strerror])
+AC_CHECK_FUNCS([strstr])
+AC_CHECK_HEADERS([limits.h])
+AC_FUNC_REALLOC
 
-#AC_CONFIG_FILES([Makefile])
-#AC_CONFIG_SUBDIRS([dumper
- #                  parser])
-AC_OUTPUT(dumper/Makefile parser/Makefile Makefile)
+
+AC_OUTPUT(Makefile bgpparser.pc
+		  parser/Makefile 
+		  dumper/Makefile
+		  examples/Makefile
+		  )

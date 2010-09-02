@@ -27,48 +27,25 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu) 
+#include <bgpparser.h>
+
 #include "MRTBgp4MPSnapshot.h"
+using namespace std;
 
-MRTBgp4MPSnapshot::MRTBgp4MPSnapshot(void) {
-	/* nothing */
-}
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
 
-MRTBgp4MPSnapshot::MRTBgp4MPSnapshot(uint8_t **ptr) 
-: MRTCommonHeader((const uint8_t **)ptr) 
+MRTBgp4MPSnapshot::MRTBgp4MPSnapshot( MRTCommonHeader &header, std::istream &input )
+: MRTCommonHeader( header )
 {
-	uint8_t *p;
-
-	/* add sizeof(MRTCommonHeaderPacket to ptr since ptr points to base of message */
-	p = const_cast<uint8_t *>(*ptr) + sizeof(MRTCommonHeaderPacket);
-
-	memcpy(&viewNumber, p, sizeof(uint16_t));
-	p += sizeof(uint16_t);
+	/* copy out the view number and convert to host order */
+	io::read( input, reinterpret_cast<char*>(&viewNumber), sizeof(uint16_t) );
 	viewNumber = ntohs(viewNumber);
 
-	/* clear out the file name */
-	fileName.clear();
-
-	/* scan input packet byte by byte and append to string */
-	/* file name will be terminated by a NULL {0} character */
-	while (*p != '\0') {
-		fileName.append(1, *p++);
-	}
-
-	/* add an ending NULL {0} character to file name string for safety */
-	fileName.append(1, '\0');
-
-	/* TODO: increment the pointer to the new location in the file stream */
-	*ptr = p;
+	input >> fileName;
 }
 
 MRTBgp4MPSnapshot::~MRTBgp4MPSnapshot(void) {
 	/* nothing */
 }
 
-uint16_t MRTBgp4MPSnapshot::getViewNumber(void) const {
-	return viewNumber;
-}
-
-string MRTBgp4MPSnapshot::getFileName(void) const {
-	return fileName;
-}

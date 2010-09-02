@@ -26,6 +26,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <bgpparser.h>
+using namespace std;
+using namespace boost;
+
 #include <string>
 #include <libxml/tree.h>
 #include "AttributeTypeDumper.h"
@@ -35,7 +39,7 @@ extern "C" {
     #include "xmlinternal.h"
 }
 
-AttributeTypeLocalPrefDumper::AttributeTypeLocalPrefDumper(AttributeType* attr)
+AttributeTypeLocalPrefDumper::AttributeTypeLocalPrefDumper( const AttributeTypePtr &attr )
 : AttributeTypeDumper(attr)
 {}
 
@@ -44,20 +48,18 @@ AttributeTypeLocalPrefDumper::~AttributeTypeLocalPrefDumper()
 
 xmlNodePtr AttributeTypeLocalPrefDumper::genXml()
 {
-    AttributeTypeLocalPref *attr = (AttributeTypeLocalPref *)attr_type;
+    AttributeTypeLocalPrefPtr attr = dynamic_pointer_cast<AttributeTypeLocalPref>( attr_type );
     xmlNodePtr node = xmlNewNodeInt("LOCAL_PREF", attr->getLocalPrefValue());
     return node;
 }
 
 string AttributeTypeLocalPrefDumper::genAscii()
 {
-    AttributeTypeLocalPref *attr = (AttributeTypeLocalPref *)attr_type;
-    string node = "";
-    char buffer[32];
-    buffer[0] = '\0';
-    sprintf(buffer, "%d", attr->getLocalPrefValue());
-    node += buffer;
-    return node;
+    AttributeTypeLocalPrefPtr attr = dynamic_pointer_cast<AttributeTypeLocalPref>( attr_type );
+
+    ostringstream node;
+    node << attr->getLocalPrefValue();
+    return node.str( );
 }
 
 // vim: sw=4 ts=4 sts=4 expandtab

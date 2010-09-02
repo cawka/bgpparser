@@ -33,30 +33,27 @@
 #include "Dumper.h"
 #include "MRTBgp4MPStateChange.h"
 
-using namespace std;
+class MRTBgp4MPStateChangeDumper;
+typedef boost::shared_ptr<MRTBgp4MPStateChangeDumper> MRTBgp4MPStateChangeDumperPtr;
 
 /* Common Dumper */
 class MRTBgp4MPStateChangeDumper : public Dumper
 {
 public:
-	MRTBgp4MPStateChangeDumper();
-	virtual ~MRTBgp4MPStateChangeDumper();
+	virtual ~MRTBgp4MPStateChangeDumper( );
 	
 	// Factory method for creating a dumper
-	static class MRTBgp4MPStateChangeDumper* newDumper(MRTBgp4MPStateChange*);
+	static MRTBgp4MPStateChangeDumperPtr newDumper( const MRTBgp4MPStateChangePtr &bgp4mp_sc );
 
-	xmlNodePtr genXml();
-	string     genAscii();
+	xmlNodePtr  genXml();
+	std::string genAscii();
 
-    void setMRTBgp4MPStateChange(MRTBgp4MPStateChange* bgp4mp_sc)
-    {
-        this->bgp4mp_state_change = bgp4mp_sc;
-    }
-
+private:
+	MRTBgp4MPStateChangeDumper( const MRTBgp4MPStateChangePtr &bgp4mp_sc);
 
 protected:
     /* Pointer to BGP4MP_STATECHANGE */
-    MRTBgp4MPStateChange *bgp4mp_state_change;
+    MRTBgp4MPStateChangePtr bgp4mp_state_change;
 };
 
 #endif /* __MRTBGP4MPSTATECHANGEDUMPER__ */

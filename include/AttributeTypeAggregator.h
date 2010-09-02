@@ -39,26 +39,31 @@ class AttributeTypeAggregator :
 	public AttributeType
 {
 public:
-	AttributeTypeAggregator(void);
-	AttributeTypeAggregator(uint16_t len, uint8_t* msg);
-	AttributeTypeAggregator(const AttributeTypeAggregator&);
+	AttributeTypeAggregator( AttributeType &header, std::istream &input );
 	virtual ~AttributeTypeAggregator(void);
 
 	uint32_t getAggregatorLastAS(void)         const { return aggregatorLastAS; };
 	uint32_t getAggregatorLastASComplete(void) const { return aggregatorLastASComplete; };
+
 	void setAggregatorLastAS(uint32_t aggregatorLastAS)         { this->aggregatorLastAS         = aggregatorLastAS; };
 	void setAggregatorLastASComplete(uint32_t aggregatorLastAS) { this->aggregatorLastASComplete = aggregatorLastAS; };
+	void setAggregatorLastASComplete() 							{ this->aggregatorLastASComplete = this->aggregatorLastAS; };
+
 	IPAddress getAggregatorBGPSpeakerIPAddress(void) const { return bgpSpeakerIPAddress; };
-	void setAggregatorBGPSpeakerIPAddress(IPAddress *bgpSpeakerIPAddress) { memcpy(&(this->bgpSpeakerIPAddress.ipv4), bgpSpeakerIPAddress, sizeof(bgpSpeakerIPAddress->ipv4)); }; 
+//	void setAggregatorBGPSpeakerIPAddress(IPAddress *bgpSpeakerIPAddress) { memcpy(&(this->bgpSpeakerIPAddress.ipv4), bgpSpeakerIPAddress, sizeof(bgpSpeakerIPAddress->ipv4)); };
 	//void setAggregatorBGPSpeakerIPAddress(IPAddress *);
 	virtual void printMe();
 	virtual void printMeCompact();
-	virtual AttributeType* clone();
 	
 protected:
 	uint32_t aggregatorLastAS;
 	uint32_t aggregatorLastASComplete;
 	IPAddress bgpSpeakerIPAddress;
+
+private:
+	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<AttributeTypeAggregator> AttributeTypeAggregatorPtr;
 
 #endif	/* _ATTRIBUTETYPEAGGREGATOR_H_ */

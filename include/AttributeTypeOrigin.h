@@ -41,25 +41,24 @@ public:
 		IGP = 0, EGP, INCOMPLETE
 	};
 	
-	AttributeTypeOrigin(void);
-	AttributeTypeOrigin(uint16_t len, uint8_t* msg);
-	AttributeTypeOrigin(uint16_t len, Origin org, uint8_t* msg);
-	AttributeTypeOrigin(const AttributeTypeOrigin& attr);
-	
+	AttributeTypeOrigin( AttributeType &header, std::istream &input );
 	virtual ~AttributeTypeOrigin(void);	
 	
-	//unsigned int getValue(void) const { return value; };
-	//void setValue(unsigned int value) { this->value = value; };
 	void setOrigin(Origin org) { origin = org; }
 	void setOrigin(unsigned int org) { origin = (Origin)org; }
 	Origin getOrigin() { return origin; }
 	virtual void printMe();
 	virtual void printMeCompact();
-	virtual AttributeType* clone() { return new AttributeTypeOrigin(length, origin, value); }
+//	virtual AttributeType* clone() { return new AttributeTypeOrigin(length, origin, value); }
 	
 protected:
 	Origin origin;
+
+private:
+	static log4cxx::LoggerPtr Logger;
 };
+
+typedef boost::shared_ptr<AttributeTypeOrigin> AttributeTypeOriginPtr;
 
 #endif	/* _ATTRIBUTETYPEORIGIN_H_ */
 

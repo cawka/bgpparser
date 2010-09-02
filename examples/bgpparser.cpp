@@ -33,43 +33,68 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <bgpparser.h>
+
 #include <ctime>
-#include "MRTCommonHeader.h"
-#include "MRTBgp4MPStateChange.h"
-#include "MRTBgp4MPMessage.h"
-#include "MRTBgp4MPEntry.h"
-#include "MRTBgp4MPSnapshot.h"
-#include "MRTTblDump.h"
-#include "MRTTblDumpV2PeerIndexTbl.h"
-#include "MRTTblDumpV2RibIPv4Unicast.h"
-#include "MRTTblDumpV2RibIPv4Multicast.h"
-#include "MRTTblDumpV2RibIPv6Unicast.h"
-#include "MRTTblDumpV2RibIPv6Multicast.h"
+#include <MRTCommonHeader.h>
+#include <MRTBgp4MPStateChange.h>
+#include <MRTBgp4MPMessage.h>
+#include <MRTBgp4MPEntry.h>
+#include <MRTBgp4MPSnapshot.h>
+#include <MRTTblDump.h>
+#include <MRTTblDumpV2PeerIndexTbl.h>
+#include <MRTTblDumpV2RibIPv4Unicast.h>
+#include <MRTTblDumpV2RibIPv4Multicast.h>
+#include <MRTTblDumpV2RibIPv6Unicast.h>
+#include <MRTTblDumpV2RibIPv6Multicast.h>
+#include <Exceptions.h>
 
-#include "BGPCommonHeader.h"
-#include "BGPUpdate.h"
+#include <BGPCommonHeader.h>
+#include <BGPUpdate.h>
 
-#include "AttributeType.h"
-#include "AttributeTypeOrigin.h"
+#include <AttributeType.h>
+#include <AttributeTypeOrigin.h>
 
-#include "Logger.h"
+#include <log4cxx/logger.h>
+#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/consoleappender.h>
+#include <log4cxx/patternlayout.h>
+#include <log4cxx/level.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/defaultconfigurator.h>
+#include <log4cxx/helpers/exception.h>
+using namespace log4cxx;
+using namespace log4cxx::helpers;
 
-extern "C" {
-	#include "cfile_tools.h"
-}
+#include <boost/regex.hpp>
 
-#define INPUT_MAX_SIZE 0x4000000  // ~67MB
-#define OUTPUT_MAX_SIZE 0x4000000 // ~67MB
+#include <boost/filesystem.hpp>
+namespace fs = boost::filesystem;
+
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/option.hpp>
+#include <boost/program_options/variables_map.hpp>
+#include <boost/program_options/parsers.hpp>
+namespace po = boost::program_options;
+
+#include <boost/iostreams/device/file.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/detail/iostream.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filter/bzip2.hpp>
+#include <boost/iostreams/copy.hpp>
+#include <boost/scoped_array.hpp>
+
+#include <boost/iostreams/categories.hpp>
+namespace io = boost::iostreams;
+
+using namespace std;
+using namespace boost;
+
 #define MAX_MRT_TYPE_NUM 49 
 #define MAX_MRT_SUBTYPE_NUM 6
 
 #define MRT_COMMON_HDR_LEN 12
-
-// File types
-#define UNKNOWN 0
-#define GZIP	1
-#define BZIP2	2
-#define XML 	3
 
 const uint32_t rnFlags[] = { 
                             0,0,0,0,0,0,0,0,0,0,                        //  0 -  9
@@ -183,67 +208,130 @@ const char* rrrchMRTSubTypes[][MAX_MRT_SUBTYPE_NUM + 1]
 							{"UNKNOWN"}, {"UNKNOWN"}					// 48, 49
 						};
 
+static LoggerPtr _log=Logger::getLogger( "simple" );
+
 int main(int argc, char** argv)
 {
 	uint32_t    unFlags = 0;
-	char*       pchFileName;
-    char        rchMRTCommonHeader[MRT_COMMON_HDR_LEN];
+    po::variables_map CONFIG;
 
-	if (argc < 2)
+	po::options_description opts( "General options" );
+	opts.add_options()
+		( "help", "Print this help message" )
+		( "log",   po::value<string>(), "log4cxx configuration file" )
+		( "file",  po::value<string>(),
+				  "MRT file or - to input from stdin" )
+		( "format", po::value<string>(),
+				  "Compression format: txt, z, gz, or bz2 (will be overridden by the actual extension of the file)" )
+	;
+
+	po::positional_options_description p;
+	p.add("file", -1);
+
+	try
 	{
-		cout << "Usage:\ntestr <MRT File>\n";
-		exit(-1);
+		po::store( po::command_line_parser(argc, argv).
+						options(opts).
+						positional(p).run(),
+				   CONFIG );
+	}
+	catch( const po::error &error )
+	{
+		cerr << "ERROR: " << error.what() << endl
+			 <<	endl
+			 <<	opts << endl;
+
+		exit( 2 );
 	}
 
-    Logger::init();
-    Logger::out("parsing started");
+	if( CONFIG.count("help")>0 )
+	{
+		cout << opts << endl;
+		exit( 0 );
+	}
+
+	// configure Logger
+	if( CONFIG.count("log")>0 )
+		PropertyConfigurator::configureAndWatch( CONFIG["log"].as<string>() );
+	else if( fs::exists("log4cxx.properties") )
+		PropertyConfigurator::configureAndWatch( "log4cxx.properties" );
+	else
+	{
+//		PatternLayoutPtr   layout   ( new PatternLayout("%d{HH:mm:ss} %p %c{1} - %m%n") );
+//		ConsoleAppenderPtr appender ( new ConsoleAppender( layout ) );
+
+//		BasicConfigurator::configure( appender );
+		Logger::getRootLogger()->setLevel( log4cxx::Level::getOff() );
+	}
+
+	if( CONFIG.count("file")==0 )
+	{
+		cerr << "ERROR: Input file should be specified" << endl
+			 << endl
+			 << opts << endl;
+		exit( 1 );
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+	string format=CONFIG.count("format")>0 ? CONFIG["format"].as<string>( ) : "";
+	////////////////////////////////////////////////////////////////////////////
+
+	////////////////////////////////////////////////////////////////////////////
+	string filename=CONFIG["file"].as<string>();
+	smatch m;
+	if( regex_match(filename, m, regex("^.*\\.(gz|bz2)$")) ) format=m[1];
+	////////////////////////////////////////////////////////////////////////////
+
+	io::filtering_stream<io::input> in;
+
+	if( format=="gz" )
+	{
+		LOG4CXX_DEBUG( _log, "Input file has GZIP format" );
+		in.push( io::gzip_decompressor() );
+	}
+	else if( format=="bz2" )
+	{
+		LOG4CXX_DEBUG( _log, "Input file has BZIP2 format" );
+		in.push( io::bzip2_decompressor() );
+	}
+
+	ifstream input_file( filename.c_str(), ios_base::in | ios_base::binary );
+	if( !input_file.is_open() )
+	{
+		cerr << "ERROR: " << "cannot open file [" <<  filename  << "] for reading" << endl
+			 << endl;
+		exit( 3 );
+	}
+
+	if( filename=="-" )
+		in.push( cin );
+	else
+		in.push( input_file );
+
+
+//	_log->info( "Parsing started" );
 
 	// Set any flags
-	if (argv[1][0] == '-' && argv[1][1] != '\0')
-	{
-		unFlags = 0x80000000;
-		char* pchFlagVals = argv[1];
-		while(*(++pchFlagVals) != '\0')
-			unFlags |= rnFlags[(uint32_t)*pchFlagVals];
-	}
+//	if( string(argv[1])=="--" )
+//	{
+//		unFlags = 0x80000000;
+//		char* pchFlagVals = argv[1];
+//		while(*(++pchFlagVals) != '\0')
+//			unFlags |= rnFlags[(uint32_t)*pchFlagVals];
+//	}
 
 	//printf("flags = 0x%08x\n", unFlags);
-	pchFileName = (unFlags == 0 ? argv[1] : argv[2]);
-	//cout << "File: " << pchFileName << endl;
-    MRTTblDumpV2PeerIndexTbl* peerIndexTbl = NULL; 
+	LOG4CXX_INFO( _log, "Parsing file [" << filename << "]" );
+    MRTTblDumpV2PeerIndexTblPtr peerIndexTbl;
 
-    CFRFILE *f;
-    f = cfr_open(pchFileName);
-    if (f)
-    {
-        // The index table needs to persist over the processing
-        uint32_t unTotalBytesRead = 0;
-
-        while(!cfr_eof(f))
-        {
+    int i=1;
+	try
+	{
+		while( in.peek()!=-1 )
+		{
             size_t szBytesRead = 0;
 
-            /* Read header from file */
-            szBytesRead += cfr_read_n(f, rchMRTCommonHeader, MRT_COMMON_HDR_LEN);
-            if( szBytesRead < MRT_COMMON_HDR_LEN ) { break; }
-
-            /* Compute MRT message length */
-            uint32_t unMRTBodyLen = ntohl(*(uint32_t*)(rchMRTCommonHeader+8));
-            uint32_t unMRTMsgLen = MRT_COMMON_HDR_LEN + unMRTBodyLen;
-            char *pchMRTMsg = (char *)malloc(unMRTMsgLen);
-            memset(pchMRTMsg, 0, unMRTMsgLen);
-
-            /* Copy the whole MRT record */
-
-            memcpy(pchMRTMsg, (char *)rchMRTCommonHeader, MRT_COMMON_HDR_LEN);
-            szBytesRead += cfr_read_n(f, pchMRTMsg + MRT_COMMON_HDR_LEN, unMRTBodyLen);
-            unTotalBytesRead += szBytesRead;
-
-            /* Parse the common header */
-            int nSaveMsg = false;
-            uint8_t *pchMRTMsgTemp = reinterpret_cast<uint8_t *>(pchMRTMsg);
-            MRTMessage* msg = MRTCommonHeader::newMessage(&pchMRTMsgTemp);
-            if (msg == NULL) { continue; } /* EOF? */
+            MRTMessagePtr msg=MRTCommonHeader::newMessage( in );
 
             /* Get time to display */
             time_t      tmTime = (time_t)msg->getTimestamp();
@@ -282,7 +370,7 @@ int main(int argc, char** argv)
                         case AFI_IPv4:
                         case AFI_IPv6:
                         {
-                            MRTTblDump* tblDump = (MRTTblDump*)msg;
+                            MRTTblDumpPtr tblDump = dynamic_pointer_cast<MRTTblDump>( msg );
                             tblDump->printMeCompact();
                         }
                         break;
@@ -307,7 +395,8 @@ int main(int argc, char** argv)
                     {
                         case RIB_IPV4_UNICAST:
                         {
-                            MRTTblDumpV2RibIPv4Unicast* tblDumpIpv4Msg = (MRTTblDumpV2RibIPv4Unicast*)msg;
+                            MRTTblDumpV2RibIPv4UnicastPtr tblDumpIpv4Msg =
+                            		dynamic_pointer_cast<MRTTblDumpV2RibIPv4Unicast>( msg );
                             // consider passing peerIndexTbl to printMe
                             if (unFlags & PRINT_COMPACT)
                                 tblDumpIpv4Msg->printMeCompact(peerIndexTbl);
@@ -318,7 +407,8 @@ int main(int argc, char** argv)
 
                         case RIB_IPV4_MULTICAST:
                         {
-                            MRTTblDumpV2RibIPv4Multicast* tblDumpIpv4Msg = (MRTTblDumpV2RibIPv4Multicast*)msg;
+                            MRTTblDumpV2RibIPv4MulticastPtr tblDumpIpv4Msg =
+                            		dynamic_pointer_cast<MRTTblDumpV2RibIPv4Multicast>( msg );
                             //cout << endl;
                             tblDumpIpv4Msg->printMe(peerIndexTbl);
                         }
@@ -326,7 +416,8 @@ int main(int argc, char** argv)
 
                         case RIB_IPV6_UNICAST:
                         {
-                            MRTTblDumpV2RibIPv6Unicast* tblDumpIpv6Msg = (MRTTblDumpV2RibIPv6Unicast*)msg;
+                            MRTTblDumpV2RibIPv6UnicastPtr tblDumpIpv6Msg =
+                            		dynamic_pointer_cast<MRTTblDumpV2RibIPv6Unicast>( msg );
                             //cout << endl;
                             if (unFlags & PRINT_COMPACT)
                                 tblDumpIpv6Msg->printMeCompact(peerIndexTbl);
@@ -337,7 +428,8 @@ int main(int argc, char** argv)
 
                         case RIB_IPV6_MULTICAST:
                         {
-                            MRTTblDumpV2RibIPv6Multicast *tblDumpIpv6Msg = (MRTTblDumpV2RibIPv6Multicast *)msg;
+                            MRTTblDumpV2RibIPv6MulticastPtr tblDumpIpv6Msg =
+                            		dynamic_pointer_cast<MRTTblDumpV2RibIPv6Multicast>( msg );
                             //cout << endl;
                             tblDumpIpv6Msg->printMe(peerIndexTbl);
                         }
@@ -345,14 +437,8 @@ int main(int argc, char** argv)
                         
                         case PEER_INDEX_TABLE:
                         {
-                            // We need to preserve the index while we process the list of MRT table records
-                            nSaveMsg = true;
-                            if (peerIndexTbl) {
-                                delete peerIndexTbl; // Make way for the next one.
-                            }
-                    
                             //cout << "  Setting a peer index table." << cout;
-                            peerIndexTbl = (MRTTblDumpV2PeerIndexTbl*)msg;
+                            peerIndexTbl = dynamic_pointer_cast<MRTTblDumpV2PeerIndexTbl>( msg );
                             cout << "PEERINDEXTABLE";
                         }
                         break;
@@ -372,9 +458,10 @@ int main(int argc, char** argv)
                             if (unFlags & PRINT_COMPACT ) {
                                 cout << "|" << rrchMRTTypes[msg->getType()];
                             }
-                            MRTBgp4MPMessage* bgp4MPmsg = (MRTBgp4MPMessage*)msg;
-                            BGPMessage* bgpMessage = (BGPMessage*)msg->getPayload();
-                            if( bgpMessage == NULL ) { break; }
+                            MRTBgp4MPMessagePtr bgp4MPmsg = dynamic_pointer_cast<MRTBgp4MPMessage>( msg );
+
+                            BGPMessagePtr bgpMessage = bgp4MPmsg->getPayload();
+                            if( bgpMessage.get() == NULL ) { break; }
                             switch(bgpMessage->Type())
                             {
                                 case BGPCommonHeader::UPDATE:
@@ -383,7 +470,7 @@ int main(int argc, char** argv)
                                     {
                                         cout << "/" << "Update" ;
                                         cout << endl;
-                                        BGPUpdate* bgpUpdate = (BGPUpdate*)bgpMessage;
+                                        BGPUpdate* bgpUpdate = dynamic_cast<BGPUpdate*>(bgpMessage.get());
                                         cout << "FROM: ";
                                         PRINT_IP_ADDR(bgp4MPmsg->getPeerIP().ipv4);
                                         cout << " AS" << bgp4MPmsg->getPeerAS() << endl;
@@ -396,7 +483,7 @@ int main(int argc, char** argv)
                                     else
                                     {
                                         cout << "|";
-                                        BGPUpdate* bgpUpdate = (BGPUpdate*)bgpMessage;
+                                        BGPUpdate* bgpUpdate = dynamic_cast<BGPUpdate*>(bgpMessage.get());
                                         if( bgp4MPmsg->getAddressFamily() == AFI_IPv4 ) {
                                             PRINT_IP_ADDR(bgp4MPmsg->getPeerIP().ipv4);
                                             cout << "|" << bgp4MPmsg->getPeerAS() << "|";
@@ -430,9 +517,9 @@ int main(int argc, char** argv)
                             if (unFlags & PRINT_COMPACT ) {
                                 cout << "|" << rrchMRTTypes[msg->getType()];
                             }
-                            MRTBgp4MPMessage* bgp4MPmsg = (MRTBgp4MPMessage*)msg;
-                            BGPMessage* bgpMessage = (BGPMessage*)msg->getPayload();
-                            if( bgpMessage == NULL ) { break; }
+                            MRTBgp4MPMessagePtr bgp4MPmsg = dynamic_pointer_cast<MRTBgp4MPMessage>( msg );
+                            BGPMessagePtr bgpMessage = bgp4MPmsg->getPayload();
+                            if( bgpMessage.get() == NULL ) { break; }
                             switch(bgpMessage->Type())
                             {
                                 case BGPCommonHeader::UPDATE:
@@ -441,7 +528,7 @@ int main(int argc, char** argv)
                                     {
                                         cout << "/" << "Update" ;
                                         cout << endl;
-                                        BGPUpdate* bgpUpdate = (BGPUpdate*)bgpMessage;
+                                        BGPUpdate* bgpUpdate = dynamic_cast<BGPUpdate*>(bgpMessage.get());
                                         cout << "FROM: ";
                                         PRINT_IP_ADDR(bgp4MPmsg->getPeerIP().ipv4);
                                         cout << " AS" << bgp4MPmsg->getPeerAS() << endl;
@@ -454,7 +541,7 @@ int main(int argc, char** argv)
                                     else
                                     {
                                         cout << "|";
-                                        BGPUpdate* bgpUpdate = (BGPUpdate*)bgpMessage;
+                                        BGPUpdate* bgpUpdate = dynamic_cast<BGPUpdate*>(bgpMessage.get());
                                         if( bgp4MPmsg->getAddressFamily() == AFI_IPv4 ) {
                                             PRINT_IP_ADDR(bgp4MPmsg->getPeerIP().ipv4);
                                         } else {
@@ -508,7 +595,7 @@ int main(int argc, char** argv)
 
                         case BGP4MP_STATE_CHANGE:
                         {
-                            MRTBgp4MPStateChange* bgp4MPmsg = (MRTBgp4MPStateChange*)msg;
+                            MRTBgp4MPStateChangePtr bgp4MPmsg = dynamic_pointer_cast<MRTBgp4MPStateChange>( msg );
                             if (unFlags & PRINT_COMPACT ) {
                                 cout << "|" << "STATE" << "|";
                                 bgp4MPmsg->printMeCompact();
@@ -520,7 +607,7 @@ int main(int argc, char** argv)
                         break;
                         case BGP4MP_STATE_CHANGE_AS4:
                         {
-                            MRTBgp4MPStateChange* bgp4MPmsg = (MRTBgp4MPStateChange*)msg;
+                            MRTBgp4MPStateChangePtr bgp4MPmsg = dynamic_pointer_cast<MRTBgp4MPStateChange>( msg );
                             if (unFlags & PRINT_COMPACT ) {
                                 cout << "|" << "STATE" << "|";
                                 bgp4MPmsg->printMeCompact();
@@ -540,20 +627,43 @@ int main(int argc, char** argv)
             }
 
             cout << endl;
-            delete [] pchMRTMsg;
-            /* if this is not peerIndexTable, free allocated memory */
-            if( !nSaveMsg ) { if( msg != NULL ) delete msg; }
         }
+	}
+	catch( EOFException e )
+	{
+		LOG4CXX_DEBUG( _log, "EOF" );
+		; //do nothing
+	}
+//	catch( io::gzip_error e )
+//	catch( io::bzip2_error e )
+	catch( std::istream::failure e )
+	{
+		cerr << "ERROR: " << e.what() << endl;
+		exit( 10 );
+	}
+	catch( BGPParserError &e )
+	{
+		cerr << "ERROR: " << e.what() << endl;
+		exit( 10 );
+	}
+//	catch( const string &e )
+//	{
+//		cerr << "ERROR: " << e << endl;
+//		exit( 10 );
+//	}
+//	catch( BGPParserError &e )
+//	{
+//		cerr << "ERORR: " << e.what( ) << endl;
+//		exit( 10 );
+//	}
+//	catch( ... )
+//	{
+//		cerr << "Unknown exception" << endl;
+//		exit( 10 );
+//	}
 
-        if (peerIndexTbl)
-        {
-            delete peerIndexTbl;
-            peerIndexTbl = NULL;
-        }
-    }
 
-    Logger::out("parsing ends");
-    Logger::finalize();
+	LOG4CXX_INFO( _log, "Parsing ended" );
 	return 0;
 }
 

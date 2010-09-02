@@ -27,96 +27,87 @@
  */
 
 // Modified: Jonathan Park (jpark@cs.ucla.edu) 
+#include <bgpparser.h>
+
 #include "MRTTblDump.h"
+#include "Exceptions.h"
+using namespace std;
 
-MRTTblDump::MRTTblDump(void) {
-	attributes = new list<BGPAttribute>();
-}
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
 
+log4cxx::LoggerPtr MRTTblDump::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDump" );
 
-MRTTblDump::MRTTblDump(uint8_t **ptr) : MRTCommonHeader((const uint8_t **)ptr) {
-	uint8_t *p;
-	uint8_t *endptr;
-
-	/* add sizeof(MRTCommonHeaderPacket) to ptr since ptr points to base of message */
-	p = const_cast<uint8_t *>(*ptr) + sizeof(MRTCommonHeaderPacket);
-
-	/* copy out the view number, increment the pointer and convert to host order */
-	memcpy(&viewNumber, p, sizeof(uint16_t));
-	p += sizeof(uint16_t);
+MRTTblDump::MRTTblDump( MRTCommonHeader &header, istream &input )
+: MRTCommonHeader( header )
+{
+	/* copy out the view number and convert to host order */
+	io::read( input, reinterpret_cast<char*>(&viewNumber), sizeof(uint16_t) );
 	viewNumber = ntohs(viewNumber);
 
-	/* copy out the sequence number, increment the pointer and convert to host order */
-	memcpy(&sequenceNumber, p, sizeof(uint16_t));
-	p += sizeof(uint16_t);
+	/* copy out the sequence number and convert to host order */
+	io::read( input, reinterpret_cast<char*>(&sequenceNumber), sizeof(uint16_t) );
 	sequenceNumber = ntohs(sequenceNumber);
 
+	int left=length - 4;
+
 	/* copy out the prefix and increment the pointer */
-	if (getSubType() == AFI_IPv4) {
-		memcpy(&(prefix.ipv4), p, sizeof(prefix.ipv4));
-		p += sizeof(prefix.ipv4);
-	} else if (getSubType() == AFI_IPv6) {
-		memcpy(&(prefix.ipv6), p, sizeof(prefix.ipv6));
-		p += sizeof(prefix.ipv6);
-	} else {
-		Logger::err("unsupported subtype [%u] for table-dump.", getSubType());
+	if( getSubType() == AFI_IPv4 )
+	{
+		io::read( input, reinterpret_cast<char*>(&prefix.ipv4), sizeof(prefix.ipv4) );
+		left-=sizeof(prefix.ipv4);
+	}
+	else if (getSubType() == AFI_IPv6)
+	{
+		io::read( input, reinterpret_cast<char*>(&prefix.ipv6), sizeof(prefix.ipv6) );
+		left-=sizeof(prefix.ipv6);
+	}
+	else {
+		LOG4CXX_ERROR(Logger,"unsupported subtype ["<< getSubType() <<"] for table-dump." );
+		throw BGPError( );
 	}
 
-	/* copy out the prefix length and increment the pointer */
-	prefixLength = *p++;
+	/* copy out the prefix length */
+	prefixLength = input.get( );
 
-	/* copy out the prefix length and increment the pointer */
-	status = *p++;
+	/* copy out the status */
+	status = input.get( );
 	/* version 9 of the spec indicates that this field should always be set to 1 */
 	status = (uint8_t)1;
 
 	/* copy out the originated, increment the pointer and convert to host order */
-	memcpy(&originatedTime, p, sizeof(uint32_t));
-	p += sizeof(uint32_t);
+	io::read( input, reinterpret_cast<char*>(&originatedTime), sizeof(uint32_t) );
 	originatedTime = ntohl(originatedTime);
 
+	left-=2 + 4;
+
 	/* copy out the peer IP and increment the pointer */
-	if (getSubType() == AFI_IPv4) {
-		memcpy(&(peerIP.ipv4), p, sizeof(peerIP.ipv4));
-		p += sizeof(peerIP.ipv4);
-	} else if (getSubType() == AFI_IPv6) {
-		memcpy(&(peerIP.ipv6), p, sizeof(peerIP.ipv6));
-		p += sizeof(peerIP.ipv6);
-	} else {
-		Logger::err("unsupported subtype [%u] for table-dump.", getSubType());
+	if (getSubType() == AFI_IPv4)
+	{
+		io::read( input, reinterpret_cast<char*>(&peerIP.ipv4), sizeof(peerIP.ipv4) );
+		left-=sizeof(prefix.ipv4);
+	}
+	else if (getSubType() == AFI_IPv6)
+	{
+		io::read( input, reinterpret_cast<char*>(&peerIP.ipv6), sizeof(peerIP.ipv6) );
+		left-=sizeof(prefix.ipv6);
 	}
 
 	/* copy out the peer AS, increment the pointer and convert to host order */
-	memcpy(&peerAS, p, sizeof(uint16_t));
-	p += sizeof(uint16_t);
+	io::read( input, reinterpret_cast<char*>(&peerAS), sizeof(uint16_t) );
 	peerAS = ntohs(peerAS);
 
 	/* copy out the attribute length, increment the pointer and convert to host order */
-	memcpy(&attributeLength, p, sizeof(uint16_t));
-	p += sizeof(uint16_t);
+	io::read( input, reinterpret_cast<char*>(&attributeLength), sizeof(uint16_t) );
 	attributeLength = ntohs(attributeLength);
 
-	/* TODO: p now points to beginning of BGP attributes... parse BGP attributes */
-	attributes = new list<BGPAttribute>();
-	endptr = p + attributeLength;
-	MRTTblDumpV2RibHeader::processAttributes(attributes, p, endptr, false);
-	/* increment pointer p to end of attributes */
-	p += attributeLength;
+	left-=4;
 
-	/* TODO: increment the pointer to the new location in the file stream */
-	*ptr = p;
+	MRTTblDumpV2RibHeader::processAttributes( attributes, input, left, false );
 }
 
-MRTTblDump::~MRTTblDump(void) {
-	if (attributes != NULL) {
-		list<BGPAttribute>::iterator it;
-
-		for (it = attributes->begin(); it != attributes->end(); it++) {
-			attributes->erase(it);
-		}
-		delete attributes;
-	}
-	attributes = NULL;
+MRTTblDump::~MRTTblDump(void)
+{
 }
 
 uint16_t MRTTblDump::getViewNumber(void) const {
@@ -175,11 +166,9 @@ void MRTTblDump::printMeCompact() {
 	}
 	cout << "|" << peerAS;
 
-	if (attributes != NULL) {
-		list<BGPAttribute>::iterator it;
-		for (it = attributes->begin(); it != attributes->end(); it++) {
-			cout << "|";
-			it->printMeCompact();
-		}
+	list<BGPAttributePtr>::iterator it;
+	for (it = attributes.begin(); it != attributes.end(); it++) {
+		cout << "|";
+		(*it)->printMeCompact();
 	}
 }

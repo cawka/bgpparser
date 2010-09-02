@@ -28,43 +28,42 @@
 
 // Author: Jason Ryder, Paul Wang
 // Modified: Jonathan Park (jpark@cs.ucla.edu)
+#include <bgpparser.h>
+
 #include "AttributeTypeAggregator.h"
+#include <iostream>
 
-AttributeTypeAggregator::AttributeTypeAggregator(void) {
-	/* nothing */
-}
+using namespace std;
 
-AttributeTypeAggregator::AttributeTypeAggregator(uint16_t len, uint8_t* msg)
-						: AttributeType(len, msg) {
-	uint8_t *ptr = msg;
-	if (len == 6) {
+#include <boost/iostreams/read.hpp>
+namespace io = boost::iostreams;
+
+log4cxx::LoggerPtr AttributeTypeAggregator::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeAggregator" );
+
+AttributeTypeAggregator::AttributeTypeAggregator( AttributeType &header, std::istream &input )
+						: AttributeType(header)
+{
+	LOG4CXX_TRACE(Logger,"");
+	aggregatorLastASComplete=0;
+	
+	if( length == 6 )
+	{
 		aggregatorLastAS = 0;
-		memcpy(&aggregatorLastAS, ptr, sizeof(uint16_t));
-		ptr += sizeof(uint16_t);
+		io::read( input, reinterpret_cast<char*>(&aggregatorLastAS), sizeof(uint16_t) );
 		aggregatorLastAS = ntohs(aggregatorLastAS);
-	} else {
-		memcpy(&aggregatorLastAS, ptr, sizeof(aggregatorLastAS));
-		ptr += sizeof(uint32_t);
+	}
+	else
+	{
+		io::read( input, reinterpret_cast<char*>(&aggregatorLastAS), sizeof(uint32_t) );
 		aggregatorLastAS = ntohl(aggregatorLastAS);
 	}
-	memcpy(&bgpSpeakerIPAddress, ptr, sizeof(bgpSpeakerIPAddress.ipv4));
+
+	io::read( input, reinterpret_cast<char*>(&bgpSpeakerIPAddress), sizeof(bgpSpeakerIPAddress.ipv4) );
 }
 
-AttributeTypeAggregator::AttributeTypeAggregator(const AttributeTypeAggregator& attr) {
-	this->aggregatorLastAS = attr.aggregatorLastAS;
-	memcpy(&(this->bgpSpeakerIPAddress),&(attr.bgpSpeakerIPAddress),sizeof(IPAddress));
-}
+AttributeTypeAggregator::~AttributeTypeAggregator( )
+{
 
-AttributeTypeAggregator::~AttributeTypeAggregator(void) {
-	/* nothing */
-}
-
-AttributeType* AttributeTypeAggregator::clone() {
-	AttributeTypeAggregator* atAgg = new AttributeTypeAggregator();
-	IPAddress ipaddr = getAggregatorBGPSpeakerIPAddress();
-	atAgg->setAggregatorLastAS(getAggregatorLastAS());
-	atAgg->setAggregatorBGPSpeakerIPAddress(&ipaddr);
-	return atAgg;
 }
 
 void AttributeTypeAggregator::printMe() { 

@@ -26,16 +26,21 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <bgpparser.h>
+using namespace std;
+using namespace boost;
+
+#include "AttributeTypeOriginatorID.h"
+#include "AttributeTypeDumper.h"
+
 #include <string>
 #include <libxml/tree.h>
-#include "AttributeTypeDumper.h"
-#include "AttributeTypeOriginatorID.h"
 
 extern "C" {
     #include "xmlinternal.h"
 }
 
-AttributeTypeOriginatorIDDumper::AttributeTypeOriginatorIDDumper(AttributeType* attr)
+AttributeTypeOriginatorIDDumper::AttributeTypeOriginatorIDDumper( const AttributeTypePtr &attr )
 : AttributeTypeDumper(attr)
 {}
 
@@ -44,15 +49,11 @@ AttributeTypeOriginatorIDDumper::~AttributeTypeOriginatorIDDumper()
 
 xmlNodePtr AttributeTypeOriginatorIDDumper::genXml()
 {
-    AttributeTypeOriginatorID *attr = (AttributeTypeOriginatorID *)attr_type;
+    AttributeTypeOriginatorIDPtr attr = dynamic_pointer_cast<AttributeTypeOriginatorID>( attr_type );
 
-    static char oid_str[INET6_ADDRSTRLEN];
-    oid_str[0] = '\0';
-
-    uint32_t router_id = attr->getOrigin();
-    inet_ntop(AF_INET, &router_id, oid_str, INET_ADDRSTRLEN);
-
-    xmlNodePtr node = xmlNewNodeString("ORIGINATOR_ID",  oid_str);
+    in_addr ipv4;
+    ipv4.s_addr=attr->getOrigin();
+    xmlNodePtr node = xmlNewNodeString( "ORIGINATOR_ID",  FORMAT_IPv4_ADDRESS(ipv4).c_str() );
     return node;
 }
 

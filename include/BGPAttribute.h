@@ -45,17 +45,10 @@
 #include "BGPStructure.h"
 #include "AttributeType.h"
 
-#include <list>
-using namespace std;
-
 class BGPAttribute
 {
 public:
-	BGPAttribute(void);
-	// Constructor takes a msg as an argument and leaves it unmodified.
-	BGPAttribute(uint8_t* msg, bool isAS4);
-	BGPAttribute(uint8_t* msg, bool isAS4, uint8_t *maxptr=NULL);
-	BGPAttribute(const BGPAttribute& bgpA);  // Copy constructor
+	BGPAttribute( std::istream &input, bool isAS4 );
 	virtual ~BGPAttribute(void);
 
 	uint8_t getAttributeFlags(void) const { return attributeFlags; };
@@ -64,17 +57,17 @@ public:
 	uint8_t getAttributeTypeCode(void) const { return attributeTypeCode; };
 	void setAttributeTypeCode(uint8_t attributeTypeCode) { this->attributeTypeCode = attributeTypeCode; };
 
-	string getAttributeTypeStr(void) const { return AttributeType::getTypeStr(attributeTypeCode); };
+	std::string getAttributeTypeStr(void) const { return AttributeType::getTypeStr(attributeTypeCode); };
 	
 	uint16_t getAttributeLength(void) const 
 		{ return isExtendedLength() ? attributeLength.twoOctet : BITMASK_8 & attributeLength.oneOctet; };
 	void setAttributeLength(uint16_t attribLength) 
 		{ isExtendedLength() ? attributeLength.twoOctet = attribLength : attributeLength.oneOctet = BITMASK_8 & attribLength; };
 
-	AttributeType *getAttributeValue(void) const  { return value; };
-	AttributeType *getAttributeValueMutable(void) { return value; };
-	// The instance takes ownership of value.
-	void setAttributeValue(AttributeType *value) { this->value = value; };
+	AttributeTypePtr getAttributeValue(void) const  { return value; };
+	AttributeTypePtr getAttributeValueMutable(void) { return value; };
+//	// The instance takes ownership of value.
+//	void setAttributeValue(AttributeType *value) { this->value = value; };
 	
 	int totalSize() { return sizeof(attributeFlags) 
 						 + sizeof(attributeTypeCode) 
@@ -92,6 +85,11 @@ public:
 	virtual void printMe() { value->printMe(); };
 	virtual void printMeCompact() { value->printMeCompact(); };
 	
+private:
+	BGPAttribute( ) { ; }
+	BGPAttribute(const BGPAttribute& bgpA) { ; };  // Copy constructor
+	BGPAttribute(uint8_t* msg, bool isAS4);
+
 protected:
 	uint8_t attributeFlags;
 	uint8_t attributeTypeCode;
@@ -102,7 +100,23 @@ protected:
 	} attributeLength;
 
 	/* define an attribute value class here */
-	AttributeType *value;
+	AttributeTypePtr value;
+
+	static log4cxx::LoggerPtr Logger;
+};
+
+typedef boost::shared_ptr<BGPAttribute> BGPAttributePtr;
+
+struct findByType : public std::unary_function<uint8_t, bool>
+{
+	uint8_t _type;
+
+	findByType( uint8_t type ) : _type(type) { }
+
+	bool operator( )( const BGPAttributePtr &obj ) const
+	{
+		return _type == obj->getAttributeTypeCode( );
+	}
 };
 
 #endif	/* _BGPATTRIBUTE_H_ */
