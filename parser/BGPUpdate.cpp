@@ -67,7 +67,7 @@ BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4 )
 
 		if( prefixLen > sizeof(IPAddress) * 8 )
 		{
-			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< prefixLen <<"]. skip this record." );
+			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< (int)prefixLen <<"]. skip this record." );
 			throw BGPError( );
 		}
 
@@ -156,7 +156,7 @@ BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4 )
 
 		if( prefixLen > sizeof(IPAddress) * 8 )
 		{
-			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< prefixLen <<"]. skip this record." );
+			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< (int)prefixLen <<"]. skip this record." );
 			throw BGPError( );
 		}
 

@@ -50,7 +50,7 @@ Message Format: One <AFI, SAFI> encoded as
 BGPRouteRefresh::BGPRouteRefresh( BGPCommonHeader &header, istream &input )
 : BGPCommonHeader(header)
 {
-	LOG4CXX_TRACE(Logger,"BGPRouteRefresh::BGPRouteRefresh()");
+	LOG4CXX_TRACE(Logger,"");
 
 	io::read( input, reinterpret_cast<char*>(&afi), sizeof(uint16_t) );
 	afi = ntohs(afi);

@@ -71,8 +71,15 @@ BGPCommonHeader::BGPCommonHeader( istream &input )
 	data=boost::shared_ptr<char>( new char[msg_length] );
 
 	int read=io::read( input, data.get(), msg_length );
-	LOG4CXX_TRACE(Logger,msg_length << " bytes was requested, read only " << read << " bytes");
-	if( read==-1 || read!=msg_length ) throw BGPError( );
+	if( read==-1 || read!=msg_length ) 
+	{
+		LOG4CXX_ERROR(Logger,msg_length << " bytes was requested, read only " << read << " bytes");
+
+		if( read==-1 ) throw BGPError( ); //there is nothing else to do
+
+		//otherwise continue parsing and prey there will be no errors
+		//in the worst case, some other exception will fire
+	}
 }
 
 BGPCommonHeader::~BGPCommonHeader()
@@ -89,27 +96,27 @@ BGPMessagePtr BGPCommonHeader::newMessage( istream &input, bool isAS4 )
 	switch( header->getType() )
 	{
 	case BGPCommonHeader::OPEN:
-		LOG4CXX_INFO(Logger,"BGP_OPEN");
+		LOG4CXX_TRACE(Logger,"BGP_OPEN");
 		bgpMsg = BGPMessagePtr( new BGPOpen(*header,input) );
 		break;
 
 	case BGPCommonHeader::UPDATE:
-		LOG4CXX_INFO(Logger,"BGP_UPDATE");
+		LOG4CXX_TRACE(Logger,"BGP_UPDATE");
 		bgpMsg = BGPMessagePtr( new BGPUpdate(*header,in,isAS4) );
 		break;
 
 	case BGPCommonHeader::NOTIFICATION:
-		LOG4CXX_INFO(Logger,"BGP_NOTIFICAION");
+		LOG4CXX_TRACE(Logger,"BGP_NOTIFICAION");
 		bgpMsg = BGPMessagePtr( new BGPNotification(*header,in) );
 		break;
 
 	case BGPCommonHeader::KEEPALIVE:
-		LOG4CXX_INFO(Logger,"BGP_KEEPALIVE");
+		LOG4CXX_TRACE(Logger,"BGP_KEEPALIVE");
 		bgpMsg = BGPMessagePtr( new BGPKeepAlive(*header,in) );
 		break;
 
 	case BGPCommonHeader::ROUTE_REFRESH:
-		LOG4CXX_INFO(Logger,"BGP_ROUTE_REFRESH");
+		LOG4CXX_TRACE(Logger,"BGP_ROUTE_REFRESH");
 		bgpMsg = BGPMessagePtr( new BGPRouteRefresh(*header,in) );
 		break;
 	default:

@@ -94,7 +94,7 @@ BGPNotification::BGPNotification( BGPCommonHeader &header, istream &input )
 				}
 				break;
 			default:
-				LOG4CXX_ERROR( Logger,"unknown sub-error code ["<< subErrorCode <<"] in BGP Notification" );
+				LOG4CXX_ERROR( Logger,"unknown sub-error code ["<< (int)subErrorCode <<"] in BGP Notification" );
 				break;
 			}
 		}
@@ -122,7 +122,7 @@ BGPNotification::BGPNotification( BGPCommonHeader &header, istream &input )
 			case UNACCEPTABLE_HOLD_TIME:
 				break;
 			default:
-				LOG4CXX_ERROR( Logger,"unknown sub-error code ["<< subErrorCode <<"] in BGP Open" );
+				LOG4CXX_ERROR( Logger,"unknown sub-error code ["<< (int)subErrorCode <<"] in BGP Open" );
 				break;
 			}
 		}
@@ -165,7 +165,7 @@ BGPNotification::BGPNotification( BGPCommonHeader &header, istream &input )
 	case BGP_NOTIFICATION_CEASE:
 		break;
 	default:
-		LOG4CXX_ERROR( Logger,"unknown error code ["<< errorCode <<"] in BGP Notification" );
+		LOG4CXX_ERROR( Logger,"unknown error code ["<< (int)errorCode <<"] in BGP Notification" );
 		break;
 	}
 }

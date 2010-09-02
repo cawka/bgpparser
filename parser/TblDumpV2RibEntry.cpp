@@ -45,7 +45,7 @@ TblDumpV2RibEntry::TblDumpV2RibEntry( std::istream &input )
 	io::read( input, reinterpret_cast<char*>(&peerIndex), sizeof(uint16_t) );
 	peerIndex = ntohs(peerIndex);
 
-	LOG4CXX_TRACE(Logger,"set peer index to " << peerIndex);
+	LOG4CXX_TRACE(Logger,"set peer index to " << (int)peerIndex);
 
 	MRTTblDumpV2PeerIndexTblPeerEntryPtr peer=MRTTblDumpV2RibHeader::getPeerIndexTbl()->getPeer( peerIndex );
 

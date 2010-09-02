@@ -57,12 +57,20 @@ AttributeTypeASPathSegment::AttributeTypeASPathSegment( istream &input, bool is4
 		if( is4byte )
 		{
 			int len=io::read( input, reinterpret_cast<char*>(&segVal), sizeof(uint32_t) );
-			if( len!=sizeof(uint32_t) ) throw BGPError( );
+			if( len!=sizeof(uint32_t) ) 
+            {
+                LOG4CXX_ERROR(Logger, "4-byte AS sement requested, read " << len << "bytes");
+                throw BGPError( );
+            }
 		}
 		else
 		{
 			int len=io::read( input, reinterpret_cast<char*>(&segVal), sizeof(uint16_t) );
-			if( len!=sizeof(uint16_t) ) throw BGPError( );
+			if( len!=sizeof(uint16_t) ) 
+            {
+                LOG4CXX_ERROR(Logger, "2-byte AS sement requested, read " << len << "bytes");
+                throw BGPError( );
+            }
 		}
 
 		segVal = is4byte ? ntohl(segVal) : ntohs(segVal);

@@ -60,7 +60,7 @@ void MRTBgp4MPStateChange::processIPs( istream &input )
 	else if( addressFamily == AFI_IPv6 )
 		len=sizeof(peerIP.ipv6);
 	else
-		LOG4CXX_ERROR(Logger,"unsupported address family ["<< addressFamily <<"]" );
+		LOG4CXX_ERROR(Logger,"unsupported address family ["<< (int)addressFamily <<"]" );
 
 	io::read( input, reinterpret_cast<char*>(&peerIP),  len );
 	io::read( input, reinterpret_cast<char*>(&localIP), len );

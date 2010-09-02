@@ -37,7 +37,7 @@ log4cxx::LoggerPtr BGPKeepAlive::Logger = log4cxx::Logger::getLogger( "bgpparser
 BGPKeepAlive::BGPKeepAlive( BGPCommonHeader &header, istream &input )
 			 : BGPCommonHeader(header)
 {
-	LOG4CXX_TRACE(Logger,"BGPKeepAlive::BGPKeepAlive()");
+	LOG4CXX_TRACE(Logger,"");
 }
 
 BGPKeepAlive::~BGPKeepAlive() { 

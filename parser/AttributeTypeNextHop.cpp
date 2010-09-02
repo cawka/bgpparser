@@ -56,7 +56,10 @@ AttributeTypeNextHop::AttributeTypeNextHop( AttributeType &header, istream &inpu
 		io::read( input, reinterpret_cast<char*>(&nextHop), sizeof(nextHop.ipv6) );
 	}
 	else
+	{
+		LOG4CXX_ERROR(Logger, "NextHop attribute is neither IPv4 or IPv6 (length "<<(int)length<<" bytes)");
 		throw BGPError( );
+	}
 }
 
 AttributeTypeNextHop::~AttributeTypeNextHop(void) {

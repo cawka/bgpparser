@@ -46,13 +46,13 @@ public:
 	virtual const char* what() const throw() { return _msg.c_str(); }
 };
 
-class BGPError : public std::exception
+class BGPError : public BGPParserError
 {
 public:
 	virtual const char* what() const throw() { return "BGP packet format error"; }
 };
 
-class BGPTextError : public BGPParserError
+class BGPTextError : public BGPError
 {
 private:
 	std::string _msg;

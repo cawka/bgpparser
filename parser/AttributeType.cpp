@@ -73,8 +73,12 @@ AttributeType::AttributeType( uint16_t len, istream &input, bool isAS4 )
 	data=boost::shared_ptr<char>( new char[length] );
 
 	int read=io::read( input, data.get(), length );
-	LOG4CXX_TRACE(Logger,length << " bytes was requested, read only " << read << " bytes");
-	if( read==-1 || read!=length ) throw BGPError( );
+
+	if( read==-1 || read!=length ) 
+	{
+		LOG4CXX_ERROR(Logger,length << " bytes was requested, read only " << read << " bytes");
+		throw BGPError( );
+	}
 }
 
 AttributeType::~AttributeType(void) {
@@ -107,7 +111,7 @@ AttributeTypePtr AttributeType::newAttribute(uint8_t attrType, uint16_t len, ist
 		// ADD MORE ATTRIBUTES HERE
 
 		default: {
-			LOG4CXX_ERROR(Logger,"Unknown attribute type code");
+			LOG4CXX_ERROR(Logger,"Unknown attribute type code ["<<(int)attrType<<"]");
 			attr =  AttributeTypePtr( new AttributeType(header) );
 			break;
 		}

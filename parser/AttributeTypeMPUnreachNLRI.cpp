@@ -48,14 +48,14 @@ AttributeTypeMPUnreachNLRI::AttributeTypeMPUnreachNLRI( AttributeType &header, s
 	io::read( input, reinterpret_cast<char*>(&afi), sizeof(uint16_t) );
 	afi = ntohs(afi);
 	if((afi != AFI_IPv4) &&  (afi != AFI_IPv6)) {
-		LOG4CXX_ERROR(Logger,"unknown address family " << afi );
+		LOG4CXX_ERROR(Logger,"unknown address family " << (int)afi );
 		corrupt = 1;
 		return;
 	}
 
 	safi = input.get( );
 	if ((((uint32_t)safi & BITMASK_8) != SAFI_UNICAST) && (((uint32_t)safi & BITMASK_8) != SAFI_MULTICAST)) {
-		LOG4CXX_ERROR(Logger,"unknown subsequent address family " << (uint32_t)safi );
+		LOG4CXX_ERROR(Logger,"unknown subsequent address family " << (int)safi );
 	}
 
 	int left=length - 2 - 1;
@@ -65,7 +65,7 @@ AttributeTypeMPUnreachNLRI::AttributeTypeMPUnreachNLRI( AttributeType &header, s
 		uint8_t prefixLength = input.get( );
 
 		if( prefixLength > sizeof(IPAddress)*8) { 
-			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< prefixLength <<"]. skip this record." );
+			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< (int)prefixLength <<"]. skip this record." );
 			break;
 		}
 		NLRIUnReachablePtr route( new NLRIUnReachable(prefixLength, input) );

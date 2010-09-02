@@ -40,7 +40,7 @@ log4cxx::LoggerPtr BGPOpen::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPO
 BGPOpen::BGPOpen( BGPCommonHeader &header, std::istream &input )
 		: BGPCommonHeader( header )
 {
-	LOG4CXX_TRACE(Logger,"BGPOpen::BGPOpen()");
+	LOG4CXX_TRACE(Logger,"");
 
 	io::read( input, reinterpret_cast<char*>(&version), sizeof(uint8_t) );
 

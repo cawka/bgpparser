@@ -49,7 +49,7 @@ MRTTblDumpV2RibGeneric::MRTTblDumpV2RibGeneric( MRTCommonHeader &header, std::is
 
 	if( afi!=AFI_IPv4 && afi!=AFI_IPv6 )
 	{
-		LOG4CXX_ERROR( Logger,"rib generic has unknown address family ["<< afi <<"]" );
+		LOG4CXX_ERROR( Logger,"rib generic has unknown address family ["<< (int)afi <<"]" );
 		throw BGPError( );
 	}
 
@@ -62,7 +62,7 @@ MRTTblDumpV2RibGeneric::MRTTblDumpV2RibGeneric( MRTCommonHeader &header, std::is
 	} else if (subsequentAddressFamily == SAFI_MULTICAST) {
 		safi = (uint16_t) subsequentAddressFamily;
 	} else {
-		LOG4CXX_ERROR( Logger,"rib generic has unknown subsequent address family ["<< subsequentAddressFamily <<"]" );
+		LOG4CXX_ERROR( Logger,"rib generic has unknown subsequent address family ["<< (int)subsequentAddressFamily <<"]" );
 		throw BGPError( );
 	}
 

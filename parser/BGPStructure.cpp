@@ -57,7 +57,7 @@ Route::Route( uint8_t aLength, istream &input )
 		int len=io::read( input, reinterpret_cast<char*>(&prefix), numOctets );
 		if( len!=numOctets )
 		{
-			LOG4CXX_ERROR(Logger,"message truncated! need to read ["<< getNumOctets()
+			LOG4CXX_ERROR(Logger,"message truncated! need to read ["<< (int)getNumOctets()
 					<<"], but only have ["<< len <<"] bytes.");
 			throw BGPError( );
 		}

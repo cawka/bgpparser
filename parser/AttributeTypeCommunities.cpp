@@ -47,7 +47,11 @@ AttributeTypeCommunities::AttributeTypeCommunities( AttributeType &header, std::
 	{
 		CommunityValue community;
 		int len=io::read( input, reinterpret_cast<char*>(&community), sizeof(CommunityValue) );
-		if( len!=sizeof(CommunityValue) ) throw BGPError( );
+		if( len!=sizeof(CommunityValue) ) 
+		{
+			LOG4CXX_ERROR(Logger, "Requested "<<(int)sizeof(CommunityValue)<<" bytes, got "<<len<<" bytes");
+			throw BGPError( );
+		}
 
 		community.ASnum = ntohs(community.ASnum);
 		community.info =  ntohs(community.info);

@@ -63,7 +63,7 @@ MRTTblDump::MRTTblDump( MRTCommonHeader &header, istream &input )
 		left-=sizeof(prefix.ipv6);
 	}
 	else {
-		LOG4CXX_ERROR(Logger,"unsupported subtype ["<< getSubType() <<"] for table-dump." );
+		LOG4CXX_ERROR(Logger,"unsupported subtype ["<< (int)getSubType() <<"] for table-dump." );
 		throw BGPError( );
 	}
 
