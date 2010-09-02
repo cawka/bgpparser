@@ -46,31 +46,41 @@ AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI( AttributeType &header, istre
 	LOG4CXX_TRACE(Logger,"");
 //	corrupt = 0;
 
+	bool error=false;
+
 	// Test if there is only "NextHopLength" and "NextHopAddress" in this attribute (MRT TABLE_DUMP_V2 format)
 	// http://tools.ietf.org/id/draft-ietf-grow-mrt-09.txt
 	if( length == 1 + nextHopAddressLength )
 	{
-		nextHopAddressLength=input.get( );
+		error|= -1==io::read( input, reinterpret_cast<char*>(&nextHopAddressLength), sizeof(uint8_t) );
 		
 		afi = 0;
 		safi = 0;
 		memset( reinterpret_cast<char*>(&nextHopAddress), 0, sizeof(IPAddress) );
-		io::read( input, reinterpret_cast<char*>(&nextHopAddress), nextHopAddressLength );
+		error|= nextHopAddressLength!=
+				io::read( input, reinterpret_cast<char*>(&nextHopAddress), nextHopAddressLength );
+
+		if( error )
+		{
+			LOG4CXX_ERROR( Logger, "Parsing error" );
+			throw BGPError( );
+		}
 		return;
 	}
 
 	// Else parse every fields specified in RFC 4760
-	io::read( input, reinterpret_cast<char*>(&afi), sizeof(uint16_t) );
+	error|= sizeof(uint16_t)!=
+			io::read( input, reinterpret_cast<char*>(&afi), sizeof(uint16_t) );
 	afi = ntohs(afi);
 	LOG4CXX_TRACE(Logger,"  afi = " << (int)afi);
 
 	/* SAFI */
-	safi = input.get( );
+	error|= -1==io::read( input, reinterpret_cast<char*>(&safi), sizeof(uint8_t) );
 	LOG4CXX_TRACE(Logger,"  safi = " << (int)safi);
 	// SAFI not valid in MP_REACH_NLRI
 
 	/* Next hop length and address */
-	nextHopAddressLength = input.get( );
+	error|= -1==io::read( input, reinterpret_cast<char*>(&nextHopAddressLength), sizeof(uint8_t) );
 	LOG4CXX_TRACE(Logger,"  nextHopAddressLength = " << (int)nextHopAddressLength);
 
 	memset( reinterpret_cast<char*> ( &nextHopAddress ),      0, sizeof(IPAddress) );
@@ -78,14 +88,18 @@ AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI( AttributeType &header, istre
 
 	if( nextHopAddressLength == 32 ) {
 		/* this must be ipv6 with local address as well */
-		io::read( input, reinterpret_cast<char*>(&nextHopAddress.ipv6),      sizeof(nextHopAddress.ipv6) );
-		io::read( input, reinterpret_cast<char*>(&nextHopAddressLocal.ipv6), sizeof(nextHopAddressLocal.ipv6) );
+		error|= sizeof(nextHopAddress.ipv6)!=
+				io::read( input, reinterpret_cast<char*>(&nextHopAddress.ipv6),      sizeof(nextHopAddress.ipv6) );
+		error|= sizeof(nextHopAddressLocal.ipv6)!=
+				io::read( input, reinterpret_cast<char*>(&nextHopAddressLocal.ipv6), sizeof(nextHopAddressLocal.ipv6) );
 	} else if( nextHopAddressLength == 16 ) {
 		/* this must be ipv6 */
-		io::read( input, reinterpret_cast<char*>(&nextHopAddress.ipv6),      sizeof(nextHopAddress.ipv6) );
+		error|=	sizeof(nextHopAddress.ipv6)!=
+				io::read( input, reinterpret_cast<char*>(&nextHopAddress.ipv6),      sizeof(nextHopAddress.ipv6) );
 	} else if( nextHopAddressLength == 4 ) {
 		/* this must be ipv4 */
-		io::read( input, reinterpret_cast<char*>(&nextHopAddress.ipv4),      sizeof(nextHopAddress.ipv4) );
+		error|= sizeof(nextHopAddress.ipv4)!=
+				io::read( input, reinterpret_cast<char*>(&nextHopAddress.ipv4),      sizeof(nextHopAddress.ipv4) );
 	}
 
 	int left=length - /*afi*/2 - /*safi*/1 - /*nextHopAddressLength*/1 - nextHopAddressLength;
@@ -93,42 +107,51 @@ AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI( AttributeType &header, istre
 	/* JP: let's not worry about SNPA for now */
 	uint8_t unSNPACnt = 0;
 	uint8_t unSNPALen = 0;
-	unSNPACnt = input.get( );
+	error|= -1==io::read( input, reinterpret_cast<char*>(&unSNPACnt), sizeof(uint8_t) );
+
 	LOG4CXX_TRACE(Logger,"  unSNPACnt = " << (int)unSNPACnt);
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 
 	left--;
 
 	for(int ic=0; ic<unSNPACnt; ic++) {
-		unSNPALen = input.get( );
-		io::detail::skip( input, unSNPALen, boost::mpl::false_() );
+		error|= -1==io::read( input, reinterpret_cast<char*>(&unSNPALen), sizeof(uint8_t) );
+		char tmpbuf[unSNPALen];
+		error|= unSNPALen!=
+				io::read( input, tmpbuf, unSNPALen );	
 
 		left-=1+unSNPALen;
+		if( error )
+		{
+			LOG4CXX_ERROR( Logger, "Parsing error" );
+			throw BGPError( );
+		}
 	}
 
-	while( left>0 ) {
+	while( left>0 ) 
+	{
 		uint8_t prefixLength = 0;
-		prefixLength = input.get( );
-//		if( ptr > endMsg ) {
-//			LOG4CXX_ERROR(Logger,"message truncated! cannot read mbgp prefix.");
-//			break;
-//		}
+		error|= -1==io::read( input, reinterpret_cast<char*>(&prefixLength), sizeof(uint8_t) );
+		if( error ) 
+		{
+			LOG4CXX_ERROR(Logger,"message truncated! cannot read mbgp prefix.");
+			throw BGPError( );
+		}
 		if( prefixLength > sizeof(IPAddress)*8) { 
 			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< (int)prefixLength <<"]. skip this record." );
-
 			LOG4CXX_ERROR(Logger,"Length = " << (int)length << ", left = " << left );
 			throw BGPError( );
-			break;
 		}
 		LOG4CXX_TRACE(Logger,"prefixLength = " << (int)prefixLength);
 		
 		NLRIReachablePtr route( new NLRIReachable(prefixLength, input) );
-//		if( route.getNumOctets()+ptr > endMsg ) {
-//			LOG4CXX_ERROR(Logger,"message (mbgp a) truncated! need to read ["<< route.getNumOctets() <<"], "<<
-//					"but only have ["<< (int)(endMsg-ptr) <<"] bytes." );
-//			break;
-//		}
 		left -= 1+route->getNumOctets();
 		nlri.push_back(route);
+
 		LOG4CXX_TRACE(Logger, "num_octets = " << (int)route->getNumOctets() );
 	}
 }

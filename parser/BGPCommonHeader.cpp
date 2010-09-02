@@ -57,13 +57,24 @@ log4cxx::LoggerPtr BGPCommonHeader::Logger = log4cxx::Logger::getLogger( "bgppar
 
 BGPCommonHeader::BGPCommonHeader( istream &input )
 {
-	LOG4CXX_TRACE(Logger,"");
-	io::read( input, reinterpret_cast<char*>(&marker), sizeof(marker) );
+	bool error=false;
 
-	io::read( input, reinterpret_cast<char*>(&length), sizeof(length) );
+	LOG4CXX_TRACE(Logger,"");
+	error|= sizeof(marker)!=
+			io::read( input, reinterpret_cast<char*>(&marker), sizeof(marker)/*16*/ );
+
+	error|= sizeof(length)!=
+			io::read( input, reinterpret_cast<char*>(&length), sizeof(length)/*2*/ );
 	length = ntohs(length);
 
-	type=input.get( );
+	error!= sizeof(uint8_t)!=
+			io::read( input, reinterpret_cast<char*>(&type), sizeof(uint8_t) );
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 
 	uint32_t msg_length=length-/*marker*/16-/*length*/2-/*type*/1;
 	if( msg_length==0 ) return; //there is no need to do anything

@@ -31,6 +31,7 @@
 #include <bgpparser.h>
 
 #include "BGPAttribute.h"
+#include "Exceptions.h"
 using namespace std;
 
 #include <boost/iostreams/read.hpp>
@@ -43,8 +44,9 @@ log4cxx::LoggerPtr BGPAttribute::Logger = log4cxx::Logger::getLogger( "bgpparser
 
 BGPAttribute::BGPAttribute( istream &input, bool isAS4 )
 {
-	attributeFlags 	  = input.get( );
-	attributeTypeCode = input.get( );
+	bool error=false;
+	error|= -1==io::read( input, reinterpret_cast<char*>(&attributeFlags),    sizeof(uint8_t) );
+	error|= -1==io::read( input, reinterpret_cast<char*>(&attributeTypeCode), sizeof(uint8_t) );
 
 	uint16_t len = 0;
 	// This methods handles endianess conversion in a generic way. If they were to
@@ -52,11 +54,22 @@ BGPAttribute::BGPAttribute( istream &input, bool isAS4 )
 	//  correct.
 	if( isExtendedLength( ) )
 	{
-		io::read( input, reinterpret_cast<char*>(&len), sizeof(uint16_t) );
+		error|= sizeof(uint16_t)!=
+				io::read( input, reinterpret_cast<char*>(&len), sizeof(uint16_t) );
 		len = ntohs(len);
 	}
 	else
-		len=input.get( );
+	{
+		uint8_t len8;
+		error|= -1==io::read( input, reinterpret_cast<char*>(&len8), sizeof(uint8_t) );
+		len=len8;
+	}
+	
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 
 	setAttributeLength( len );
 

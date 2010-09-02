@@ -30,6 +30,7 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeMPUnreachNLRI.h"
+#include "Exceptions.h"
 using namespace std;
 
 #include <boost/iostreams/read.hpp>
@@ -43,37 +44,41 @@ AttributeTypeMPUnreachNLRI::AttributeTypeMPUnreachNLRI( AttributeType &header, s
 						   : AttributeType(header)
 {
 	LOG4CXX_TRACE(Logger,"");
-	corrupt = 0;
+	bool error=false;
 
-	io::read( input, reinterpret_cast<char*>(&afi), sizeof(uint16_t) );
+	error|= sizeof(uint16_t)!=
+			io::read( input, reinterpret_cast<char*>(&afi), sizeof(uint16_t) );
 	afi = ntohs(afi);
-	if((afi != AFI_IPv4) &&  (afi != AFI_IPv6)) {
+	if( error || ((afi != AFI_IPv4) &&  (afi != AFI_IPv6)) )
+   	{
 		LOG4CXX_ERROR(Logger,"unknown address family " << (int)afi );
-		corrupt = 1;
-		return;
+		throw BGPError( );
 	}
 
-	safi = input.get( );
-	if ((((uint32_t)safi & BITMASK_8) != SAFI_UNICAST) && (((uint32_t)safi & BITMASK_8) != SAFI_MULTICAST)) {
+	error|= sizeof(uint8_t)!=
+			io::read( input, reinterpret_cast<char*>(&safi), sizeof(uint8_t) );
+	if( error || (safi != SAFI_UNICAST && safi!= SAFI_MULTICAST) )
+	{
 		LOG4CXX_ERROR(Logger,"unknown subsequent address family " << (int)safi );
+		throw BGPError( );
 	}
 
 	int left=length - 2 - 1;
 
 	while( left>0 )
 	{
-		uint8_t prefixLength = input.get( );
+		uint8_t prefixLength;
+	   	error|= sizeof(uint8_t)!=
+			io::read( input, reinterpret_cast<char*>(&prefixLength), sizeof(uint8_t) );
 
-		if( prefixLength > sizeof(IPAddress)*8) { 
+		if( error || prefixLength > sizeof(IPAddress)*8 ) 
+		{ 
 			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< (int)prefixLength <<"]. skip this record." );
-			break;
+			throw BGPError( );
 		}
+
 		NLRIUnReachablePtr route( new NLRIUnReachable(prefixLength, input) );
-//		if( route.getNumOctets()+ptr > endMsg ) {
-//			LOG4CXX_ERROR(Logger,"message (mbgp w) truncated! need to read ["<< route.getNumOctets()
-//					<<"], but only have ["<< (int)(endMsg-ptr) <<"] bytes." );
-//			break;
-//		}
+
 		left -= 1+route->getNumOctets();
 		nlri.push_back(route);
 	}

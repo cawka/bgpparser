@@ -31,6 +31,7 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeOrigin.h"
+#include "Exceptions.h"
 using namespace std;
 
 #include <boost/iostreams/read.hpp>
@@ -42,7 +43,12 @@ AttributeTypeOrigin::AttributeTypeOrigin( AttributeType &header, istream &input 
 					: AttributeType(header)
 {
 	LOG4CXX_TRACE(Logger,"");
-	origin = static_cast<Origin>( input.get() );
+	bool error= -1==io::read( input, reinterpret_cast<char*>(&origin), sizeof(uint8_t) );
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 }
 
 AttributeTypeOrigin::~AttributeTypeOrigin(void) {

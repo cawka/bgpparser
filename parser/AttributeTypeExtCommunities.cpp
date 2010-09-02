@@ -48,11 +48,18 @@ AttributeTypeExtCommunities::AttributeTypeExtCommunities( AttributeType &header,
 	{
 		ExtCommunityValue extCommunity;
 
-		extCommunity.typeHigh = input.get( );
-		extCommunity.typeLow = 	input.get( );
+		bool error=false;
+		error|= -1==io::read( input, reinterpret_cast<char*>(&extCommunity.typeHigh), sizeof(uint8_t) );
+		error|= -1==io::read( input, reinterpret_cast<char*>(&extCommunity.typeLow),  sizeof(uint8_t) );
 
-		io::read( input, reinterpret_cast<char*>(extCommunity.rchValue), sizeof(extCommunity.rchValue) );
+		error|= -1==io::read( input, reinterpret_cast<char*>(extCommunity.rchValue), sizeof(extCommunity.rchValue) );
 		extCommunityValues.push_back( extCommunity );
+
+		if( error )
+		{
+			LOG4CXX_ERROR(Logger,"Parsing error");
+			throw BGPError( );
+		}
 	}
 }
 

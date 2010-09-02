@@ -56,16 +56,27 @@ BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4 )
 		 : BGPCommonHeader(header)
 {
 	withdrawnRoutesLength = pathAttributesLength = nlriLength = 0;   
-	
-	io::read( input, reinterpret_cast<char*>(&withdrawnRoutesLength), sizeof(uint16_t) );
+
+	bool error=false;
+
+	error|= sizeof(uint16_t)!=
+			io::read( input, reinterpret_cast<char*>(&withdrawnRoutesLength), sizeof(uint16_t) );
 	withdrawnRoutesLength = ntohs(withdrawnRoutesLength);
 
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger,"Parsing error" );
+		throw BGPError( );
+	}
+	
 	uint16_t left=withdrawnRoutesLength;
 	while( left>0 )
 	{
-		uint8_t prefixLen = input.get( );
+		uint8_t prefixLen;
+		error|= sizeof(uint8_t)!=
+				io::read( input, reinterpret_cast<char*>(&prefixLen), sizeof(uint8_t) );
 
-		if( prefixLen > sizeof(IPAddress) * 8 )
+		if( error || prefixLen > sizeof(IPAddress) * 8 )
 		{
 			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< (int)prefixLen <<"]. skip this record." );
 			throw BGPError( );
@@ -77,8 +88,15 @@ BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4 )
 		left -= 1+wRoute->getNumOctets( );
 	}
 	
-	io::read( input, reinterpret_cast<char*>(&pathAttributesLength), sizeof(pathAttributesLength) );
+	error|= sizeof(pathAttributesLength)!=
+			io::read( input, reinterpret_cast<char*>(&pathAttributesLength), sizeof(pathAttributesLength) );
 	pathAttributesLength = ntohs(pathAttributesLength);
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger,"Parsing error" );
+		throw BGPError( );
+	}
 
 	left=pathAttributesLength;
 	while( left>0 )
@@ -93,6 +111,11 @@ BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4 )
 		pathAttributes.push_back( attrib );
 
 		left-=attrib->totalSize( );
+		if( attrib->totalSize( )==0 ) 
+		{
+			LOG4CXX_ERROR( Logger,"Attribute size is zero" );
+			throw BGPError( );
+		}
 	}
 
 	// Post processing
@@ -152,9 +175,11 @@ BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4 )
 	left=nlriLength;
 	while( left>0 )
 	{
-		uint8_t prefixLen = input.get( );
+		uint8_t prefixLen;
+		error|= sizeof(uint8_t)!=
+				io::read( input, reinterpret_cast<char*>(&prefixLen), sizeof(uint8_t) );
 
-		if( prefixLen > sizeof(IPAddress) * 8 )
+		if( error || prefixLen > sizeof(IPAddress) * 8 )
 		{
 			LOG4CXX_ERROR(Logger,"abnormal prefix-length ["<< (int)prefixLen <<"]. skip this record." );
 			throw BGPError( );
