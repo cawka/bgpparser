@@ -41,18 +41,29 @@ namespace io = boost::iostreams;
 log4cxx::LoggerPtr AttributeTypeMPReachNLRI::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeMPReachNLRI" );
 
 AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI( AttributeType &header, istream &input )
-						 : AttributeType(header)
+ : AttributeType(header)
+ , afi(0), safi(0), nextHopAddressLength(0)
 {
+	memset( reinterpret_cast<char*> ( &nextHopAddress ),      0, sizeof(IPAddress) );
+	memset( reinterpret_cast<char*> ( &nextHopAddressLocal ), 0, sizeof(IPAddress) );
+
 	LOG4CXX_TRACE(Logger,"");
-//	corrupt = 0;
 
 	bool error=false;
 
 	// Test if there is only "NextHopLength" and "NextHopAddress" in this attribute (MRT TABLE_DUMP_V2 format)
 	// http://tools.ietf.org/id/draft-ietf-grow-mrt-09.txt
-	if( length == 1 + nextHopAddressLength )
+	int testLength=input.peek( );
+	if( testLength<0 )
 	{
-		error|= -1==io::read( input, reinterpret_cast<char*>(&nextHopAddressLength), sizeof(uint8_t) );
+		LOG4CXX_ERROR( Logger, "Cannot look forward (nothing left)" );
+		throw BGPError( );
+	}
+
+	if( length == 1 + testLength )
+	{
+		error|= sizeof(uint8_t)!=
+				io::read( input, reinterpret_cast<char*>(&nextHopAddressLength), sizeof(uint8_t) );
 		
 		afi = 0;
 		safi = 0;
@@ -62,7 +73,7 @@ AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI( AttributeType &header, istre
 
 		if( error )
 		{
-			LOG4CXX_ERROR( Logger, "Parsing error" );
+			LOG4CXX_ERROR( Logger, "Parsing error (MRT TABLE_DUMP_V2 format)" );
 			throw BGPError( );
 		}
 		return;
@@ -74,17 +85,34 @@ AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI( AttributeType &header, istre
 	afi = ntohs(afi);
 	LOG4CXX_TRACE(Logger,"  afi = " << (int)afi);
 
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error (wrong AFI)" );
+		throw BGPError( );
+	}
+
 	/* SAFI */
-	error|= -1==io::read( input, reinterpret_cast<char*>(&safi), sizeof(uint8_t) );
+	error|= sizeof(uint8_t)!=
+			io::read( input, reinterpret_cast<char*>(&safi), sizeof(uint8_t) );
 	LOG4CXX_TRACE(Logger,"  safi = " << (int)safi);
 	// SAFI not valid in MP_REACH_NLRI
 
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error (wrong SAFI)" );
+		throw BGPError( );
+	}
+
 	/* Next hop length and address */
-	error|= -1==io::read( input, reinterpret_cast<char*>(&nextHopAddressLength), sizeof(uint8_t) );
+	error|= sizeof(uint8_t)!=
+			io::read( input, reinterpret_cast<char*>(&nextHopAddressLength), sizeof(uint8_t) );
 	LOG4CXX_TRACE(Logger,"  nextHopAddressLength = " << (int)nextHopAddressLength);
 
-	memset( reinterpret_cast<char*> ( &nextHopAddress ),      0, sizeof(IPAddress) );
-	memset( reinterpret_cast<char*> ( &nextHopAddressLocal ), 0, sizeof(IPAddress) );
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error (wrong NextHop length)" );
+		throw BGPError( );
+	}
 
 	if( nextHopAddressLength == 32 ) {
 		/* this must be ipv6 with local address as well */
@@ -101,25 +129,32 @@ AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI( AttributeType &header, istre
 		error|= sizeof(nextHopAddress.ipv4)!=
 				io::read( input, reinterpret_cast<char*>(&nextHopAddress.ipv4),      sizeof(nextHopAddress.ipv4) );
 	}
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error (wrong NextHop/NextHopLocal)" );
+		throw BGPError( );
+	}
 
 	int left=length - /*afi*/2 - /*safi*/1 - /*nextHopAddressLength*/1 - nextHopAddressLength;
 
 	/* JP: let's not worry about SNPA for now */
 	uint8_t unSNPACnt = 0;
 	uint8_t unSNPALen = 0;
-	error|= -1==io::read( input, reinterpret_cast<char*>(&unSNPACnt), sizeof(uint8_t) );
+	error|= sizeof(uint8_t)!=
+			io::read( input, reinterpret_cast<char*>(&unSNPACnt), sizeof(uint8_t) );
 
 	LOG4CXX_TRACE(Logger,"  unSNPACnt = " << (int)unSNPACnt);
 	if( error )
 	{
-		LOG4CXX_ERROR( Logger, "Parsing error" );
+		LOG4CXX_ERROR( Logger, "Parsing error (wrong SNPACnt)" );
 		throw BGPError( );
 	}
 
 	left--;
 
 	for(int ic=0; ic<unSNPACnt; ic++) {
-		error|= -1==io::read( input, reinterpret_cast<char*>(&unSNPALen), sizeof(uint8_t) );
+		error|= sizeof(uint8_t)!=
+				io::read( input, reinterpret_cast<char*>(&unSNPALen), sizeof(uint8_t) );
 		char tmpbuf[unSNPALen];
 		error|= unSNPALen!=
 				io::read( input, tmpbuf, unSNPALen );	
@@ -127,7 +162,7 @@ AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI( AttributeType &header, istre
 		left-=1+unSNPALen;
 		if( error )
 		{
-			LOG4CXX_ERROR( Logger, "Parsing error" );
+			LOG4CXX_ERROR( Logger, "Parsing error (wrong SNPA)" );
 			throw BGPError( );
 		}
 	}
@@ -135,7 +170,8 @@ AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI( AttributeType &header, istre
 	while( left>0 ) 
 	{
 		uint8_t prefixLength = 0;
-		error|= -1==io::read( input, reinterpret_cast<char*>(&prefixLength), sizeof(uint8_t) );
+		error|= sizeof(uint8_t)!=
+				io::read( input, reinterpret_cast<char*>(&prefixLength), sizeof(uint8_t) );
 		if( error ) 
 		{
 			LOG4CXX_ERROR(Logger,"message truncated! cannot read mbgp prefix.");

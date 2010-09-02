@@ -2,10 +2,14 @@
 #include <bgpparser.h>
 
 #include "OptionalParameterCapabilities.h"
+#include "Exceptions.h"
+
 using namespace std;
 
 #include <boost/iostreams/read.hpp>
 namespace io = boost::iostreams;
+
+log4cxx::LoggerPtr OptionalParameterCapabilities::Logger = log4cxx::Logger::getLogger( "bgpparser.OptionalParameterCapabilities" );
 
 OptionalParameterCapabilities::~OptionalParameterCapabilities( )
 {
@@ -15,12 +19,25 @@ OptionalParameterCapabilities::~OptionalParameterCapabilities( )
 OptionalParameterCapabilities::OptionalParameterCapabilities( OptionalParameter &header, std::istream &input )
 : OptionalParameter( header )
 {
-	code  =input.get( );
-	length=input.get( );
+	LOG4CXX_TRACE( Logger, "" );
 
-	if( length>0 )
+	bool error=false;
+
+	error|= sizeof(uint8_t)!=
+		io::read( input, reinterpret_cast<char*>(&capCode),   sizeof(uint8_t) );
+	error|= sizeof(uint8_t)!=
+		io::read( input, reinterpret_cast<char*>(&capLength), sizeof(uint8_t) );
+
+	if( capLength>0 )
 	{
-		value=boost::shared_ptr<uint8_t>( new uint8_t[length] );
-		io::read( input, reinterpret_cast<char*>(value.get()), length );
+		capValue=boost::shared_ptr<uint8_t>( new uint8_t[capLength] );
+		error|= capLength!=
+				io::read( input, reinterpret_cast<char*>(capValue.get()), capLength );
+	}
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
 	}
 }

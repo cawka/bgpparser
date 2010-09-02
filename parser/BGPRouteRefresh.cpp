@@ -30,6 +30,7 @@
 #include <bgpparser.h>
 
 #include "BGPRouteRefresh.h"
+#include "Exceptions.h"
 
 #include <boost/iostreams/read.hpp>
 #include <boost/iostreams/skip.hpp>
@@ -52,11 +53,22 @@ BGPRouteRefresh::BGPRouteRefresh( BGPCommonHeader &header, istream &input )
 {
 	LOG4CXX_TRACE(Logger,"");
 
-	io::read( input, reinterpret_cast<char*>(&afi), sizeof(uint16_t) );
+	bool error=false;
+
+	error|= sizeof(uint16_t)!=
+			io::read( input, reinterpret_cast<char*>(&afi), sizeof(uint16_t) );
 	afi = ntohs(afi);
 
-	io::read( input, reinterpret_cast<char*>(&res), sizeof(uint8_t) );
-	io::read( input, reinterpret_cast<char*>(&safi), sizeof(uint8_t) );
+	error|= sizeof(uint8_t)!=
+			io::read( input, reinterpret_cast<char*>(&res), sizeof(uint8_t) );
+	error|= sizeof(uint8_t)!=
+			io::read( input, reinterpret_cast<char*>(&safi), sizeof(uint8_t) );
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 }
 
 BGPRouteRefresh::~BGPRouteRefresh() { 

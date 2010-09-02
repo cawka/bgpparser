@@ -41,12 +41,16 @@ log4cxx::LoggerPtr MRTTblDump::Logger = log4cxx::Logger::getLogger( "bgpparser.M
 MRTTblDump::MRTTblDump( MRTCommonHeader &header, istream &input )
 : MRTCommonHeader( header )
 {
+	bool error=false;
+
 	/* copy out the view number and convert to host order */
-	io::read( input, reinterpret_cast<char*>(&viewNumber), sizeof(uint16_t) );
+	error|= sizeof(uint16_t)!=
+			io::read( input, reinterpret_cast<char*>(&viewNumber), sizeof(uint16_t) );
 	viewNumber = ntohs(viewNumber);
 
 	/* copy out the sequence number and convert to host order */
-	io::read( input, reinterpret_cast<char*>(&sequenceNumber), sizeof(uint16_t) );
+	error|= sizeof(uint16_t)!=
+			io::read( input, reinterpret_cast<char*>(&sequenceNumber), sizeof(uint16_t) );
 	sequenceNumber = ntohs(sequenceNumber);
 
 	int left=length - 4;
@@ -54,12 +58,14 @@ MRTTblDump::MRTTblDump( MRTCommonHeader &header, istream &input )
 	/* copy out the prefix and increment the pointer */
 	if( getSubType() == AFI_IPv4 )
 	{
-		io::read( input, reinterpret_cast<char*>(&prefix.ipv4), sizeof(prefix.ipv4) );
+		error|= sizeof(prefix.ipv4)!=
+				io::read( input, reinterpret_cast<char*>(&prefix.ipv4), sizeof(prefix.ipv4) );
 		left-=sizeof(prefix.ipv4);
 	}
 	else if (getSubType() == AFI_IPv6)
 	{
-		io::read( input, reinterpret_cast<char*>(&prefix.ipv6), sizeof(prefix.ipv6) );
+		error|= sizeof(prefix.ipv6)!=
+				io::read( input, reinterpret_cast<char*>(&prefix.ipv6), sizeof(prefix.ipv6) );
 		left-=sizeof(prefix.ipv6);
 	}
 	else {
@@ -68,15 +74,18 @@ MRTTblDump::MRTTblDump( MRTCommonHeader &header, istream &input )
 	}
 
 	/* copy out the prefix length */
-	prefixLength = input.get( );
+	error|= sizeof(uint8_t)!=
+			io::read( input, reinterpret_cast<char*>(&prefixLength), sizeof(uint8_t) );
 
 	/* copy out the status */
-	status = input.get( );
+	error|= sizeof(uint8_t)!=
+			io::read( input, reinterpret_cast<char*>(&status), sizeof(uint8_t) );
 	/* version 9 of the spec indicates that this field should always be set to 1 */
 	status = (uint8_t)1;
 
 	/* copy out the originated, increment the pointer and convert to host order */
-	io::read( input, reinterpret_cast<char*>(&originatedTime), sizeof(uint32_t) );
+	error|= sizeof(uint32_t)!=
+			io::read( input, reinterpret_cast<char*>(&originatedTime), sizeof(uint32_t) );
 	originatedTime = ntohl(originatedTime);
 
 	left-=2 + 4;
@@ -84,24 +93,34 @@ MRTTblDump::MRTTblDump( MRTCommonHeader &header, istream &input )
 	/* copy out the peer IP and increment the pointer */
 	if (getSubType() == AFI_IPv4)
 	{
-		io::read( input, reinterpret_cast<char*>(&peerIP.ipv4), sizeof(peerIP.ipv4) );
+		error|= sizeof(peerIP.ipv4)!=
+				io::read( input, reinterpret_cast<char*>(&peerIP.ipv4), sizeof(peerIP.ipv4) );
 		left-=sizeof(prefix.ipv4);
 	}
 	else if (getSubType() == AFI_IPv6)
 	{
-		io::read( input, reinterpret_cast<char*>(&peerIP.ipv6), sizeof(peerIP.ipv6) );
+		error|= sizeof(peerIP.ipv6)!=
+				io::read( input, reinterpret_cast<char*>(&peerIP.ipv6), sizeof(peerIP.ipv6) );
 		left-=sizeof(prefix.ipv6);
 	}
 
 	/* copy out the peer AS, increment the pointer and convert to host order */
-	io::read( input, reinterpret_cast<char*>(&peerAS), sizeof(uint16_t) );
+	error|= sizeof(uint16_t)!=
+			io::read( input, reinterpret_cast<char*>(&peerAS), sizeof(uint16_t) );
 	peerAS = ntohs(peerAS);
 
 	/* copy out the attribute length, increment the pointer and convert to host order */
-	io::read( input, reinterpret_cast<char*>(&attributeLength), sizeof(uint16_t) );
+	error|= sizeof(uint16_t)!=
+			io::read( input, reinterpret_cast<char*>(&attributeLength), sizeof(uint16_t) );
 	attributeLength = ntohs(attributeLength);
 
 	left-=4;
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 
 	MRTTblDumpV2RibHeader::processAttributes( attributes, input, left, false );
 }

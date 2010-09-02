@@ -324,14 +324,18 @@ int main(int argc, char** argv)
 	LOG4CXX_INFO( _log, "Parsing file [" << filename << "]" );
     MRTTblDumpV2PeerIndexTblPtr peerIndexTbl;
 
+	MRTMessagePtr msg;
     int i=1;
+	int mrt_id=0;
 	try
 	{
 		while( in.peek()!=-1 )
 		{
+			mrt_id++;
+//			LOG4CXX_INFO( _log, mrt_id++ );
             size_t szBytesRead = 0;
 
-            MRTMessagePtr msg=MRTCommonHeader::newMessage( in );
+            msg=MRTCommonHeader::newMessage( in );
 
             /* Get time to display */
             time_t      tmTime = (time_t)msg->getTimestamp();
@@ -643,7 +647,7 @@ int main(int argc, char** argv)
 	}
 	catch( BGPParserError &e )
 	{
-		cerr << "ERROR: " << e.what() << endl;
+		cerr << "ERROR in MRT #"<<mrt_id<<": " << e.what() << endl;
 		exit( 10 );
 	}
 //	catch( const string &e )

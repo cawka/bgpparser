@@ -38,15 +38,60 @@
 #include "AttributeTypeAggregator.h"
 #include "AttributeTypeAS4Aggregator.h"
 
+#include "Exceptions.h"
+
+#include <boost/iostreams/read.hpp>
+namespace io=boost::iostreams;
+
 using namespace std;
 
 log4cxx::LoggerPtr MRTTblDumpV2RibHeader::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibHeader" );
 
 MRTTblDumpV2PeerIndexTblPtr MRTTblDumpV2RibHeader::_peerIndexTbl;
 
-MRTTblDumpV2RibHeader::MRTTblDumpV2RibHeader( MRTCommonHeader &header )
+MRTTblDumpV2RibHeader::MRTTblDumpV2RibHeader( MRTCommonHeader &header, istream &input )
 : MRTCommonHeader(header)
 {
+	bool error=false;
+	/* copy out the sequence number, increment the pointer, and convert to host order */
+	error|= sizeof(uint32_t)!=
+			io::read( input, reinterpret_cast<char*>(&sequenceNumber), sizeof(uint32_t) );
+	sequenceNumber = ntohl(sequenceNumber);
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
+
+	// child class constructors must:
+	// * set valid afi and safi
+	// * call 'init' method
+}
+
+void MRTTblDumpV2RibHeader::init( istream &input )
+{
+	bool error=false;
+
+	/* copy out the prefix length and increment the pointer */
+	error|= sizeof(uint8_t)!=
+			io::read( input, reinterpret_cast<char*>(&prefixLength), sizeof(uint8_t) );
+	NLRIReachable route( prefixLength, input );
+	prefix=route.getPrefix( );
+
+	/* copy out the entry count, increment the pointer, and convert to host order */
+	error|= sizeof(uint16_t)!=
+			io::read( input, reinterpret_cast<char*>(&entryCount), sizeof(uint16_t) );
+	entryCount = ntohs(entryCount);
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
+
+	for( int i=0; i<entryCount; i++ )
+		ribs.push_back( TblDumpV2RibEntryPtr( new TblDumpV2RibEntry( input )) );
 }
 
 MRTTblDumpV2RibHeader::~MRTTblDumpV2RibHeader(void) {

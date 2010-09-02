@@ -31,6 +31,8 @@
 
 #include "TblDumpV2RibEntry.h"
 #include "MRTTblDumpV2RibHeader.h"
+#include "Exceptions.h"
+
 using namespace std;
 
 #include <boost/iostreams/read.hpp>
@@ -40,26 +42,35 @@ log4cxx::LoggerPtr TblDumpV2RibEntry::Logger = log4cxx::Logger::getLogger( "bgpp
 
 TblDumpV2RibEntry::TblDumpV2RibEntry( std::istream &input )
 {
-	LOG4CXX_TRACE(Logger,"TblDumpV2RibEntry::TblDumpV2RibEntry");
+	LOG4CXX_TRACE(Logger,"");
 
-	io::read( input, reinterpret_cast<char*>(&peerIndex), sizeof(uint16_t) );
+	bool error=false;
+
+	error|= sizeof(uint16_t)!=
+			io::read( input, reinterpret_cast<char*>(&peerIndex), sizeof(uint16_t) );
 	peerIndex = ntohs(peerIndex);
 
 	LOG4CXX_TRACE(Logger,"set peer index to " << (int)peerIndex);
 
-	MRTTblDumpV2PeerIndexTblPeerEntryPtr peer=MRTTblDumpV2RibHeader::getPeerIndexTbl()->getPeer( peerIndex );
-
-	io::read( input, reinterpret_cast<char*>(&originatedTime), sizeof(uint32_t) );
+	error|= sizeof(uint32_t)!=
+			io::read( input, reinterpret_cast<char*>(&originatedTime), sizeof(uint32_t) );
 	originatedTime = ntohl(originatedTime);
 	LOG4CXX_TRACE(Logger,"set originated time to " << (uint32_t)originatedTime);
 
-	io::read( input, reinterpret_cast<char*>(&attributeLength), sizeof(uint16_t) );
+	error|= sizeof(uint16_t)!=
+			io::read( input, reinterpret_cast<char*>(&attributeLength), sizeof(uint16_t) );
 	attributeLength = ntohs(attributeLength);
 	LOG4CXX_TRACE(Logger,"set attribute length to " << (uint32_t)attributeLength);
 
-	MRTTblDumpV2RibHeader::processAttributes( attributes, input, attributeLength, peer->isAS4);
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 
-	LOG4CXX_TRACE(Logger,"END MRTTblDumpV2RibHeader::parseRibEntry(...)");
+	MRTTblDumpV2PeerIndexTblPeerEntryPtr peer=MRTTblDumpV2RibHeader::getPeerIndexTbl()->getPeer( peerIndex );
+
+	MRTTblDumpV2RibHeader::processAttributes( attributes, input, attributeLength, peer->isAS4);
 }
 
 TblDumpV2RibEntry::~TblDumpV2RibEntry(void)

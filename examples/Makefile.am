@@ -12,4 +12,5 @@ bgpparser_simple_LDFLAGS = \
 		$(BOOST_PROGRAM_OPTIONS_LIB) \
 		$(BOOST_REGEX_LIB) \
 		$(BOOST_IOSTREAMS_LIB)
+#	-static-libtool-libs 
 

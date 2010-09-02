@@ -49,8 +49,10 @@ log4cxx::LoggerPtr AttributeTypeASPathSegment::Logger = log4cxx::Logger::getLogg
 AttributeTypeASPathSegment::AttributeTypeASPathSegment( istream &input, bool is4byte )
 {
     bool error=false;
-    error|= -1==io::read( input, reinterpret_cast<char*>(&pathSegmentType),   sizeof(uint8_t) );
-    error!= -1==io::read( input, reinterpret_cast<char*>(&pathSegmentLength), sizeof(uint8_t) );
+    error|= sizeof(uint8_t)!=
+			io::read( input, reinterpret_cast<char*>(&pathSegmentType),   sizeof(uint8_t) );
+    error|= sizeof(uint8_t)!=
+			io::read( input, reinterpret_cast<char*>(&pathSegmentLength), sizeof(uint8_t) );
 
     if( error )
     {

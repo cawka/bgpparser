@@ -28,6 +28,8 @@
 #include <bgpparser.h>
 
 #include "MRTBgp4MPMessageAS4.h"
+#include "Exceptions.h"
+
 using namespace std;
 
 #include <boost/iostreams/read.hpp>
@@ -39,7 +41,14 @@ MRTBgp4MPMessageAS4::MRTBgp4MPMessageAS4( MRTCommonHeader &header, istream &inpu
 : MRTBgp4MPMessage( header )
 {
 	MRTBgp4MPMessageAS4Packet pkt;
-	io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPMessageAS4Packet) );
+	bool error= sizeof(MRTBgp4MPMessageAS4Packet)!=
+				io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPMessageAS4Packet) );
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 
 	peerAS = ntohl(pkt.peerAS);
 	localAS = ntohl(pkt.localAS);

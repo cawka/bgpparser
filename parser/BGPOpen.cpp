@@ -31,6 +31,7 @@
 
 #include "BGPOpen.h"
 #include "OptionalParameterCapabilities.h"
+#include "Exceptions.h"
 
 #include <boost/iostreams/read.hpp>
 namespace io = boost::iostreams;
@@ -42,18 +43,31 @@ BGPOpen::BGPOpen( BGPCommonHeader &header, std::istream &input )
 {
 	LOG4CXX_TRACE(Logger,"");
 
-	io::read( input, reinterpret_cast<char*>(&version), sizeof(uint8_t) );
+	bool error=false;
 
-	io::read( input, reinterpret_cast<char*>(&myAS), sizeof(uint16_t) );
+	error|= sizeof(uint8_t)!=
+			io::read( input, reinterpret_cast<char*>(&version), sizeof(uint8_t) );
+
+	error|= sizeof(uint16_t)!=
+			io::read( input, reinterpret_cast<char*>(&myAS), sizeof(uint16_t) );
 	myAS = ntohs(myAS);
 
-	io::read( input, reinterpret_cast<char*>(&holdTime), sizeof(uint16_t) );
+	error|= sizeof(uint16_t)!=
+			io::read( input, reinterpret_cast<char*>(&holdTime), sizeof(uint16_t) );
 	holdTime = ntohs(holdTime);
 
-	io::read( input, reinterpret_cast<char*>(&bgpId), sizeof(uint32_t) );
+	error|= sizeof(uint32_t)!=
+			io::read( input, reinterpret_cast<char*>(&bgpId), sizeof(uint32_t) );
 	bgpId = ntohl(bgpId);
 
-	io::read( input, reinterpret_cast<char*>(&optParmLen), sizeof(uint8_t) );
+	error|= sizeof(uint8_t)!=
+			io::read( input, reinterpret_cast<char*>(&optParmLen), sizeof(uint8_t) );
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 
 	// @TODO  Should read optional parameters
 	//		  and if exists propagate Capabilities to BGP_UPDATE

@@ -30,6 +30,8 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeClusterList.h"
+#include "Exceptions.h"
+
 using namespace std;
 
 #include <boost/iostreams/read.hpp>
@@ -45,7 +47,12 @@ AttributeTypeClusterList::AttributeTypeClusterList( AttributeType &header, std::
 	while( left > 0 )
 	{
 		uint32_t cluster_id;
-		io::read( input, reinterpret_cast<char*>(&cluster_id), sizeof(cluster_id) );
+		int len=io::read( input, reinterpret_cast<char*>(&cluster_id), sizeof(cluster_id) );
+		if( len!=sizeof(cluster_id) )
+		{
+			LOG4CXX_ERROR( Logger, "Parsing error" );
+			throw BGPError( );
+		}
 		left -= sizeof(cluster_id);
 		cluster_list.push_back(cluster_id);
 	}

@@ -43,7 +43,8 @@ AttributeTypeOrigin::AttributeTypeOrigin( AttributeType &header, istream &input 
 					: AttributeType(header)
 {
 	LOG4CXX_TRACE(Logger,"");
-	bool error= -1==io::read( input, reinterpret_cast<char*>(&origin), sizeof(uint8_t) );
+	bool error= sizeof(uint8_t)!=
+				io::read( input, reinterpret_cast<char*>(&origin), sizeof(uint8_t) );
 	if( error )
 	{
 		LOG4CXX_ERROR( Logger, "Parsing error" );

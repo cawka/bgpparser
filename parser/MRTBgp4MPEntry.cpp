@@ -30,6 +30,8 @@
 #include <bgpparser.h>
 
 #include "MRTBgp4MPEntry.h"
+#include "Exceptions.h"
+
 using namespace std;
 
 #include <boost/iostreams/read.hpp>
@@ -38,8 +40,13 @@ namespace io = boost::iostreams;
 
 MRTBgp4MPEntry::MRTBgp4MPEntry( MRTCommonHeader &header, istream &input ) : MRTCommonHeader(header)
 {
+	LOG4CXX_TRACE( Logger, "" );
+
+	bool error=false;
+
 	MRTBgp4MPEntryPacket pkt;
-	io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPEntryPacket) );
+	error|= sizeof(MRTBgp4MPEntryPacket)!=
+			io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPEntryPacket) );
 
 	viewNumber = ntohs(pkt.viewNumber);
 	status = ntohs(pkt.status);
@@ -47,13 +54,14 @@ MRTBgp4MPEntry::MRTBgp4MPEntry( MRTCommonHeader &header, istream &input ) : MRTC
 	addressFamily = ntohs(pkt.addressFamily);
 	safi = pkt.safi;
 
+	throw BGPTextError( "MRTBgp4MP is not supported yet" );
 	/* how to extract out next hop address based on next hop length? */
 
 	/* move pointer p to beginning of prefix length field assuming next hop len field is in bytes */
 	io::detail::skip( input, pkt.nextHopLength, boost::mpl::false_() );
 
 	/* set prefix length and increment pointer p to beginning of variable length address prefix field */
-	prefixLength = input.get( );
+	io::read( input, reinterpret_cast<char*>(&prefixLength), sizeof(uint8_t) );
 
 	/* TODO: this message format has been _deprecated_ and is no longer supported */
 	

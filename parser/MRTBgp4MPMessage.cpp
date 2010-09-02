@@ -36,6 +36,8 @@
 #include "BGPKeepAlive.h"
 #include "BGPOpen.h"
 #include "BGPRouteRefresh.h"
+#include "Exceptions.h"
+
 using namespace std;
 
 #include <boost/iostreams/read.hpp>
@@ -46,8 +48,17 @@ log4cxx::LoggerPtr MRTBgp4MPMessage::Logger = log4cxx::Logger::getLogger( "bgppa
 MRTBgp4MPMessage::MRTBgp4MPMessage( MRTCommonHeader &header, istream &input )
 : MRTCommonHeader( header )
 {
+	LOG4CXX_TRACE( Logger, "" );
+
 	MRTBgp4MPMessagePacket pkt;
-	io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPMessagePacket) );
+	bool error= sizeof(MRTBgp4MPMessagePacket)!=
+				io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPMessagePacket) );
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 
 	peerAS = ntohs(pkt.peerAS);
 	localAS = ntohs(pkt.localAS);
@@ -68,8 +79,18 @@ void MRTBgp4MPMessage::processIPs( istream &input )
 	else
 		LOG4CXX_ERROR(Logger,"unsupported address family ["<< (int)addressFamily <<"]" );
 
-	io::read( input, reinterpret_cast<char*>(&peerIP),  len );
-	io::read( input, reinterpret_cast<char*>(&localIP), len );
+	bool error=false;
+
+	error|= len!=
+			io::read( input, reinterpret_cast<char*>(&peerIP),  len );
+	error|= len!=
+			io::read( input, reinterpret_cast<char*>(&localIP), len );
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 }
 
 MRTBgp4MPMessage::~MRTBgp4MPMessage(void)

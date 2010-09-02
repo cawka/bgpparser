@@ -30,6 +30,8 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeOriginatorID.h"
+#include "Exceptions.h"
+
 using namespace std;
 
 #include <boost/iostreams/read.hpp>
@@ -41,7 +43,14 @@ AttributeTypeOriginatorID::AttributeTypeOriginatorID( AttributeType &header, ist
 					: AttributeType(header) {
 	LOG4CXX_TRACE(Logger,"");
 
-	io::read( input, reinterpret_cast<char*>(&originator_id), sizeof(originator_id) );
+	bool error= sizeof(originator_id)!=
+				io::read( input, reinterpret_cast<char*>(&originator_id), sizeof(originator_id) );
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 }
 
 AttributeTypeOriginatorID::~AttributeTypeOriginatorID(void) {

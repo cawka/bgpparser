@@ -43,21 +43,30 @@ AttributeTypeNextHop::AttributeTypeNextHop( AttributeType &header, istream &inpu
 					 : AttributeType(header)
 {
 	LOG4CXX_TRACE( Logger,"" );
+	memset(&nextHop, 0, sizeof(IPAddress));
 
+	bool error=false;
 	if( length==sizeof(nextHop.ipv4) )
 	{
 		afi = AFI_IPv4;
-		io::read( input, reinterpret_cast<char*>(&nextHop), sizeof(nextHop.ipv4) );
+		error|= sizeof(nextHop.ipv4)!=
+				io::read( input, reinterpret_cast<char*>(&nextHop), sizeof(nextHop.ipv4) );
 	}
 	else if( length==sizeof(nextHop.ipv6) )
 	{
-		memset(&nextHop, 0, sizeof(IPAddress));
 		afi = AFI_IPv6;
-		io::read( input, reinterpret_cast<char*>(&nextHop), sizeof(nextHop.ipv6) );
+		error|= sizeof(nextHop.ipv6)!=
+				io::read( input, reinterpret_cast<char*>(&nextHop), sizeof(nextHop.ipv6) );
 	}
 	else
 	{
 		LOG4CXX_ERROR(Logger, "NextHop attribute is neither IPv4 or IPv6 (length "<<(int)length<<" bytes)");
+		throw BGPError( );
+	}
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
 		throw BGPError( );
 	}
 }

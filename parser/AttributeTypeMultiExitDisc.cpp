@@ -31,6 +31,8 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeMultiExitDisc.h"
+#include "Exceptions.h"
+
 using namespace std;
 
 #include <boost/iostreams/read.hpp>
@@ -42,8 +44,15 @@ AttributeTypeMultiExitDisc::AttributeTypeMultiExitDisc(AttributeType &header, is
 						   : AttributeType(header) {
 	LOG4CXX_TRACE(Logger,"");
 
-	io::read( input, reinterpret_cast<char*>(&discriminator), sizeof(discriminator) );
+	bool error= sizeof(discriminator)!=
+				io::read( input, reinterpret_cast<char*>(&discriminator), sizeof(discriminator) );
 	discriminator = ntohl(discriminator);
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 }
 
 AttributeTypeMultiExitDisc::~AttributeTypeMultiExitDisc(void) {

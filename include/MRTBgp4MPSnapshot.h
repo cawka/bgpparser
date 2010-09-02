@@ -45,6 +45,9 @@ public:
 protected:
 	uint16_t viewNumber;
 	std::string fileName;
+
+private:
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _MRTBGP4MPSNAPSHOT_H_ */

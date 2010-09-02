@@ -3,6 +3,7 @@
 
 #include "OptionalParameter.h"
 #include "OptionalParameterCapabilities.h"
+#include "Exceptions.h"
 
 #include <boost/iostreams/read.hpp>
 #include <boost/iostreams/skip.hpp>
@@ -12,8 +13,20 @@ log4cxx::LoggerPtr OptionalParameter::Logger = log4cxx::Logger::getLogger( "bgpp
 
 OptionalParameter::OptionalParameter( std::istream &input )
 {
-	type  =input.get( );
-	length=input.get( );
+	LOG4CXX_TRACE( Logger, "" );
+
+	bool error=false;
+
+	error|= sizeof(uint8_t)!=
+		io::read( input, reinterpret_cast<char*>(&type), sizeof(uint8_t) );
+	error|= sizeof(uint8_t)!=
+		io::read( input, reinterpret_cast<char*>(&length), sizeof(uint8_t) );
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 }
 
 OptionalParameter::~OptionalParameter( )

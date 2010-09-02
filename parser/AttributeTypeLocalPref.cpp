@@ -30,6 +30,8 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeLocalPref.h"
+#include "Exceptions.h"
+
 using namespace std;
 
 #include <boost/iostreams/read.hpp>
@@ -41,8 +43,15 @@ AttributeTypeLocalPref::AttributeTypeLocalPref( AttributeType &header, std::istr
 					   : AttributeType(header) {
 	LOG4CXX_DEBUG(Logger,"");
 
-	io::read( input, reinterpret_cast<char*>(&localPref), sizeof(&localPref) );
+	bool error= sizeof(localPref)!=
+				io::read( input, reinterpret_cast<char*>(&localPref), sizeof(localPref) );
 	localPref = ntohl(localPref);
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 }
 
 AttributeTypeLocalPref::~AttributeTypeLocalPref(void) {

@@ -38,44 +38,38 @@ namespace io = boost::iostreams;
 log4cxx::LoggerPtr MRTTblDumpV2RibGeneric::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibGeneric" );
 
 MRTTblDumpV2RibGeneric::MRTTblDumpV2RibGeneric( MRTCommonHeader &header, std::istream &input )
-					   : MRTTblDumpV2RibHeader(header)
+					   : MRTTblDumpV2RibHeader(header,input)
 {
-	/* copy out the sequence number, increment the pointer, and convert to host order */
-	io::read( input, reinterpret_cast<char*>(&sequenceNumber), sizeof(uint32_t) );
-	sequenceNumber = ntohl(sequenceNumber);
+	bool error=false;
 
 	/* copy out the AFI, increment the pointer, and convert to host order */
-	io::read( input, reinterpret_cast<char*>(&afi), sizeof(uint16_t) );
+	error|= sizeof(uint16_t)!=
+			io::read( input, reinterpret_cast<char*>(&afi), sizeof(uint16_t) );
+	afi=ntohs( afi );
 
-	if( afi!=AFI_IPv4 && afi!=AFI_IPv6 )
+	if( (afi!=AFI_IPv4 && afi!=AFI_IPv6) )
 	{
 		LOG4CXX_ERROR( Logger,"rib generic has unknown address family ["<< (int)afi <<"]" );
 		throw BGPError( );
 	}
 
-	/* copy out the SAFI, increment the pointer */
+	/* copy out the SAFI */
 	uint8_t subsequentAddressFamily;
-	subsequentAddressFamily = input.get( );
+	error|= sizeof(uint8_t)!=
+			io::read( input, reinterpret_cast<char*>(&subsequentAddressFamily), sizeof(uint8_t) );
 
-	if (subsequentAddressFamily == SAFI_UNICAST) {
-		safi = (uint16_t) subsequentAddressFamily;
-	} else if (subsequentAddressFamily == SAFI_MULTICAST) {
-		safi = (uint16_t) subsequentAddressFamily;
-	} else {
+	if( subsequentAddressFamily == SAFI_UNICAST ||
+		subsequentAddressFamily == SAFI_MULTICAST )
+	{
+		safi = subsequentAddressFamily;
+	} 
+	else
+	{
 		LOG4CXX_ERROR( Logger,"rib generic has unknown subsequent address family ["<< (int)subsequentAddressFamily <<"]" );
 		throw BGPError( );
 	}
 
-	prefixLength = input.get( );
-	NLRIReachable route( prefixLength, input );
-	prefix=route.getPrefix( );
-
-	/* copy out the entry count, increment the pointer, and convert to host order */
-	io::read( input, reinterpret_cast<char*>(&entryCount), sizeof(uint16_t) );
-	entryCount = ntohs(entryCount);
-
-	for( int i=0; i<entryCount; i++ )
-		ribs.push_back( TblDumpV2RibEntryPtr( new TblDumpV2RibEntry( input )) );
+	init( input );
 }
 
 MRTTblDumpV2RibGeneric::~MRTTblDumpV2RibGeneric(void) {

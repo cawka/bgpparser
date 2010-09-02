@@ -31,6 +31,8 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeAggregator.h"
+#include "Exceptions.h"
+
 #include <iostream>
 
 using namespace std;
@@ -46,19 +48,30 @@ AttributeTypeAggregator::AttributeTypeAggregator( AttributeType &header, std::is
 	LOG4CXX_TRACE(Logger,"");
 	aggregatorLastASComplete=0;
 	
+	bool error=false;
+
 	if( length == 6 )
 	{
 		aggregatorLastAS = 0;
-		io::read( input, reinterpret_cast<char*>(&aggregatorLastAS), sizeof(uint16_t) );
+		error|= sizeof(uint16_t)!=
+				io::read( input, reinterpret_cast<char*>(&aggregatorLastAS), sizeof(uint16_t) );
 		aggregatorLastAS = ntohs(aggregatorLastAS);
 	}
 	else
 	{
-		io::read( input, reinterpret_cast<char*>(&aggregatorLastAS), sizeof(uint32_t) );
+		error|= sizeof(uint32_t)!=
+				io::read( input, reinterpret_cast<char*>(&aggregatorLastAS), sizeof(uint32_t) );
 		aggregatorLastAS = ntohl(aggregatorLastAS);
 	}
 
-	io::read( input, reinterpret_cast<char*>(&bgpSpeakerIPAddress), sizeof(bgpSpeakerIPAddress.ipv4) );
+	error|= sizeof(bgpSpeakerIPAddress.ipv4)!=
+			io::read( input, reinterpret_cast<char*>(&bgpSpeakerIPAddress), sizeof(bgpSpeakerIPAddress.ipv4) );
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 }
 
 AttributeTypeAggregator::~AttributeTypeAggregator( )

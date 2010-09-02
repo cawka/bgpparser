@@ -49,17 +49,22 @@ AttributeTypeExtCommunities::AttributeTypeExtCommunities( AttributeType &header,
 		ExtCommunityValue extCommunity;
 
 		bool error=false;
-		error|= -1==io::read( input, reinterpret_cast<char*>(&extCommunity.typeHigh), sizeof(uint8_t) );
-		error|= -1==io::read( input, reinterpret_cast<char*>(&extCommunity.typeLow),  sizeof(uint8_t) );
+		error|= sizeof(uint8_t)!=
+				io::read( input, reinterpret_cast<char*>(&extCommunity.typeHigh), sizeof(uint8_t) );
 
-		error|= -1==io::read( input, reinterpret_cast<char*>(extCommunity.rchValue), sizeof(extCommunity.rchValue) );
-		extCommunityValues.push_back( extCommunity );
+		error|= sizeof(uint8_t)!=
+				io::read( input, reinterpret_cast<char*>(&extCommunity.typeLow),  sizeof(uint8_t) );
+
+		error|= sizeof(extCommunity.rchValue)!=
+				io::read( input, reinterpret_cast<char*>(extCommunity.rchValue), sizeof(extCommunity.rchValue) );
 
 		if( error )
 		{
 			LOG4CXX_ERROR(Logger,"Parsing error");
 			throw BGPError( );
 		}
+
+		extCommunityValues.push_back( extCommunity );
 	}
 }
 

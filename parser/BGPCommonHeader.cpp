@@ -67,7 +67,7 @@ BGPCommonHeader::BGPCommonHeader( istream &input )
 			io::read( input, reinterpret_cast<char*>(&length), sizeof(length)/*2*/ );
 	length = ntohs(length);
 
-	error!= sizeof(uint8_t)!=
+	error|= sizeof(uint8_t)!=
 			io::read( input, reinterpret_cast<char*>(&type), sizeof(uint8_t) );
 
 	if( error )

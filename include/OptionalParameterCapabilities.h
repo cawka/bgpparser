@@ -20,9 +20,11 @@ public:
 	};
 
 private:
-	uint8_t code;
-	uint8_t length;
-	boost::shared_ptr<uint8_t> value;
+	uint8_t capCode;
+	uint8_t capLength;
+	boost::shared_ptr<uint8_t> capValue;
+
+	static log4cxx::LoggerPtr Logger;
 };
 
 typedef boost::shared_ptr<OptionalParameterCapabilities> OptionalParameterCapabilitiesPtr;

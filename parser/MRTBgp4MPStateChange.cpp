@@ -30,6 +30,8 @@
 #include <bgpparser.h>
 
 #include "MRTBgp4MPStateChange.h"
+#include "Exceptions.h"
+
 using namespace std;
 
 #include <boost/iostreams/read.hpp>
@@ -41,7 +43,14 @@ MRTBgp4MPStateChange::MRTBgp4MPStateChange( MRTCommonHeader &header, istream &in
 : MRTCommonHeader( header )
 {
 	MRTBgp4MPStateChangePacket pkt;
-	io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPStateChangePacket) );
+	bool error= sizeof(MRTBgp4MPStateChangePacket)!=
+				io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPStateChangePacket) );
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 
 	peerAS = ntohs(pkt.peerAS);
 	localAS = ntohs(pkt.localAS);
@@ -62,17 +71,36 @@ void MRTBgp4MPStateChange::processIPs( istream &input )
 	else
 		LOG4CXX_ERROR(Logger,"unsupported address family ["<< (int)addressFamily <<"]" );
 
-	io::read( input, reinterpret_cast<char*>(&peerIP),  len );
-	io::read( input, reinterpret_cast<char*>(&localIP), len );
+	bool error=false;
+	error|= len!=
+			io::read( input, reinterpret_cast<char*>(&peerIP),  len );
+	error|= len!=
+			io::read( input, reinterpret_cast<char*>(&localIP), len );
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 }
 
 void MRTBgp4MPStateChange::processStates( istream &input )
 {
-	io::read( input, reinterpret_cast<char*>(&oldState),  sizeof(uint16_t) );
+	bool error=false;
+
+	error|= sizeof(uint16_t)!=
+			io::read( input, reinterpret_cast<char*>(&oldState),  sizeof(uint16_t) );
 	oldState = ntohs(oldState);
 
-	io::read( input, reinterpret_cast<char*>(&newState),  sizeof(uint16_t) );
+	error|= sizeof(uint16_t)!=
+			io::read( input, reinterpret_cast<char*>(&newState),  sizeof(uint16_t) );
 	newState = ntohs(newState);
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 }
 
 MRTBgp4MPStateChange::~MRTBgp4MPStateChange(void) {

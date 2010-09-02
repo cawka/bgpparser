@@ -31,6 +31,7 @@
 #include <bgpparser.h>
 
 #include "BGPNotification.h"
+#include "Exceptions.h"
 
 #include <boost/iostreams/read.hpp>
 #include <boost/iostreams/skip.hpp>
@@ -57,8 +58,15 @@ log4cxx::LoggerPtr BGPNotification::Logger = log4cxx::Logger::getLogger( "bgppar
 BGPNotification::BGPNotification( BGPCommonHeader &header, istream &input )
 : BGPCommonHeader( header )
 {
-	io::read( input, reinterpret_cast<char*>(&errorCode),    sizeof(uint8_t) );
-	io::read( input, reinterpret_cast<char*>(&subErrorCode), sizeof(uint8_t) );
+	LOG4CXX_TRACE( Logger, "" );
+
+	bool error=false;
+
+	error|= sizeof(uint8_t)!=
+		io::read( input, reinterpret_cast<char*>(&errorCode),    sizeof(uint8_t) );
+
+	error|= sizeof(uint8_t)!=
+		io::read( input, reinterpret_cast<char*>(&subErrorCode), sizeof(uint8_t) );
 
 	/* calculate the data length */
 	uint32_t dataLength = getLength() - 21;
@@ -70,7 +78,14 @@ BGPNotification::BGPNotification( BGPCommonHeader &header, istream &input )
 
 		/* copy the data from the notification to the */
 		/* dynamically allocated memory */
-		io::read( input, reinterpret_cast<char*>(data.get()), dataLength );
+		error|= dataLength!=
+				io::read( input, reinterpret_cast<char*>(data.get()), dataLength );
+	}
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
 	}
 
 	switch (errorCode) {

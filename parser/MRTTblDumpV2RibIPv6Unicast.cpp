@@ -32,38 +32,22 @@
 #include "MRTTblDumpV2RibIPv6Unicast.h"
 using namespace std;
 
-#include <boost/iostreams/read.hpp>
-#include <boost/iostreams/skip.hpp>
-namespace io = boost::iostreams;
-
 log4cxx::LoggerPtr MRTTblDumpV2RibIPv6Unicast::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibIPv6Unicast" );
 
 
 MRTTblDumpV2RibIPv6Unicast::MRTTblDumpV2RibIPv6Unicast( MRTCommonHeader &header, std::istream &input ) :
-							MRTTblDumpV2RibHeader(header) {
+MRTTblDumpV2RibHeader(header, input)
+{
+	LOG4CXX_TRACE( Logger, "" );
+
 	/* set AFI and SAFI */
-	afi = AFI_IPv6;
+	afi  = AFI_IPv6;
 	safi = SAFI_UNICAST;
 
-	/* copy out the sequence number, increment the pointer, and convert to host order */
-	io::read( input, reinterpret_cast<char*>(&sequenceNumber), sizeof(uint32_t) );
-	sequenceNumber = ntohl(sequenceNumber);
-
-	/* copy out the prefix length and increment the pointer */
-	prefixLength = input.get( );
-	NLRIReachable route( prefixLength, input );
-	prefix=route.getPrefix( );
-
-	/* copy out the entry count, increment the pointer, and convert to host order */
-	io::read( input, reinterpret_cast<char*>(&entryCount), sizeof(uint16_t) );
-	entryCount = ntohs(entryCount);
-
-	for( int i=0; i<entryCount; i++ )
-		ribs.push_back( TblDumpV2RibEntryPtr( new TblDumpV2RibEntry( input )) );
+	init( input );
 }
 
 
 MRTTblDumpV2RibIPv6Unicast::~MRTTblDumpV2RibIPv6Unicast(void) {
 	/* nothing */
 }
-

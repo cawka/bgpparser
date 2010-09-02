@@ -30,17 +30,30 @@
 #include <bgpparser.h>
 
 #include "MRTBgp4MPSnapshot.h"
+#include "Exceptions.h"
+
 using namespace std;
 
 #include <boost/iostreams/read.hpp>
 namespace io = boost::iostreams;
 
+log4cxx::LoggerPtr MRTBgp4MPSnapshot::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTBgp4MPSnapshot" );
+
 MRTBgp4MPSnapshot::MRTBgp4MPSnapshot( MRTCommonHeader &header, std::istream &input )
 : MRTCommonHeader( header )
 {
+	LOG4CXX_TRACE( Logger, "" );
+
 	/* copy out the view number and convert to host order */
-	io::read( input, reinterpret_cast<char*>(&viewNumber), sizeof(uint16_t) );
+	bool error= sizeof(uint16_t)!=
+				io::read( input, reinterpret_cast<char*>(&viewNumber), sizeof(uint16_t) );
 	viewNumber = ntohs(viewNumber);
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 
 	input >> fileName;
 }

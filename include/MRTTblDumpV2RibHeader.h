@@ -48,7 +48,6 @@ class MRTTblDumpV2RibHeader :
 	public MRTCommonHeader
 {
 public:
-	MRTTblDumpV2RibHeader( MRTCommonHeader &header );
 	virtual ~MRTTblDumpV2RibHeader(void);
 
 	uint32_t getSequenceNumber(void) const;
@@ -69,6 +68,10 @@ public:
 	virtual void printMe( const MRTTblDumpV2PeerIndexTblPtr& );
 	virtual void printMeCompact();
 	virtual void printMeCompact( const MRTTblDumpV2PeerIndexTblPtr& );
+
+protected:
+	MRTTblDumpV2RibHeader( MRTCommonHeader &header, std::istream &input );
+	void init( std::istream &input );
 
 protected:
 	uint32_t sequenceNumber;

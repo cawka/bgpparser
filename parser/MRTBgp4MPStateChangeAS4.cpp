@@ -30,6 +30,8 @@
 #include <bgpparser.h>
 
 #include "MRTBgp4MPStateChangeAS4.h"
+#include "Exceptions.h"
+
 using namespace std;
 
 #include <boost/iostreams/read.hpp>
@@ -41,7 +43,14 @@ MRTBgp4MPStateChangeAS4::MRTBgp4MPStateChangeAS4( MRTCommonHeader &header, istre
 : MRTBgp4MPStateChange( header )
 {
 	MRTBgp4MPStateChangeAS4Packet pkt;
-	io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPStateChangeAS4Packet) );
+	bool error= sizeof(MRTBgp4MPStateChangeAS4Packet)!=
+				io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPStateChangeAS4Packet) );
+
+	if( error )
+	{
+		LOG4CXX_ERROR( Logger, "Parsing error" );
+		throw BGPError( );
+	}
 
 	peerAS = ntohl(pkt.peerAS);
 	localAS = ntohl(pkt.localAS);
@@ -49,6 +58,6 @@ MRTBgp4MPStateChangeAS4::MRTBgp4MPStateChangeAS4( MRTCommonHeader &header, istre
 	addressFamily = ntohs(pkt.addressFamily);
 
 	processIPs( input );
-
 	processStates( input );
 }
+

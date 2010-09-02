@@ -69,7 +69,7 @@ AttributeTypeMPUnreachNLRI::AttributeTypeMPUnreachNLRI( AttributeType &header, s
 	{
 		uint8_t prefixLength;
 	   	error|= sizeof(uint8_t)!=
-			io::read( input, reinterpret_cast<char*>(&prefixLength), sizeof(uint8_t) );
+				io::read( input, reinterpret_cast<char*>(&prefixLength), sizeof(uint8_t) );
 
 		if( error || prefixLength > sizeof(IPAddress)*8 ) 
 		{ 

@@ -45,8 +45,10 @@ log4cxx::LoggerPtr BGPAttribute::Logger = log4cxx::Logger::getLogger( "bgpparser
 BGPAttribute::BGPAttribute( istream &input, bool isAS4 )
 {
 	bool error=false;
-	error|= -1==io::read( input, reinterpret_cast<char*>(&attributeFlags),    sizeof(uint8_t) );
-	error|= -1==io::read( input, reinterpret_cast<char*>(&attributeTypeCode), sizeof(uint8_t) );
+	error|= sizeof(uint8_t)!=
+			io::read( input, reinterpret_cast<char*>(&attributeFlags),    sizeof(uint8_t) );
+	error|= sizeof(uint8_t)!=
+			io::read( input, reinterpret_cast<char*>(&attributeTypeCode), sizeof(uint8_t) );
 
 	uint16_t len = 0;
 	// This methods handles endianess conversion in a generic way. If they were to
@@ -61,7 +63,8 @@ BGPAttribute::BGPAttribute( istream &input, bool isAS4 )
 	else
 	{
 		uint8_t len8;
-		error|= -1==io::read( input, reinterpret_cast<char*>(&len8), sizeof(uint8_t) );
+		error|= sizeof(uint8_t)!=
+				io::read( input, reinterpret_cast<char*>(&len8), sizeof(uint8_t) );
 		len=len8;
 	}
 	
