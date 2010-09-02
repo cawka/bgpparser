@@ -24,7 +24,7 @@
   - bzip2  
   - gzip
 
-  $Revision$ $Date$
+  $Revision: 1.1.1.1 $ $Date: 2009/09/01 08:18:36 $
 */
 
 #ifndef _CFILE_TOOLS_DEFINES

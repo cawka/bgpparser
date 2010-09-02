@@ -11,7 +11,7 @@
 
   Support for gzip added by Bernhard Tellenbach <bernhard.tellenbach@gmail.com>
 
-  $Revision$ $Date$
+  $Revision: 1.1.1.1 $ $Date: 2009/09/01 08:18:34 $
    
 */
 
