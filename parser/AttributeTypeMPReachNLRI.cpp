@@ -44,7 +44,7 @@ AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI( AttributeType &header, istre
 						 : AttributeType(header)
 {
 	LOG4CXX_TRACE(Logger,"");
-	corrupt = 0;
+//	corrupt = 0;
 
 	// Test if there is only "NextHopLength" and "NextHopAddress" in this attribute (MRT TABLE_DUMP_V2 format)
 	// http://tools.ietf.org/id/draft-ietf-grow-mrt-09.txt

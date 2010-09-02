@@ -65,8 +65,13 @@ public:
 	virtual void printMe();
 	virtual void printMeCompact();
 	
-	void setCorrupt(bool c) { corrupt = c; };
-	bool getCorrupt(void) { return corrupt; };
+//	void setCorrupt(bool c) { corrupt = c; };
+//	bool getCorrupt(void) { return corrupt; };
+
+protected:
+/* @todo Right now nextHopAddress and nextHopAddress are set to be invalid !!! */
+	AttributeTypeMPReachNLRI( uint16_t _afi, uint8_t _safi )
+		: AttributeType(4,false), afi(_afi), safi(_safi), nextHopAddressLength(0) { }
 
 protected:
 	uint16_t  afi;
@@ -79,8 +84,6 @@ protected:
 	std::list<NLRIReachablePtr> snpa;
 	std::list<NLRIReachablePtr> nlri;
 	
-	bool corrupt;
-
 	static log4cxx::LoggerPtr Logger;
 };
 

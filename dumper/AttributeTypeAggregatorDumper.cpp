@@ -60,7 +60,7 @@ xmlNodePtr AttributeTypeAggregatorDumper::genXml()
 			: /*type_code==AttributeType::NEW_AGGREGATOR*/
 					dynamic_pointer_cast<AttributeTypeAS4Aggregator>(attr_type)->getAggregatorLastAS();
 
-    xmlNewChildInt(   node, "AS",   as);
+    xmlNewChildInt(node,    "AS",   as);
     xmlNewChildString(node, "ADDR", FORMAT_IPv4_ADDRESS( attr->getAggregatorBGPSpeakerIPAddress().ipv4 ).c_str());
     return node;
 }
@@ -79,6 +79,6 @@ string AttributeTypeAggregatorDumper::genAscii()
 
     node << (int)as << " " << FORMAT_IPv4_ADDRESS( attr->getAggregatorBGPSpeakerIPAddress().ipv4 );
     return node.str( );
-}
+		}
 
 // vim: sw=4 ts=4 sts=4 expandtab

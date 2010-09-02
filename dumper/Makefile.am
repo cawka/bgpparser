@@ -3,7 +3,9 @@ AM_CPPFLAGS=-I$(top_srcdir)/include
 bin_PROGRAMS = bgpparser
 
 bgpparser_SOURCES = \
-FakeBGPUpdate.cpp \
+FakeBGPUpdate.cpp 					FakeBGPUpdate.h \
+FakeBGPAttribute.cpp 				FakeBGPAttribute.h \
+FakeAttributeTypeMPReachNLRI.cpp 	FakeAttributeTypeMPReachNLRI.h \
 AttributeTypeASPathDumper.cpp \
 AttributeTypeAggregatorDumper.cpp \
 AttributeTypeAtomicAggregateDumper.cpp \
@@ -34,7 +36,7 @@ MRTTblDumpV2Dumper.cpp \
 mrt2xml.cpp \
 xmlinternal.c
 
-bgpparser_LDADD   = ../../src/libbgpparser.la
+bgpparser_LDADD   = ../parser/libbgpparser.la
 bgpparser_LDFLAGS = \
 	$(XML_LIBS) \
 	$(log4cxx_LIBS) \

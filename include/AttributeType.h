@@ -40,7 +40,7 @@ typedef boost::shared_ptr<AttributeType> AttributeTypePtr;
 class AttributeType
 {
 public:
-	virtual ~AttributeType(void);
+	virtual ~AttributeType( );
 	
 	// Factory method for creating new attribute
 	static AttributeTypePtr newAttribute(uint8_t type, uint16_t len, std::istream &input, bool isAS4);
@@ -77,10 +77,12 @@ public:
 		NEW_AS_PATH,
 		NEW_AGGREGATOR
 	};
+
+protected:
+	AttributeType( uint16_t len, bool _isAS4 ) : length(len), isAS4(_isAS4) { ; }
 	
 private:
 	AttributeType(uint16_t len, std::istream &input, bool isAS4=false);
-	AttributeType( ) { }
 
 protected:
 	uint16_t length;

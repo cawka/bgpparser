@@ -31,16 +31,6 @@
 #ifndef _BGPATTRIBUTE_H_
 #define	_BGPATTRIBUTE_H_
 
-#include <stdint.h>
-
-#ifdef WIN32
-#define _USE_32BIT_TIME_T
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#else
-#include <netinet/in.h>
-#endif	/* WIN32 */
-
 #include "MRTStructure.h"
 #include "BGPStructure.h"
 #include "AttributeType.h"
@@ -85,10 +75,12 @@ public:
 	virtual void printMe() { value->printMe(); };
 	virtual void printMeCompact() { value->printMeCompact(); };
 	
+protected:
+	BGPAttribute( uint8_t flags, uint8_t code, uint16_t len, const AttributeTypePtr &_value )
+	: attributeFlags(flags), attributeTypeCode(code), value(_value) { attributeLength.twoOctet=len; }
+
 private:
-	BGPAttribute( ) { ; }
 	BGPAttribute(const BGPAttribute& bgpA) { ; };  // Copy constructor
-	BGPAttribute(uint8_t* msg, bool isAS4);
 
 protected:
 	uint8_t attributeFlags;
