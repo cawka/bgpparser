@@ -46,6 +46,8 @@ enum {
 /* MRT types */
 enum {
 	/* NULL = 0, */
+	MRT_INVALID = 0,
+
 	START = 1,
 	DIE = 2,	/* deprecated */
 	I_AM_DEAD = 3,
