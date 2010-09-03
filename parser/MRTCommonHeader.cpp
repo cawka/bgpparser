@@ -242,9 +242,15 @@ MRTMessagePtr MRTCommonHeader::newMessage( istream &input ) {
 			}
 		}
 	}
+	catch( std::istream::failure e )
+	{
+		LOG4CXX_ERROR( Logger, "Error parsing MRT message (stream error). Setting type to MRT_INVALID" );
+		header->type=MRT_INVALID;
+		msg=header;
+	}
 	catch( BGPError &e )
 	{
-		LOG4CXX_ERROR( Logger, "Error parsing MRT message. Setting type to MRT_INVALID" );
+		LOG4CXX_ERROR( Logger, "Error parsing MRT message (format error). Setting type to MRT_INVALID" );
 		header->type=MRT_INVALID;
 		msg=header;
 	}
