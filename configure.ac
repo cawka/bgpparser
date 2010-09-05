@@ -42,8 +42,7 @@ PKG_CHECK_MODULES( log4cxx, [liblog4cxx] )
 AC_SUBST(log4cxx_CFLAGS)
 AC_SUBST(log4cxx_LIBS)
 
-#AX_BOOST_BASE( [1.30] )
-AX_BOOST_BASE( [1.30],, [AC_MSG_ERROR([Boost C++ Libraries are not installed, but are required by libbgpparser])] ) 
+AX_BOOST_BASE( [1.44],, [AC_MSG_ERROR([Boost C++ Libraries are not installed, but are required by libbgpparser])] ) 
 AX_BOOST_SYSTEM
 AX_BOOST_FILESYSTEM
 AX_BOOST_PROGRAM_OPTIONS
