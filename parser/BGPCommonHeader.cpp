@@ -108,7 +108,7 @@ BGPMessagePtr BGPCommonHeader::newMessage( istream &input, bool isAS4 )
 	{
 	case BGPCommonHeader::OPEN:
 		LOG4CXX_TRACE(Logger,"BGP_OPEN");
-		bgpMsg = BGPMessagePtr( new BGPOpen(*header,input) );
+		bgpMsg = BGPMessagePtr( new BGPOpen(*header,in) );
 		break;
 
 	case BGPCommonHeader::UPDATE:

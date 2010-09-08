@@ -35,16 +35,17 @@ OptionalParameter::~OptionalParameter( )
 
 OptionalParameterPtr OptionalParameter::newOptionalParameter( std::istream &input )
 {
-	OptionalParameter header( input );
+	OptionalParameterPtr header( new OptionalParameter(input) );
 	OptionalParameterPtr param;
 
-	switch( header.type )
+	switch( header->type )
 	{
 	case OptionalParameter::CAPABILITIES:
-		param = OptionalParameterPtr( new OptionalParameterCapabilities(header,input) );
+		param = OptionalParameterPtr( new OptionalParameterCapabilities(*header,input) );
 		break;
 	default:
-		io::detail::skip( input, header.getLength(), boost::mpl::false_() );
+		io::detail::skip( input, header->getLength(), boost::mpl::false_() );
+		param = header;
 		break;
 	}
 
