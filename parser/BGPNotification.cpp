@@ -96,11 +96,14 @@ BGPNotification::BGPNotification( BGPCommonHeader &header, istream &input )
 			case CONNECTION_NOT_SYNCHRONIZED:
 				break;
 			case BAD_MESSAGE_LENGTH: {
-					uint16_t temp;
-					/* data should store the length value - a 2 octet short value */
-					memcpy(&temp, data.get(), sizeof(uint16_t));
-					temp = ntohs(temp);
-					memcpy(data.get(), &temp, sizeof(uint16_t));
+//				if( getLength()-21>=2 ) // if at least 2 octets are available
+//				{
+//					uint16_t temp;
+//					/* data should store the length value - a 2 octet short value */
+//					memcpy(&temp, data.get(), sizeof(uint16_t));
+//					temp = ntohs(temp);
+//					memcpy(data.get(), &temp, sizeof(uint16_t));
+//				}
 				}
 				break;
 			case BAD_MESSAGE_TYPE: {
@@ -119,11 +122,14 @@ BGPNotification::BGPNotification( BGPCommonHeader &header, istream &input )
 			case UNSPECIFIC:
 				break;
 			case UNSUPPORTED_VERSION_NUMBER: {
-					uint16_t temp;
-					/* data should store the version number supported */
-					memcpy(&temp, data.get(), sizeof(uint16_t));
-					temp = ntohs(temp);
-					memcpy(data.get(), &temp, sizeof(uint16_t));
+//				if( getLength()-21>=2 ) // if at least 2 octets are available
+//				{
+//					uint16_t temp;
+//					/* data should store the version number supported */
+//					memcpy(&temp, data.get(), sizeof(uint16_t));
+//					temp = ntohs(temp);
+//					memcpy(data.get(), &temp, sizeof(uint16_t));
+//				}
 				}
 				break;
 			case BAD_PEER_AS:
