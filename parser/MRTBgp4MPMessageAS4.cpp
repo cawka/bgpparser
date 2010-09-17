@@ -40,6 +40,8 @@ log4cxx::LoggerPtr MRTBgp4MPMessageAS4::Logger = log4cxx::Logger::getLogger( "bg
 MRTBgp4MPMessageAS4::MRTBgp4MPMessageAS4( MRTCommonHeader &header, istream &input )
 : MRTBgp4MPMessage( header )
 {
+	LOG4CXX_TRACE( Logger, "" );
+
 	MRTBgp4MPMessageAS4Packet pkt;
 	bool error= sizeof(MRTBgp4MPMessageAS4Packet)!=
 				io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPMessageAS4Packet) );

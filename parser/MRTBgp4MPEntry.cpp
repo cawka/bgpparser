@@ -38,6 +38,8 @@ using namespace std;
 #include <boost/iostreams/skip.hpp>
 namespace io = boost::iostreams;
 
+log4cxx::LoggerPtr MRTBgp4MPEntry::Logger=log4cxx::Logger::getLogger( "bgpparser.MRTBgp4MPEntry" );
+
 MRTBgp4MPEntry::MRTBgp4MPEntry( MRTCommonHeader &header, istream &input ) : MRTCommonHeader(header)
 {
 	LOG4CXX_TRACE( Logger, "" );

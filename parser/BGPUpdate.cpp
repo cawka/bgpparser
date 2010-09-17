@@ -175,7 +175,7 @@ BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4 )
 	left=nlriLength;
 	while( left>0 )
 	{
-		uint8_t prefixLen;
+		uint8_t prefixLen=0;
 		error|= sizeof(uint8_t)!=
 				io::read( input, reinterpret_cast<char*>(&prefixLen), sizeof(uint8_t) );
 

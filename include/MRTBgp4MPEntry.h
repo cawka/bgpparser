@@ -56,7 +56,7 @@ protected:
 	uint8_t prefixLength;
 
 private:
-
+	static log4cxx::LoggerPtr Logger;
 };
 
 #endif	/* _MRTBGP4MPENTRY_H_ */
