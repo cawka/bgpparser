@@ -85,11 +85,7 @@ BGPCommonHeader::BGPCommonHeader( istream &input )
 	if( read==-1 || read!=msg_length ) 
 	{
 		LOG4CXX_ERROR(Logger,msg_length << " bytes was requested, read only " << read << " bytes");
-
-		if( read==-1 ) throw BGPError( ); //there is nothing else to do
-
-		//otherwise continue parsing and prey there will be no errors
-		//in the worst case, some other exception will fire
+		throw BGPError( ); //there is nothing else to do
 	}
 }
 
