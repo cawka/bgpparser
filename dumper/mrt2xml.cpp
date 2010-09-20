@@ -285,7 +285,7 @@ int main(int argc, char** argv)
 						break;
 
 						default:
-							cerr << "Undefined Subtype (TABLE_DUMP_V1) :" <<  msg->getSubType() << endl;
+                            LOG4CXX_ERROR( _log, "Undefined Subtype (TABLE_DUMP_V1) :" <<  msg->getSubType() );
 							break;
 					}
 				}
@@ -323,7 +323,7 @@ int main(int argc, char** argv)
 						break;
 
 						default:
-							cerr << "Undefined Subtype (TABLE_DUMP_V2) :" <<  msg->getSubType() << endl;
+							LOG4CXX_ERROR(_log, "Undefined Subtype (TABLE_DUMP_V2) :" <<  msg->getSubType() );
 						break;
 					}
 					break;
@@ -363,14 +363,14 @@ int main(int argc, char** argv)
 						break;
 
 						default:
-							cerr << "Undefined Subtype (BGP4MP) :" <<  msg->getSubType() << endl;
+                            LOG4CXX_ERROR( _log,"Undefined Subtype (BGP4MP) :" <<  msg->getSubType() );
 						break;
 					}
 				}
 				break;
 
 				default:
-					cerr << "Undefined Type:" <<  msg->getType() << endl;
+                    LOG4CXX_ERROR(_log, "Undefined Type:" <<  msg->getType());
 				break;
 			}
 		}
