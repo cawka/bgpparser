@@ -7,9 +7,11 @@ download from http://xmlsoft.org/ or use a package management util to install li
 Installation:
 ---------------------------------------------------------
 ./configure
+	or
+./configure CXXFLAGS=-O3
+
 make
 sudo make install
 
-The binary is called bgpparser and placed under the bin/ dir
+The binary is called bgpparser and placed under the $prefix/bin/ directory
 
-Please report bugs to rveloso@cs.ucla.edu

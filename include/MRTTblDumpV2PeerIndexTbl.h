@@ -31,6 +31,8 @@
 
 #include "MRTCommonHeader.h"
 
+#include <vector>
+
 #ifdef WIN32
 #include <winsock2.h>
 #include <Ws2tcpip.h>

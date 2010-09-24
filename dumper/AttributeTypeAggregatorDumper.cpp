@@ -31,6 +31,8 @@ using namespace std;
 using namespace boost;
 
 #include <string>
+#include <sstream>
+
 #include <libxml/tree.h>
 #include "AttributeTypeDumper.h"
 #include "AttributeTypeAggregator.h"

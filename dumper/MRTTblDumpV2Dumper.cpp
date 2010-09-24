@@ -44,6 +44,7 @@ using namespace boost;
 #include "AttributeTypeMPUnreachNLRI.h"
 #include "FakeBGPUpdate.h"
 
+#include <sstream>
 #include <libxml/tree.h>
 #include <list>
 #include <boost/foreach.hpp>

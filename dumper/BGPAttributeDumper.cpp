@@ -30,6 +30,7 @@
 using namespace std;
 
 #include <libxml/tree.h>
+#include <sstream>
 #include "BGPAttribute.h"
 #include "BGPAttributeDumper.h"
 #include "AttributeTypeDumper.h"

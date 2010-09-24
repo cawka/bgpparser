@@ -55,6 +55,7 @@
 #include <AttributeType.h>
 #include <AttributeTypeOrigin.h>
 
+#ifdef LOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/consoleappender.h>
@@ -65,6 +66,7 @@
 #include <log4cxx/helpers/exception.h>
 using namespace log4cxx;
 using namespace log4cxx::helpers;
+#endif
 
 #include <boost/regex.hpp>
 
@@ -91,31 +93,7 @@ namespace io = boost::iostreams;
 using namespace std;
 using namespace boost;
 
-#define MAX_MRT_TYPE_NUM 49 
-#define MAX_MRT_SUBTYPE_NUM 6
-
-#define MRT_COMMON_HDR_LEN 12
-
-const uint32_t rnFlags[] = { 
-                            0,0,0,0,0,0,0,0,0,0,                        //  0 -  9
-						    0,0,0,0,0,0,0,0,0,0,                        // 10 - 19
-						    0,0,0,0,0,0,0,0,0,0,                        // 20 - 29
-							0,0,0,0,0,0,0,0,0,0,                        // 30 - 39
-							0,0,0,0,0,0,0,0,0,0,                        // 40 - 49
-							0,0,0,0,0,0,0,0,0,0,                        // 50 - 59
-							0,0,0,0,0,0,0,0,0,0,                        // 60 - 69
-							0,0,0,0,0,0,0,0,0,0,                        // 70 - 79
-							0,0,0,0,0,0,0,0,0,0,                        // 80 - 89
-							0,0,0,0,0,0,0,                              // 90 - 96
-							1,2,4,8,0x10,0x20,0x40,0x80,0x100,0x200,    // 'a' - 'j'
-							0x400,0x800,0x1000,0x2000,0x4000,0x8000,    // 'k' - 'p'
-							0x10000,0x20000,0x40000,0x80000,            // 'q' - 't'
-							0x100000,0x200000,0x400000,0x800000,        // 'u' - 'x'
-							0x1000000,0x2000000,                        // 'y' - 'z'
-							0,0,0,0,0,0,0,0,0,0
-                        };
-											 
-#define PRINT_COMPACT rnFlags[109]            // flag m
+bool PrintCompact=false;
 
 const char* rrchMRTTypes[] = {
                             "NULL",
@@ -170,7 +148,7 @@ const char* rrchMRTTypes[] = {
                             "OSPFv3_ET"		// 49
 						};
 
-const char* rrrchMRTSubTypes[][MAX_MRT_SUBTYPE_NUM + 1] 
+const char* rrrchMRTSubTypes[][49]
 						= {	  
 							{/* 0 */}, {/* 1 */},
 							{/* 2 */}, {/* 3 */},
@@ -208,7 +186,9 @@ const char* rrrchMRTSubTypes[][MAX_MRT_SUBTYPE_NUM + 1]
 							{"UNKNOWN"}, {"UNKNOWN"}					// 48, 49
 						};
 
+#ifdef LOG4CXX
 static LoggerPtr _log=Logger::getLogger( "simple" );
+#endif
 
 int main(int argc, char** argv)
 {
@@ -218,9 +198,12 @@ int main(int argc, char** argv)
 	po::options_description opts( "General options" );
 	opts.add_options()
 		( "help", "Print this help message" )
+#ifdef LOG4CXX
 		( "log",   po::value<string>(), "log4cxx configuration file" )
+#endif
 		( "file",  po::value<string>(),
 				  "MRT file or - to input from stdin" )
+		( "compact", "Compact view" )
 		( "format", po::value<string>(),
 				  "Compression format: txt, z, gz, or bz2 (will be overridden by the actual extension of the file)" )
 	;
@@ -250,6 +233,7 @@ int main(int argc, char** argv)
 		exit( 0 );
 	}
 
+#ifdef LOG4CXX
 	// configure Logger
 	if( CONFIG.count("log")>0 )
 		PropertyConfigurator::configureAndWatch( CONFIG["log"].as<string>() );
@@ -263,6 +247,7 @@ int main(int argc, char** argv)
 //		BasicConfigurator::configure( appender );
 		Logger::getRootLogger()->setLevel( log4cxx::Level::getOff() );
 	}
+#endif
 
 	if( CONFIG.count("file")==0 )
 	{
@@ -271,6 +256,8 @@ int main(int argc, char** argv)
 			 << opts << endl;
 		exit( 1 );
 	}
+
+	if( CONFIG.count("compact")>0 ) PrintCompact=true;
 
 	////////////////////////////////////////////////////////////////////////////
 	string format=CONFIG.count("format")>0 ? CONFIG["format"].as<string>( ) : "";
@@ -308,7 +295,6 @@ int main(int argc, char** argv)
 	else
 		in.push( input_file );
 
-
 //	_log->info( "Parsing started" );
 
 	// Set any flags
@@ -341,29 +327,30 @@ int main(int argc, char** argv)
             time_t      tmTime = (time_t)msg->getTimestamp();
             struct tm   *ts;
             char        rchTime[80];
+            rchTime[0]=0;
          
             /* Format and print the time, "ddd yyyy-mm-dd hh:mm:ss zzz" */
-            ts = localtime(&tmTime);
-            strftime(rchTime, sizeof(rchTime), "%a %Y-%m-%d %H:%M:%S %Z", ts);
+//            ts = localtime(&tmTime);
+//            strftime(rchTime, sizeof(rchTime), "%a %Y-%m-%d %H:%M:%S %Z", ts);
 
-            if ((unFlags & PRINT_COMPACT) == 0)
-                printf("\nTIME: %s\n", rchTime);
-            else
-                printf("%u", (uint32_t)tmTime);
+//            if( !PrintCompact )
+//                printf("\nTIME: %s\n", rchTime);
+//            else
+//                printf("%u", (uint32_t)tmTime);
 
-            if ((unFlags & PRINT_COMPACT) == 0)
+            if ( !PrintCompact )
             {
-                cout << "TYPE: " << rrchMRTTypes[msg->getType()] << "/";
-                cout << rrrchMRTSubTypes[msg->getType()][msg->getSubType()]; 
+//                cout << "TYPE: " << rrchMRTTypes[msg->getType()] << "/";
+//                cout << rrrchMRTSubTypes[msg->getType()][msg->getSubType()];
             }
             
             switch(msg->getType())
             {
                 case TABLE_DUMP:
                 {
-                    if (unFlags & PRINT_COMPACT) {
-                        cout << "|" << rrchMRTTypes[msg->getType()];
-                        cout << "|" << msg->getSubType();
+                    if (PrintCompact) {
+//                        cout << "|" << rrchMRTTypes[msg->getType()];
+//                        cout << "|" << msg->getSubType();
                     }
                     else
                     {
@@ -375,7 +362,7 @@ int main(int argc, char** argv)
                         case AFI_IPv6:
                         {
                             MRTTblDumpPtr tblDump = dynamic_pointer_cast<MRTTblDump>( msg );
-                            tblDump->printMeCompact();
+//                            tblDump->printMeCompact();
                         }
                         break;
 
@@ -387,9 +374,9 @@ int main(int argc, char** argv)
 
                 case TABLE_DUMP_V2:
                 {
-                    if (unFlags & PRINT_COMPACT) {
-                        cout << "|" << rrchMRTTypes[msg->getType()];
-                        cout << "|";
+                    if (PrintCompact) {
+//                        cout << "|" << rrchMRTTypes[msg->getType()];
+//                        cout << "|";
                     }
                     else
                     {
@@ -402,10 +389,10 @@ int main(int argc, char** argv)
                             MRTTblDumpV2RibIPv4UnicastPtr tblDumpIpv4Msg =
                             		dynamic_pointer_cast<MRTTblDumpV2RibIPv4Unicast>( msg );
                             // consider passing peerIndexTbl to printMe
-                            if (unFlags & PRINT_COMPACT)
+//                            if (PrintCompact)
                                 tblDumpIpv4Msg->printMeCompact(peerIndexTbl);
-                            else
-                                tblDumpIpv4Msg->printMe(peerIndexTbl);
+//                            else
+//                                tblDumpIpv4Msg->printMe(peerIndexTbl);
                         }
                         break;
 
@@ -414,7 +401,7 @@ int main(int argc, char** argv)
                             MRTTblDumpV2RibIPv4MulticastPtr tblDumpIpv4Msg =
                             		dynamic_pointer_cast<MRTTblDumpV2RibIPv4Multicast>( msg );
                             //cout << endl;
-                            tblDumpIpv4Msg->printMe(peerIndexTbl);
+//                            tblDumpIpv4Msg->printMe(peerIndexTbl);
                         }
                         break;
 
@@ -423,10 +410,10 @@ int main(int argc, char** argv)
                             MRTTblDumpV2RibIPv6UnicastPtr tblDumpIpv6Msg =
                             		dynamic_pointer_cast<MRTTblDumpV2RibIPv6Unicast>( msg );
                             //cout << endl;
-                            if (unFlags & PRINT_COMPACT)
-                                tblDumpIpv6Msg->printMeCompact(peerIndexTbl);
-                            else
-                                tblDumpIpv6Msg->printMe(peerIndexTbl);
+//                            if (PrintCompact)
+//                                tblDumpIpv6Msg->printMeCompact(peerIndexTbl);
+//                            else
+//                                tblDumpIpv6Msg->printMe(peerIndexTbl);
                         }
                         break;
 
@@ -435,7 +422,7 @@ int main(int argc, char** argv)
                             MRTTblDumpV2RibIPv6MulticastPtr tblDumpIpv6Msg =
                             		dynamic_pointer_cast<MRTTblDumpV2RibIPv6Multicast>( msg );
                             //cout << endl;
-                            tblDumpIpv6Msg->printMe(peerIndexTbl);
+//                            tblDumpIpv6Msg->printMe(peerIndexTbl);
                         }
                         break;
                         
@@ -443,7 +430,7 @@ int main(int argc, char** argv)
                         {
                             //cout << "  Setting a peer index table." << cout;
                             peerIndexTbl = dynamic_pointer_cast<MRTTblDumpV2PeerIndexTbl>( msg );
-                            cout << "PEERINDEXTABLE";
+//                            cout << "PEERINDEXTABLE";
                         }
                         break;
 
@@ -459,7 +446,7 @@ int main(int argc, char** argv)
                     {
                         case BGP4MP_MESSAGE:
                         {
-                            if (unFlags & PRINT_COMPACT ) {
+                            if (PrintCompact ) {
                                 cout << "|" << rrchMRTTypes[msg->getType()];
                             }
                             MRTBgp4MPMessagePtr bgp4MPmsg = dynamic_pointer_cast<MRTBgp4MPMessage>( msg );
@@ -470,43 +457,43 @@ int main(int argc, char** argv)
                             {
                                 case BGPCommonHeader::UPDATE:
                                 {
-                                    if ((unFlags & PRINT_COMPACT) == 0)
+                                    if ( !PrintCompact )
                                     {
-                                        cout << "/" << "Update" ;
-                                        cout << endl;
+//                                        cout << "/" << "Update" ;
+//                                        cout << endl;
                                         BGPUpdate* bgpUpdate = dynamic_cast<BGPUpdate*>(bgpMessage.get());
-                                        cout << "FROM: ";
-                                        PRINT_IP_ADDR(bgp4MPmsg->getPeerIP().ipv4);
-                                        cout << " AS" << bgp4MPmsg->getPeerAS() << endl;
-                                        cout << "TO: ";
-                                        PRINT_IP_ADDR(bgp4MPmsg->getLocalIP().ipv4);
-                                        cout << " AS" << bgp4MPmsg->getLocalAS() << endl;
-                            
-                                        bgpUpdate->printMe();
+//                                        cout << "FROM: ";
+//                                        PRINT_IP_ADDR(bgp4MPmsg->getPeerIP().ipv4);
+//                                        cout << " AS" << bgp4MPmsg->getPeerAS() << endl;
+//                                        cout << "TO: ";
+//                                        PRINT_IP_ADDR(bgp4MPmsg->getLocalIP().ipv4);
+//                                        cout << " AS" << bgp4MPmsg->getLocalAS() << endl;
+//
+//                                        bgpUpdate->printMe();
                                     }
                                     else
                                     {
-                                        cout << "|";
+//                                        cout << "|";
                                         BGPUpdate* bgpUpdate = dynamic_cast<BGPUpdate*>(bgpMessage.get());
-                                        if( bgp4MPmsg->getAddressFamily() == AFI_IPv4 ) {
-                                            PRINT_IP_ADDR(bgp4MPmsg->getPeerIP().ipv4);
-                                            cout << "|" << bgp4MPmsg->getPeerAS() << "|";
-                                            PRINT_IP_ADDR(bgp4MPmsg->getLocalIP().ipv4);
-                                            cout << "|" << bgp4MPmsg->getLocalAS() << "|";
-                                        } else {
-                                            PRINT_IPv6_ADDR(bgp4MPmsg->getPeerIP().ipv6);
-                                            cout << "|" << bgp4MPmsg->getPeerAS() << "|";
-                                            PRINT_IPv6_ADDR(bgp4MPmsg->getLocalIP().ipv6);
-                                            cout << "|" << bgp4MPmsg->getLocalAS() << "|";
-                                        }
-                                        bgpUpdate->printMeCompact();
+//                                        if( bgp4MPmsg->getAddressFamily() == AFI_IPv4 ) {
+//                                            PRINT_IP_ADDR(bgp4MPmsg->getPeerIP().ipv4);
+//                                            cout << "|" << bgp4MPmsg->getPeerAS() << "|";
+//                                            PRINT_IP_ADDR(bgp4MPmsg->getLocalIP().ipv4);
+//                                            cout << "|" << bgp4MPmsg->getLocalAS() << "|";
+//                                        } else {
+//                                            PRINT_IPv6_ADDR(bgp4MPmsg->getPeerIP().ipv6);
+//                                            cout << "|" << bgp4MPmsg->getPeerAS() << "|";
+//                                            PRINT_IPv6_ADDR(bgp4MPmsg->getLocalIP().ipv6);
+//                                            cout << "|" << bgp4MPmsg->getLocalAS() << "|";
+//                                        }
+//                                        bgpUpdate->printMeCompact();
                                     }
                                 }
                                 break;
                         
                                 case BGPCommonHeader::KEEPALIVE: 
                                 {
-                                    cout << "/" << "KEEPALIVE";
+//                                    cout << "/" << "KEEPALIVE";
                                 }
                                 break;
 
@@ -518,8 +505,8 @@ int main(int argc, char** argv)
                         
                         case BGP4MP_MESSAGE_AS4:
                         {
-                            if (unFlags & PRINT_COMPACT ) {
-                                cout << "|" << rrchMRTTypes[msg->getType()];
+                            if (PrintCompact ) {
+//                                cout << "|" << rrchMRTTypes[msg->getType()];
                             }
                             MRTBgp4MPMessagePtr bgp4MPmsg = dynamic_pointer_cast<MRTBgp4MPMessage>( msg );
                             BGPMessagePtr bgpMessage = bgp4MPmsg->getPayload();
@@ -528,67 +515,67 @@ int main(int argc, char** argv)
                             {
                                 case BGPCommonHeader::UPDATE:
                                 {
-                                    if ((unFlags & PRINT_COMPACT) == 0)
+                                    if ( !PrintCompact )
                                     {
-                                        cout << "/" << "Update" ;
-                                        cout << endl;
-                                        BGPUpdate* bgpUpdate = dynamic_cast<BGPUpdate*>(bgpMessage.get());
-                                        cout << "FROM: ";
-                                        PRINT_IP_ADDR(bgp4MPmsg->getPeerIP().ipv4);
-                                        cout << " AS" << bgp4MPmsg->getPeerAS() << endl;
-                                        cout << "TO: ";
-                                        PRINT_IP_ADDR(bgp4MPmsg->getLocalIP().ipv4);
-                                        cout << " AS" << bgp4MPmsg->getLocalAS() << endl;
-                            
-                                        bgpUpdate->printMe();
+//                                        cout << "/" << "Update" ;
+//                                        cout << endl;
+//                                        BGPUpdate* bgpUpdate = dynamic_cast<BGPUpdate*>(bgpMessage.get());
+//                                        cout << "FROM: ";
+//                                        PRINT_IP_ADDR(bgp4MPmsg->getPeerIP().ipv4);
+//                                        cout << " AS" << bgp4MPmsg->getPeerAS() << endl;
+//                                        cout << "TO: ";
+//                                        PRINT_IP_ADDR(bgp4MPmsg->getLocalIP().ipv4);
+//                                        cout << " AS" << bgp4MPmsg->getLocalAS() << endl;
+//
+//                                        bgpUpdate->printMe();
                                     }
                                     else
                                     {
-                                        cout << "|";
-                                        BGPUpdate* bgpUpdate = dynamic_cast<BGPUpdate*>(bgpMessage.get());
-                                        if( bgp4MPmsg->getAddressFamily() == AFI_IPv4 ) {
-                                            PRINT_IP_ADDR(bgp4MPmsg->getPeerIP().ipv4);
-                                        } else {
-                                            PRINT_IPv6_ADDR(bgp4MPmsg->getPeerIP().ipv6);
-                                        }
-
-                                        uint16_t t, b;
-                                        uint32_t asn;
-                                        cout << "|";
-                                        asn = bgp4MPmsg->getPeerAS();
-                                        t = (uint16_t)((asn>>16)&0xFFFF); 
-                                        b = (uint16_t)((asn)&0xFFFF); 
-                                        if( t == 0 ) { 
-                                            printf("%u",b);
-                                        } else {
-                                            printf("%u.%u",t,b);
-                                        }
-                                        cout << "|";
-
-                                        if( bgp4MPmsg->getAddressFamily() == AFI_IPv4 ) {
-                                            PRINT_IP_ADDR(bgp4MPmsg->getLocalIP().ipv4);
-                                        } else {
-                                            PRINT_IPv6_ADDR(bgp4MPmsg->getLocalIP().ipv6);
-                                        }
-
-                                        cout << "|";
-                                        asn = bgp4MPmsg->getLocalAS();
-                                        t = (uint16_t)((asn>>16)&0xFFFF); 
-                                        b = (uint16_t)((asn)&0xFFFF); 
-                                        if( t == 0 ) { 
-                                            printf("%u",b);
-                                        } else {
-                                            printf("%u.%u",t,b);
-                                        }
-                                        cout << "|";
-                                        bgpUpdate->printMeCompact();
+//                                        cout << "|";
+//                                        BGPUpdate* bgpUpdate = dynamic_cast<BGPUpdate*>(bgpMessage.get());
+//                                        if( bgp4MPmsg->getAddressFamily() == AFI_IPv4 ) {
+//                                            PRINT_IP_ADDR(bgp4MPmsg->getPeerIP().ipv4);
+//                                        } else {
+//                                            PRINT_IPv6_ADDR(bgp4MPmsg->getPeerIP().ipv6);
+//                                        }
+//
+//                                        uint16_t t, b;
+//                                        uint32_t asn;
+//                                        cout << "|";
+//                                        asn = bgp4MPmsg->getPeerAS();
+//                                        t = (uint16_t)((asn>>16)&0xFFFF);
+//                                        b = (uint16_t)((asn)&0xFFFF);
+//                                        if( t == 0 ) {
+//                                            printf("%u",b);
+//                                        } else {
+//                                            printf("%u.%u",t,b);
+//                                        }
+//                                        cout << "|";
+//
+//                                        if( bgp4MPmsg->getAddressFamily() == AFI_IPv4 ) {
+//                                            PRINT_IP_ADDR(bgp4MPmsg->getLocalIP().ipv4);
+//                                        } else {
+//                                            PRINT_IPv6_ADDR(bgp4MPmsg->getLocalIP().ipv6);
+//                                        }
+//
+//                                        cout << "|";
+//                                        asn = bgp4MPmsg->getLocalAS();
+//                                        t = (uint16_t)((asn>>16)&0xFFFF);
+//                                        b = (uint16_t)((asn)&0xFFFF);
+//                                        if( t == 0 ) {
+//                                            printf("%u",b);
+//                                        } else {
+//                                            printf("%u.%u",t,b);
+//                                        }
+//                                        cout << "|";
+//                                        bgpUpdate->printMeCompact();
                                     }
                                 }
                                 break;
                         
                                 case BGPCommonHeader::KEEPALIVE: 
                                 {
-                                    cout << "/" << "KEEPALIVE";
+//                                    cout << "/" << "KEEPALIVE";
                                 }
                                 break;
 
@@ -600,9 +587,9 @@ int main(int argc, char** argv)
                         case BGP4MP_STATE_CHANGE:
                         {
                             MRTBgp4MPStateChangePtr bgp4MPmsg = dynamic_pointer_cast<MRTBgp4MPStateChange>( msg );
-                            if (unFlags & PRINT_COMPACT ) {
-                                cout << "|" << "STATE" << "|";
-                                bgp4MPmsg->printMeCompact();
+                            if (PrintCompact ) {
+//                                cout << "|" << "STATE" << "|";
+//                                bgp4MPmsg->printMeCompact();
                             } else {
                                 cout << "/" << "STATE_CHANGE";
                                 bgp4MPmsg->printMe();
@@ -612,9 +599,9 @@ int main(int argc, char** argv)
                         case BGP4MP_STATE_CHANGE_AS4:
                         {
                             MRTBgp4MPStateChangePtr bgp4MPmsg = dynamic_pointer_cast<MRTBgp4MPStateChange>( msg );
-                            if (unFlags & PRINT_COMPACT ) {
-                                cout << "|" << "STATE" << "|";
-                                bgp4MPmsg->printMeCompact();
+                            if (PrintCompact ) {
+//                                cout << "|" << "STATE" << "|";
+//                                bgp4MPmsg->printMeCompact();
                             } else {
                                 cout << "/" << "STATE_CHANGE_AS4";
                                 bgp4MPmsg->printMe();
@@ -630,7 +617,7 @@ int main(int argc, char** argv)
                 default: break;		
             }
 
-            cout << endl;
+//            cout << endl;
         }
 	}
 	catch( EOFException e )
@@ -647,7 +634,7 @@ int main(int argc, char** argv)
 	}
 	catch( BGPParserError &e )
 	{
-		cerr << "ERROR in MRT #"<<mrt_id<<": " << e.what() << endl;
+//		cerr << "ERROR in MRT #"<<mrt_id<<": " << e.what() << endl;
 		exit( 10 );
 	}
 //	catch( const string &e )

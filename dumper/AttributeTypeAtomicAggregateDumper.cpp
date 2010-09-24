@@ -30,6 +30,7 @@
 using namespace std;
 
 #include <string>
+#include <sstream>
 #include <libxml/tree.h>
 #include "AttributeTypeDumper.h"
 #include "AttributeTypeAtomicAggregate.h"

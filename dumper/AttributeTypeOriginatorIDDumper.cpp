@@ -34,6 +34,7 @@ using namespace boost;
 #include "AttributeTypeDumper.h"
 
 #include <string>
+#include <sstream>
 #include <libxml/tree.h>
 
 extern "C" {

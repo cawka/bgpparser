@@ -33,6 +33,7 @@ using namespace boost;
 #include "AttributeTypeMPReachNLRI.h"
 #include "AttributeTypeDumper.h"
 #include <string>
+#include <sstream>
 #include <libxml/tree.h>
 #include <boost/foreach.hpp>
 

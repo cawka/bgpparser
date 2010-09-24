@@ -33,7 +33,9 @@ using namespace boost;
 #include "BGPDumper.h"
 #include "BGPMessageDumper.h"
 #include "MRTBgp4MPMessage.h"
+
 #include <libxml/tree.h>
+#include <sstream>
 #include <list>
 #include <boost/foreach.hpp>
 

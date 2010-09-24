@@ -34,13 +34,15 @@ AC_CONFIG_HEADERS([include/config.h])
 
 AM_INIT_AUTOMAKE
 
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_LIBTOOL
+
 PKG_CHECK_MODULES( XML, [libxml-2.0] )
 AC_SUBST(XML_CFLAGS)
 AC_SUBST(XML_LIBS)
 
-PKG_CHECK_MODULES( log4cxx, [liblog4cxx] )
-AC_SUBST(log4cxx_CFLAGS)
-AC_SUBST(log4cxx_LIBS)
+AX_LOG4CXX
 
 AX_BOOST_BASE( [1.44],, [AC_MSG_ERROR([Boost C++ Libraries are not installed, but are required by libbgpparser])] ) 
 AX_BOOST_SYSTEM
@@ -52,59 +54,29 @@ AX_BOOST_IOSTREAMS
 AC_PROG_LIBTOOL
 AC_PROG_RANLIB
 
-# Checks for programs.
-# AC_PROG_CC
-AM_PROG_CC_C_O
-AC_PROG_CXX
-
-# AM_SILENT_RULES([no])
-
-##########################################################################
-# debug compilation support
-##########################################################################
-
-AC_MSG_CHECKING([whether to build with debug information])
-AC_ARG_ENABLE([debug],
-			  [AS_HELP_STRING([--enable-debug],
-							  [enable debug data generation (def=no)])],
-							  [debugit="$enableval"],
-							  [debugit=no])
-AC_MSG_RESULT([$debugit])
-
-if test x"$debugit" = x"yes"; then
-	AC_DEFINE([DEBUG],[],[Debug Mode])
-	AM_CXXFLAGS="$AM_CXXFLAGS -g -Wall -Werror -Wno-uninitialized -O0"
-else
-	AC_DEFINE([NDEBUG],[],[No-debug Mode])
-	AM_CXXFLAGS="$AM_CXXFLAGS -O3"
-fi
-
-##########################################################################
-
-# Checks for libraries.
-
+AX_DEBUG
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdint.h string.h sys/socket.h unistd.h])
 
-# Checks for typedefs, structures, and compiler characteristics.
-AC_HEADER_STDBOOL
-AC_C_INLINE
-AC_TYPE_SIZE_T
-AC_TYPE_SSIZE_T
-AC_TYPE_UINT16_T
-AC_TYPE_UINT32_T
-AC_TYPE_UINT8_T
-
-
-# Checks for library functions.
-AC_FUNC_MALLOC
-AC_CHECK_FUNCS([inet_ntoa memset])
-AC_CHECK_FUNCS([memmove])
-AC_CHECK_FUNCS([strerror])
-AC_CHECK_FUNCS([strstr])
-AC_CHECK_HEADERS([limits.h])
-AC_FUNC_REALLOC
+dnl # Checks for typedefs, structures, and compiler characteristics.
+dnl AC_HEADER_STDBOOL
+dnl AC_C_INLINE
+dnl AC_TYPE_SIZE_T
+dnl AC_TYPE_SSIZE_T
+dnl AC_TYPE_UINT16_T
+dnl AC_TYPE_UINT32_T
+dnl AC_TYPE_UINT8_T
+dnl 
+dnl 
+dnl # Checks for library functions.
+dnl AC_FUNC_MALLOC
+dnl AC_CHECK_FUNCS([inet_ntoa memset])
+dnl AC_CHECK_FUNCS([memmove])
+dnl AC_CHECK_FUNCS([strerror])
+dnl AC_CHECK_FUNCS([strstr])
+dnl AC_CHECK_HEADERS([limits.h])
+dnl AC_FUNC_REALLOC
 
 
 AC_OUTPUT(Makefile bgpparser.pc

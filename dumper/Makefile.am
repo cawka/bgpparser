@@ -1,4 +1,19 @@
-AM_CPPFLAGS=-I$(top_srcdir)/include
+AM_CPPFLAGS=-I$(top_srcdir)/include \
+	$(XML_CFLAGS) \
+	$(log4cxx_CFLAGS) \
+	$(BOOST_CPPFLAGS)
+
+bgpparser_LDADD   = ../parser/libbgpparser.la
+
+AM_LDFLAGS = \
+	$(XML_LIBS) \
+	$(log4cxx_LIBS) \
+	$(BOOST_LDFLAGS) \
+		$(BOOST_SYSTEM_LIB) \
+		$(BOOST_FILESYSTEM_LIB) \
+		$(BOOST_PROGRAM_OPTIONS_LIB) \
+		$(BOOST_REGEX_LIB) \
+		$(BOOST_IOSTREAMS_LIB)
 
 bin_PROGRAMS = bgpparser
 
@@ -35,20 +50,4 @@ MRTTblDumpV1Dumper.cpp \
 MRTTblDumpV2Dumper.cpp \
 mrt2xml.cpp \
 xmlinternal.c
-
-bgpparser_LDADD   = ../parser/libbgpparser.la
-bgpparser_LDFLAGS = \
-	$(XML_LIBS) \
-	$(log4cxx_LIBS) \
-	$(BOOST_LDFLAGS) \
-		$(BOOST_SYSTEM_LIB) \
-		$(BOOST_FILESYSTEM_LIB) \
-		$(BOOST_PROGRAM_OPTIONS_LIB) \
-		$(BOOST_REGEX_LIB) \
-		$(BOOST_IOSTREAMS_LIB)
-
-bgpparser_CPPFLAGS= -I$(top_srcdir)/include \
-	$(XML_CFLAGS) \
-	$(log4cxx_CFLAGS) \
-	$(BOOST_CPPFLAGS)
 

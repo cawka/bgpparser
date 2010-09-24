@@ -37,6 +37,7 @@ using namespace boost;
 #include "AttributeTypeMPReachNLRI.h"
 #include "AttributeTypeMPUnreachNLRI.h"
 
+#include <sstream>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <boost/foreach.hpp>

@@ -29,6 +29,7 @@
 #include <bgpparser.h>
 using namespace std;
 
+#include <sstream>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include "BGPDumper.h"

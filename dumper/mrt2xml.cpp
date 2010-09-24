@@ -59,6 +59,7 @@
 /* Constants */
 //#define MRT_COMMON_HDR_LEN  12
 
+#ifdef LOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/consoleappender.h>
@@ -69,6 +70,9 @@
 #include <log4cxx/helpers/exception.h>
 using namespace log4cxx;
 using namespace log4cxx::helpers;
+
+static LoggerPtr _log=Logger::getLogger( "bgpdump" );
+#endif
 
 #include <boost/regex.hpp>
 
@@ -88,8 +92,6 @@ namespace io = boost::iostreams;
 
 using namespace std;
 using namespace boost;
-
-static LoggerPtr _log=Logger::getLogger( "bgpdump" );
 
 //int dump_type = 0;   // 1: TABLE_DUMP1
 //                     // 2: TABLE_DUMP2

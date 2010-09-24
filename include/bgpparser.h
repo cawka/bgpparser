@@ -33,10 +33,31 @@
 #include <config.h>
 #endif
 
-#include <log4cxx/logger.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/asio/ip/address_v4.hpp>
 #include <boost/asio/ip/address_v6.hpp>
+
+#ifdef LOG4CXX
+#include <log4cxx/logger.h>
+#else
+namespace log4cxx
+{
+	typedef char LoggerPtr;
+
+	namespace Logger
+	{
+		inline char getLogger( const char* ) { return 0; };
+	}
+}
+
+#include <iostream>
+#define LOG4CXX_INFO(logger,msg) { }
+#define LOG4CXX_FATAL(logger,msg) { }
+#define LOG4CXX_WARN(logger,msg) { }
+#define LOG4CXX_TRACE(logger,msg) { }
+#define LOG4CXX_DEBUG(logger,msg) { }
+#define LOG4CXX_ERROR(logger,msg) { {std::cerr << "ERROR: " << msg << std::endl;} }
+#endif
 
 #ifdef WIN32
 /* enable 32-bit time_t structure */

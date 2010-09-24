@@ -33,6 +33,7 @@ using namespace std;
 #include "BGPAttributeDumper.h"
 #include "BGPAttribute.h"
 
+#include <sstream>
 #include <libxml/tree.h>
 
 extern "C" {
