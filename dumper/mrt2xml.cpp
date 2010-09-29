@@ -40,18 +40,9 @@
 
 /* MRT classes */
 #include "MRTCommonHeader.h"
-#include "MRTBgp4MPStateChange.h"
-#include "MRTBgp4MPMessage.h"
-#include "MRTTblDump.h"
-#include "MRTTblDumpV2PeerIndexTbl.h"
 #include "Exceptions.h"
 
-/* Dumper class */
-#include "Dumper.h"
-#include "MRTTblDumpV1Dumper.h"
-#include "MRTTblDumpV2Dumper.h"
-#include "MRTBgp4MPMessageDumper.h"
-#include "MRTBgp4MPStateChangeDumper.h"
+#include "AsciiVisitor.h"
 
 //#define MAX_MRT_TYPE_NUM    49
 //#define MAX_MRT_SUBTYPE_NUM  6
@@ -256,6 +247,8 @@ int main(int argc, char** argv)
 
 	unsigned int unTotalBytesRead = 0;
 
+	AsciiVisitor visitor;
+
 	shared_ptr<MRTTblDumpV2Dumper> mrt_tblv2_dumper( new MRTTblDumpV2Dumper() );
 	while( in.peek()!=-1 )
 	{
@@ -263,118 +256,8 @@ int main(int argc, char** argv)
 		{
 			MRTMessagePtr msg = MRTCommonHeader::newMessage( in );
 
-			switch( msg->getType() )
-			{
-				// -------------------------- //
-				// TABLE_DUMP                 //
-				// -------------------------- //
-				case TABLE_DUMP:
-				{
-//					dump_type = 1;
-					switch(msg->getSubType())
-					{
-						case AFI_IPv4:
-						case AFI_IPv6:
-						{
-							// Prepare BGP4MP Message pointer ./
-							MRTTblDumpPtr tblDump = dynamic_pointer_cast<MRTTblDump>( msg );
+			msg->accept( visitor );
 
-							// Dumper for BGP Message ./
-							MRTTblDumpV1DumperPtr mrt_tblv1_dumper( new MRTTblDumpV1Dumper() );
-							mrt_tblv1_dumper->setTblDumpMsg( tblDump );
-							procMsg( mrt_tblv1_dumper, flag_format, flag_newline, flag_bgpdump );
-						}
-						break;
-
-						default:
-                            LOG4CXX_ERROR( _log, "Undefined Subtype (TABLE_DUMP_V1) :" <<  msg->getSubType() );
-							break;
-					}
-				}
-				break;
-
-				// -------------------------- //
-				// TABLE_DUMP_V2              //
-				// -------------------------- //
-				case TABLE_DUMP_V2:
-				{
-//					dump_type = 2;
-					// Dumper for Table Dumper v2 //
-					switch (msg->getSubType())
-					{
-						case RIB_IPV4_UNICAST:
-						case RIB_IPV4_MULTICAST:
-						case RIB_IPV6_UNICAST:
-						case RIB_IPV6_MULTICAST:
-						{
-							MRTTblDumpV2RibHeaderPtr tblDumpHeader =
-                            		dynamic_pointer_cast<MRTTblDumpV2RibHeader>( msg );
-
-							mrt_tblv2_dumper->setTblDumpMsg( tblDumpHeader );
-							procMsg( mrt_tblv2_dumper, flag_format, flag_newline, flag_bgpdump );
-						}
-						break;
-
-						case PEER_INDEX_TABLE:
-						{
-							MRTTblDumpV2PeerIndexTblPtr peerIndexTbl
-								= dynamic_pointer_cast<MRTTblDumpV2PeerIndexTbl>( msg );
-
-							mrt_tblv2_dumper->setPeerIndexTbl( peerIndexTbl );
-						}
-						break;
-
-						default:
-							LOG4CXX_ERROR(_log, "Undefined Subtype (TABLE_DUMP_V2) :" <<  msg->getSubType() );
-						break;
-					}
-					break;
-				}
-				break;
-
-				// -------------------------- //
-				// BGP4MP                     //
-				// -------------------------- //
-				case BGP4MP:
-				{
-//					dump_type = 0;
-					switch (msg->getSubType())
-					{
-						case BGP4MP_MESSAGE:
-						case BGP4MP_MESSAGE_AS4:
-						{
-							// Prepare BGP4MP Message pointer ./
-							MRTBgp4MPMessagePtr bgp4MPmsg = dynamic_pointer_cast<MRTBgp4MPMessage>( msg );
-
-							// Dumper for BGP Message ./
-							MRTBgp4MPMessageDumperPtr mrt_bgp4mp_msg_dumper = MRTBgp4MPMessageDumper::newDumper( bgp4MPmsg );
-							procMsg( mrt_bgp4mp_msg_dumper, flag_format, flag_newline, flag_bgpdump );
-						}
-						break;
-
-						case BGP4MP_STATE_CHANGE:
-						case BGP4MP_STATE_CHANGE_AS4:
-						{
-							// Prepare BGP4MP State Change pointer //
-							MRTBgp4MPStateChangePtr bgp4MPmsg = dynamic_pointer_cast<MRTBgp4MPStateChange>( msg );
-
-							// Dumper for BGP State Change //
-							MRTBgp4MPStateChangeDumperPtr mrt_bgp4mp_sc_dumper = MRTBgp4MPStateChangeDumper::newDumper( bgp4MPmsg );
-							procMsg( mrt_bgp4mp_sc_dumper, flag_format, flag_newline, flag_bgpdump );
-						}
-						break;
-
-						default:
-                            LOG4CXX_ERROR( _log,"Undefined Subtype (BGP4MP) :" <<  msg->getSubType() );
-						break;
-					}
-				}
-				break;
-
-				default:
-                    LOG4CXX_ERROR(_log, "Undefined Type:" <<  msg->getType());
-				break;
-			}
 		}
 		catch( BGPParserError &e )
 		{

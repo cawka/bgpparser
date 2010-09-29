@@ -114,11 +114,11 @@ string BGPMessageDumper::genAscii()
     string src_addr, dst_addr;
 	switch(afi)
 	{
-		case AFI_IPv4: 
+		case AFI_IPv4:
 			src_addr=FORMAT_IPv4_ADDRESS( local_addr.ipv4 );
 			dst_addr=FORMAT_IPv4_ADDRESS( peer_addr.ipv4 );
 			break;
-		case AFI_IPv6: 
+		case AFI_IPv6:
 			src_addr=FORMAT_IPv6_ADDRESS( local_addr.ipv6 );
 			dst_addr=FORMAT_IPv6_ADDRESS( peer_addr.ipv6 );
 			break;

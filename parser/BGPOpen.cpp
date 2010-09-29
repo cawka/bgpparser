@@ -84,6 +84,7 @@ BGPOpen::BGPOpen( BGPCommonHeader &header, std::istream &input )
 			}
 		}
 
+		optParams.push_back( param );
 		left-=param->getLength( );
 	}
 }

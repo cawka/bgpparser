@@ -97,26 +97,3 @@ MRTBgp4MPMessage::~MRTBgp4MPMessage(void)
 {
 }
 
-uint32_t MRTBgp4MPMessage::getPeerAS(void) const {
-	return peerAS;
-}
-
-uint32_t MRTBgp4MPMessage::getLocalAS(void) const {
-	return localAS;
-}
-
-uint16_t MRTBgp4MPMessage::getInterfaceIndex(void) const {
-	return interfaceIndex;
-}
-
-uint16_t MRTBgp4MPMessage::getAddressFamily(void) const {
-	return addressFamily;
-}
-
-IPAddress MRTBgp4MPMessage::getPeerIP(void) const {
-	return peerIP;
-}
-
-IPAddress MRTBgp4MPMessage::getLocalIP(void) const {
-	return localIP;
-}

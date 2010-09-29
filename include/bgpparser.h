@@ -33,9 +33,23 @@
 #include <config.h>
 #endif
 
+#include <iostream>
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 #include <boost/asio/ip/address_v4.hpp>
 #include <boost/asio/ip/address_v6.hpp>
+#include <boost/any.hpp>
+#include <boost/foreach.hpp>
+
+#include "visitors/Visitor.h"
+#include "visitors/GJVoidVisitor.h"
+#include "visitors/GJNoArguVisitor.h"
+#include "visitors/GJVisitor.h"
+
+#include "parsers/Node.h"
+
+#include "Exceptions.h"
 
 #ifdef LOG4CXX
 #include <log4cxx/logger.h>
@@ -50,7 +64,6 @@ namespace log4cxx
 	}
 }
 
-#include <iostream>
 #define LOG4CXX_INFO(logger,msg) { }
 #define LOG4CXX_FATAL(logger,msg) { }
 #define LOG4CXX_WARN(logger,msg) { }
@@ -70,10 +83,27 @@ namespace log4cxx
 #include <arpa/inet.h>
 #endif	/* WIN32 */
 
-
 #define BITMASK_8 0x000000FF
 #define BITMASK_16 0x0000FFFF
 
+/* IP addresses... consider moving to common code */
+typedef union _IPAddress {
+	in_addr ipv4;
+	in6_addr ipv6;
+} IPAddress;
+
+/* Address Families... consider moving to common code */
+enum {
+	AFI_IPv4 = 1,
+	AFI_IPv6 = 2
+};
+
+
+/* MULTICAST/UNICAST */
+enum {
+	SAFI_UNICAST = 1,
+	SAFI_MULTICAST = 2
+};
 
 #ifdef DEBUG
 #	define _PRINT_HEX_VALL(l,x,name) { if( l>=DBG_LEVEL ) { printf("  %s value: 0x%02x%02x%02x%02x\n", name, \
@@ -136,6 +166,21 @@ inline std::string FORMAT_IPv6_ADDRESS( in6_addr addr )
 	boost::asio::ip::address_v6::bytes_type ipv6;
 	std::copy( addr.s6_addr, addr.s6_addr+16, ipv6.begin() );
 	return boost::asio::ip::address_v6( ipv6 ).to_string( );
+}
+
+inline std::string FORMAT_IP_ADDRESS( IPAddress addr, int afi )
+{
+	std::string addr_str;
+	switch( afi )
+	{
+		case AFI_IPv4:
+			addr_str=FORMAT_IPv4_ADDRESS( addr.ipv4 );
+			break;
+		case AFI_IPv6:
+			addr_str=FORMAT_IPv6_ADDRESS( addr.ipv6 );
+			break;
+	}
+	return addr_str;
 }
 
 #endif

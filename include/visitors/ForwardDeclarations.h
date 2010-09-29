@@ -1,0 +1,50 @@
+
+#ifndef _FORWARDDECLARATIONS_H_
+#define _FORWARDDECLARATIONS_H_
+
+class MRTCommonHeader;
+class MRTBgp4MPMessage;
+class MRTBgp4MPMessageAS4;
+class MRTBgp4MPStateChange;
+class MRTBgp4MPStateChangeAS4;
+class AttributeType;
+class AttributeTypeAS4Aggregator;
+class AttributeTypeAS4Path;
+class AttributeTypeAS4PathSegment;
+class AttributeTypeASPath;
+class AttributeTypeASPathSegment;
+class AttributeTypeAggregator;
+class AttributeTypeAtomicAggregate;
+class AttributeTypeClusterList;
+class AttributeTypeCommunities;
+class AttributeTypeExtCommunities;
+class AttributeTypeLocalPref;
+class AttributeTypeMPReachNLRI;
+class AttributeTypeMPUnreachNLRI;
+class AttributeTypeMultiExitDisc;
+class AttributeTypeNextHop;
+class AttributeTypeOrigin;
+class AttributeTypeOriginatorID;
+class BGPAttribute;
+class BGPCommonHeader;
+class BGPKeepAlive;
+class BGPNotification;
+class BGPOpen;
+class BGPRouteRefresh;
+class BGPUpdate;
+class MRTTblDump;
+class MRTTblDumpV2PeerIndexTbl;
+class MRTTblDumpV2RibGeneric;
+class MRTTblDumpV2RibHeader;
+class MRTTblDumpV2RibIPv4Multicast;
+class MRTTblDumpV2RibIPv4Unicast;
+class MRTTblDumpV2RibIPv6Multicast;
+class MRTTblDumpV2RibIPv6Unicast;
+class OptionalParameter;
+class OptionalParameterCapabilities;
+class TblDumpV2RibEntry;
+class Route;
+class NLRIReachable;
+class NLRIUnReachable;
+
+#endif

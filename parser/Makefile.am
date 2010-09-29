@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -I$(top_srcdir)/include $(log4cxx_CFLAGS) $(BOOST_CPPFLAGS)
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/include/parsers $(log4cxx_CFLAGS) $(BOOST_CPPFLAGS)
 
 lib_LTLIBRARIES=libbgpparser.la
 
@@ -31,10 +31,8 @@ BGPNotification.cpp \
 BGPOpen.cpp \
 BGPRouteRefresh.cpp \
 BGPUpdate.cpp \
-MRTBgp4MPEntry.cpp \
 MRTBgp4MPMessage.cpp \
 MRTBgp4MPMessageAS4.cpp \
-MRTBgp4MPSnapshot.cpp \
 MRTBgp4MPStateChange.cpp \
 MRTBgp4MPStateChangeAS4.cpp \
 MRTCommonHeader.cpp \
@@ -51,57 +49,45 @@ TblDumpV2RibEntry.cpp
 libbgpparser_la_HEADERS = \
 ../include/bgpparser.h \
 ../include/Exceptions.h \
-../include/AttributeType.h \
-../include/AttributeTypeAS4Aggregator.h \
-../include/AttributeTypeAS4Path.h \
-../include/AttributeTypeASPath.h \
-../include/AttributeTypeAggregator.h \
-../include/AttributeTypeAtomicAggregate.h \
-../include/AttributeTypeClusterList.h \
-../include/AttributeTypeCommunities.h \
-../include/AttributeTypeDumper.h \
-../include/AttributeTypeExtCommunities.h \
-../include/AttributeTypeLocalPref.h \
-../include/AttributeTypeMPReachNLRI.h \
-../include/AttributeTypeMPUnreachNLRI.h \
-../include/AttributeTypeMultiExitDisc.h \
-../include/AttributeTypeNextHop.h \
-../include/AttributeTypeOrigin.h \
-../include/AttributeTypeOriginatorID.h \
-../include/OptionalParameter.h \
-../include/OptionalParameterCapabilities.h \
-../include/BGPAttribute.h \
-../include/BGPAttributeDumper.h \
-../include/BGPCommonHeader.h \
-../include/BGPDumper.h \
-../include/BGPKeepAlive.h \
-../include/BGPMessageDumper.h \
-../include/BGPNotification.h \
-../include/BGPOpen.h \
-../include/BGPRouteRefresh.h \
-../include/BGPStateChangeDumper.h \
-../include/BGPStructure.h \
-../include/BGPUpdate.h \
-../include/Dumper.h \
-../include/MRTBgp4MPEntry.h \
-../include/MRTBgp4MPMessage.h \
-../include/MRTBgp4MPMessageAS4.h \
-../include/MRTBgp4MPMessageDumper.h \
-../include/MRTBgp4MPSnapshot.h \
-../include/MRTBgp4MPStateChange.h \
-../include/MRTBgp4MPStateChangeAS4.h \
-../include/MRTBgp4MPStateChangeDumper.h \
-../include/MRTCommonHeader.h \
-../include/MRTStructure.h \
-../include/MRTTblDump.h \
-../include/MRTTblDumpV1Dumper.h \
-../include/MRTTblDumpV2Dumper.h \
-../include/MRTTblDumpV2PeerIndexTbl.h \
-../include/MRTTblDumpV2RibGeneric.h \
-../include/MRTTblDumpV2RibHeader.h \
-../include/MRTTblDumpV2RibIPv4Multicast.h \
-../include/MRTTblDumpV2RibIPv4Unicast.h \
-../include/MRTTblDumpV2RibIPv6Multicast.h \
-../include/MRTTblDumpV2RibIPv6Unicast.h \
-../include/TblDumpV2RibEntry.h
+../include/parsers/AttributeType.h \
+../include/parsers/AttributeTypeAS4Aggregator.h \
+../include/parsers/AttributeTypeAS4Path.h \
+../include/parsers/AttributeTypeASPath.h \
+../include/parsers/AttributeTypeAggregator.h \
+../include/parsers/AttributeTypeAtomicAggregate.h \
+../include/parsers/AttributeTypeClusterList.h \
+../include/parsers/AttributeTypeCommunities.h \
+../include/parsers/AttributeTypeExtCommunities.h \
+../include/parsers/AttributeTypeLocalPref.h \
+../include/parsers/AttributeTypeMPReachNLRI.h \
+../include/parsers/AttributeTypeMPUnreachNLRI.h \
+../include/parsers/AttributeTypeMultiExitDisc.h \
+../include/parsers/AttributeTypeNextHop.h \
+../include/parsers/AttributeTypeOrigin.h \
+../include/parsers/AttributeTypeOriginatorID.h \
+../include/parsers/OptionalParameter.h \
+../include/parsers/OptionalParameterCapabilities.h \
+../include/parsers/BGPAttribute.h \
+../include/parsers/BGPCommonHeader.h \
+../include/parsers/BGPKeepAlive.h \
+../include/parsers/BGPNotification.h \
+../include/parsers/BGPOpen.h \
+../include/parsers/BGPRouteRefresh.h \
+../include/parsers/BGPStructure.h \
+../include/parsers/BGPUpdate.h \
+../include/parsers/MRTBgp4MPMessage.h \
+../include/parsers/MRTBgp4MPMessageAS4.h \
+../include/parsers/MRTBgp4MPStateChange.h \
+../include/parsers/MRTBgp4MPStateChangeAS4.h \
+../include/parsers/MRTCommonHeader.h \
+../include/parsers/MRTStructure.h \
+../include/parsers/MRTTblDump.h \
+../include/parsers/MRTTblDumpV2PeerIndexTbl.h \
+../include/parsers/MRTTblDumpV2RibGeneric.h \
+../include/parsers/MRTTblDumpV2RibHeader.h \
+../include/parsers/MRTTblDumpV2RibIPv4Multicast.h \
+../include/parsers/MRTTblDumpV2RibIPv4Unicast.h \
+../include/parsers/MRTTblDumpV2RibIPv6Multicast.h \
+../include/parsers/MRTTblDumpV2RibIPv6Unicast.h \
+../include/parsers/TblDumpV2RibEntry.h
 

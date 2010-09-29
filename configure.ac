@@ -81,6 +81,6 @@ dnl AC_FUNC_REALLOC
 
 AC_OUTPUT(Makefile bgpparser.pc
 		  parser/Makefile 
-		  dumper/Makefile
+		  dumper2/Makefile
 		  examples/Makefile
 		  )

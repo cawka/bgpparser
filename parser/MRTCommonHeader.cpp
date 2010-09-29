@@ -35,8 +35,6 @@
 #include "MRTBgp4MPStateChangeAS4.h"
 #include "MRTBgp4MPMessage.h"
 #include "MRTBgp4MPMessageAS4.h"
-#include "MRTBgp4MPEntry.h"
-#include "MRTBgp4MPSnapshot.h"
 
 #include "MRTTblDump.h"
 #include "MRTTblDumpV2PeerIndexTbl.h"
@@ -88,22 +86,6 @@ MRTCommonHeader::MRTCommonHeader( istream &input )
 
 MRTCommonHeader::~MRTCommonHeader(void) {
 	/* nothing */
-}
-
-time_t MRTCommonHeader::getTimestamp(void) const {
-	return timestamp;
-}
-
-uint16_t MRTCommonHeader::getType(void) const {
-	return type;
-}
-
-uint16_t MRTCommonHeader::getSubType(void) const {
-	return subtype;
-}
-
-uint32_t MRTCommonHeader::getLength(void) const {
-	return length;
 }
 
 /* 
@@ -158,16 +140,16 @@ MRTMessagePtr MRTCommonHeader::newMessage( istream &input ) {
 				break;
 	
 			case BGP4MP_ENTRY:
-				//PRINT_DBG("  Case BGP4MP_ENTRY");
-				//msg = new MRTBgp4MPEntry(ptr);		/* not supported yet */
-				//break;
+				/* deprecated */
+				msg=header;
+				break;
 			case BGP4MP_SNAPSHOT:
-				//PRINT_DBG("  Case BGP4MP_SNAPSHOT");
-				//msg = new MRTBgp4MPSnapshot(ptr);		/* not supported yet */
-				//break;
+				/* deprecated */
+				msg=header;
+				break;
 			default:
 				LOG4CXX_ERROR( Logger, "unrecognized subtype ["<< (int)header->getSubType() <<"] for bgp4mp." );
-	
+				msg=header;
 				break;
 			}
 		}

@@ -81,6 +81,6 @@ string AttributeTypeAggregatorDumper::genAscii()
 
     node << (int)as << " " << FORMAT_IPv4_ADDRESS( attr->getAggregatorBGPSpeakerIPAddress().ipv4 );
     return node.str( );
-		}
+}
 
 // vim: sw=4 ts=4 sts=4 expandtab

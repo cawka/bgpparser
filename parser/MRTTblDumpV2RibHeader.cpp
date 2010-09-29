@@ -97,30 +97,6 @@ void MRTTblDumpV2RibHeader::init( istream &input )
 MRTTblDumpV2RibHeader::~MRTTblDumpV2RibHeader(void) {
 }
 
-uint32_t MRTTblDumpV2RibHeader::getSequenceNumber(void) const {
-	return sequenceNumber;
-}
-
-uint8_t MRTTblDumpV2RibHeader::getPrefixLength(void) const {
-	return prefixLength;
-}
-
-IPAddress MRTTblDumpV2RibHeader::getPrefix(void) const {
-	return prefix;
-}
-
-uint16_t MRTTblDumpV2RibHeader::getEntryCount(void) const {
-	return entryCount;
-}
-
-uint16_t MRTTblDumpV2RibHeader::getAFI(void) const {
-	return afi;
-}
-
-uint16_t MRTTblDumpV2RibHeader::getSAFI(void) const {
-	return safi;
-}
-
 /* static */void MRTTblDumpV2RibHeader::processAttributes(
 		list<BGPAttributePtr> &attributes, istream &input, int len, bool isAS4 )
 {

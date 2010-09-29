@@ -1,4 +1,4 @@
-SUBDIRS=parser dumper examples
+SUBDIRS=parser dumper2 
 
 ACLOCAL_AMFLAGS = -I m4
 

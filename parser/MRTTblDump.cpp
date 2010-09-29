@@ -129,42 +129,6 @@ MRTTblDump::~MRTTblDump(void)
 {
 }
 
-uint16_t MRTTblDump::getViewNumber(void) const {
-	return viewNumber;
-}
-
-uint16_t MRTTblDump::getSequenceNumber(void) const {
-	return sequenceNumber;
-}
-
-IPAddress MRTTblDump::getPrefix(void) const {
-	return prefix;
-}
-
-uint8_t MRTTblDump::getPrefixLength(void) const {
-	return prefixLength;
-}
-
-uint8_t MRTTblDump::getStatus(void) const {
-	return status;
-}
-
-time_t MRTTblDump::getOriginatedTime(void) const {
-	return originatedTime;
-}
-
-IPAddress MRTTblDump::getPeerIP(void) const {
-	return peerIP;
-}
-
-uint16_t MRTTblDump::getPeerAS(void) const {
-	return peerAS;
-}
-
-uint16_t MRTTblDump::getAttributeLength(void) const {
-	return attributeLength;
-}
-
 void MRTTblDump::printMeCompact() {
 	cout << viewNumber << "|" << sequenceNumber << "|";
 	if (getSubType() == AFI_IPv4) {

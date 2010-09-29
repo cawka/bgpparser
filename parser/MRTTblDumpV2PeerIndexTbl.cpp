@@ -149,22 +149,3 @@ MRTTblDumpV2PeerIndexTbl::MRTTblDumpV2PeerIndexTbl( MRTCommonHeader &header, std
 MRTTblDumpV2PeerIndexTbl::~MRTTblDumpV2PeerIndexTbl(void) {
 }
 
-const MRTTblDumpV2PeerIndexTblPeerEntryPtr MRTTblDumpV2PeerIndexTbl::getPeer( uint16_t peerIndex )
-{
-	if( peerIndex>peerEntries.size() ) throw BGPTextError( "Corrupted PeerIndexTbl" );
-	return peerEntries[peerIndex];
-}
-
-
-uint32_t MRTTblDumpV2PeerIndexTbl::getCollectorBGPId(void) const {
-	return collectorBGPId;
-}
-
-uint16_t MRTTblDumpV2PeerIndexTbl::getViewNameLength(void) const {
-	return viewNameLength;
-}
-
-uint16_t MRTTblDumpV2PeerIndexTbl::getPeerCount(void) const {
-	return peerCount;
-}
-
