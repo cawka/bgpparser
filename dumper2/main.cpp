@@ -185,7 +185,7 @@ int main(int argc, char** argv)
 			mrt_id++;
 
 			MRTMessagePtr msg=MRTCommonHeader::newMessage( in );
-			msg->accept( ascii ) ;
+			msg->accept( ascii );
         }
 	}
 	catch( EOFException e )
@@ -200,6 +200,11 @@ int main(int argc, char** argv)
 		cerr << "ERROR: " << e.what() << endl;
 		exit( 10 );
 	}
+//	catch( boost::bad_any_cast e )
+//	{
+//		cerr << "ERROR: " << e.what() << endl;
+//		exit( 10 );
+//	}
 	catch( BGPParserError &e )
 	{
 //		cerr << "ERROR in MRT #"<<mrt_id<<": " << e.what() << endl;

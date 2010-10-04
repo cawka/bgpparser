@@ -5,6 +5,7 @@ AM_CPPFLAGS=-I$(top_srcdir)/include \
 bgpparser_LDADD   = ../parser/libbgpparser.la
 
 AM_LDFLAGS = \
+	-static-libtool-libs \
 	$(log4cxx_LIBS) \
 	$(BOOST_LDFLAGS) \
 		$(BOOST_SYSTEM_LIB) \
@@ -16,6 +17,6 @@ AM_LDFLAGS = \
 bin_PROGRAMS = bgpparser
 
 bgpparser_SOURCES = \
-AsciiVisitor.cpp AsciiBGPVisitor.cpp AsciiAttrsVisitor.cpp \
+AsciiVisitor.cpp AsciiBGPVisitor.cpp ASSegmentVisitor.cpp \
 main.cpp
 
