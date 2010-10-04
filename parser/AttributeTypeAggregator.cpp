@@ -31,13 +31,11 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeAggregator.h"
-#include "Exceptions.h"
 
 #include <iostream>
 
 using namespace std;
 
-#include <boost/iostreams/read.hpp>
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr AttributeTypeAggregator::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeAggregator" );

@@ -29,12 +29,13 @@
 #ifndef _BGPPARSER_H_
 #define _BGPPARSER_H_
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <iostream>
 #include <string>
+#include <list>
+#include <vector>
+#include <sstream>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/asio/ip/address_v4.hpp>
@@ -50,6 +51,11 @@
 #include "parsers/Node.h"
 
 #include "Exceptions.h"
+
+#include <boost/iostreams/read.hpp>
+#include <boost/iostreams/skip.hpp>
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
 
 #ifdef LOG4CXX
 #include <log4cxx/logger.h>
@@ -173,14 +179,27 @@ inline std::string FORMAT_IP_ADDRESS( IPAddress addr, int afi )
 	std::string addr_str;
 	switch( afi )
 	{
-		case AFI_IPv4:
-			addr_str=FORMAT_IPv4_ADDRESS( addr.ipv4 );
-			break;
 		case AFI_IPv6:
 			addr_str=FORMAT_IPv6_ADDRESS( addr.ipv6 );
 			break;
+		default:
+		case AFI_IPv4:
+			addr_str=FORMAT_IPv4_ADDRESS( addr.ipv4 );
+			break;
 	}
 	return addr_str;
+}
+
+inline std::ostream& operator<<( std::ostream &os, const in_addr &ipv4 )
+{
+	return os << boost::asio::ip::address_v4( ntohl(ipv4.s_addr) );
+}
+
+inline std::ostream& operator<<( std::ostream &os, const in6_addr &ipv6 )
+{
+	boost::asio::ip::address_v6::bytes_type ip;
+	std::copy( ipv6.s6_addr, ipv6.s6_addr+16, ip.begin() );
+	return os << boost::asio::ip::address_v6( ip );
 }
 
 #endif

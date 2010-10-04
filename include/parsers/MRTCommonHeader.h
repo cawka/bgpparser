@@ -30,7 +30,6 @@
 #define _MRTCOMMONHEADER_H_
 
 #include "MRTStructure.h"
-#include <iostream>
 
 /* the MRTCommonHeader is a MRTMessage */
 typedef class MRTCommonHeader	MRTMessage;

@@ -30,15 +30,10 @@
 #include <bgpparser.h>
 
 #include "MRTTblDumpV2PeerIndexTbl.h"
-#include "Exceptions.h"
-
-#include <sstream>
-
-#include <boost/iostreams/read.hpp>
-#include <boost/iostreams/skip.hpp>
-namespace io = boost::iostreams;
 
 using namespace std;
+namespace io = boost::iostreams;
+
 
 log4cxx::LoggerPtr MRTTblDumpV2PeerIndexTbl::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2PeerIndexTbl" );
 

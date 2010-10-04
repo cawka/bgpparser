@@ -30,19 +30,7 @@
 #define _MRTTBLDUMPV2PEERINDEXTBL_H_
 
 #include "MRTCommonHeader.h"
-
-#include <vector>
-
-#ifdef WIN32
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#else
-#include <netinet/in.h>
-#endif	/* WIN32 */
-
 #include "MRTStructure.h"
-
-#include <list>
 
 /* MRT type TABLE_DUMP_V2 and subtype PEER_INDEX_TABLE */
 class MRTTblDumpV2PeerIndexTbl :

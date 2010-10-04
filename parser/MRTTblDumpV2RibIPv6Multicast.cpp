@@ -30,11 +30,8 @@
 #include <bgpparser.h>
 
 #include "MRTTblDumpV2RibIPv6Multicast.h"
-#include "Exceptions.h"
-using namespace std;
 
-#include <boost/iostreams/read.hpp>
-#include <boost/iostreams/skip.hpp>
+using namespace std;
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr MRTTblDumpV2RibIPv6Multicast::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibIPv6Multicast" );

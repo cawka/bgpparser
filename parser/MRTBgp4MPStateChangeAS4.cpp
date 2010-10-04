@@ -30,11 +30,8 @@
 #include <bgpparser.h>
 
 #include "MRTBgp4MPStateChangeAS4.h"
-#include "Exceptions.h"
 
 using namespace std;
-
-#include <boost/iostreams/read.hpp>
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr MRTBgp4MPStateChangeAS4::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTBgp4MPStateChangeAS4" );

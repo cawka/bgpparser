@@ -32,13 +32,6 @@
 #include "MRTCommonHeader.h"
 #include "BGPCommonHeader.h"
 
-#ifdef WIN32
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#else
-#include <netinet/in.h>
-#endif	/* WIN32 */
-
 #include "MRTStructure.h"
 
 /* MRT type BGP4MP and subtype BGP4MP_MESSAGE */

@@ -97,7 +97,7 @@ class DepthFirstVisitor : public Visitor
 
 	virtual void visit( MRTBgp4MPStateChangeAS4 &n 		)
 	{
-		static_cast<MRTBgp4MPStateChangeAS4>( n ).accept( *this );
+		static_cast<MRTBgp4MPStateChange>( n ).accept( *this );
 	}
 
 	virtual void visit( MRTTblDump &n 					)
@@ -116,6 +116,11 @@ class DepthFirstVisitor : public Visitor
 //		n.getPeerIP( )
 //		n.getPeerAS( )
 //		n.getAttributeLength( )
+
+		BOOST_FOREACH( const BGPAttributePtr &attr, n.getAttributes() )
+		{
+			attr->accept( *this );
+		}
 	}
 
 	virtual void visit( MRTTblDumpV2PeerIndexTbl &n 		)

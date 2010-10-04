@@ -31,13 +31,9 @@
 #include <bgpparser.h>
 
 #include "BGPNotification.h"
-#include "Exceptions.h"
-
-#include <boost/iostreams/read.hpp>
-#include <boost/iostreams/skip.hpp>
-namespace io = boost::iostreams;
 
 using namespace std;
+namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr BGPNotification::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPNotification" );
 

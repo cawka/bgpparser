@@ -28,11 +28,8 @@
 #include <bgpparser.h>
 
 #include "MRTBgp4MPMessageAS4.h"
-#include "Exceptions.h"
 
 using namespace std;
-
-#include <boost/iostreams/read.hpp>
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr MRTBgp4MPMessageAS4::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTBgp4MPMessageAS4" );

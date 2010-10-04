@@ -3,10 +3,7 @@
 
 #include "OptionalParameter.h"
 #include "OptionalParameterCapabilities.h"
-#include "Exceptions.h"
 
-#include <boost/iostreams/read.hpp>
-#include <boost/iostreams/skip.hpp>
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr OptionalParameter::Logger = log4cxx::Logger::getLogger( "bgpparser.OptionalParameter" );

@@ -30,17 +30,7 @@
 #define _MRTTBLDUMPV2RIBGENERIC_H_
 
 #include "MRTTblDumpV2RibHeader.h"
-
-#ifdef WIN32
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#else
-#include <netinet/in.h>
-#endif	/* WIN32 */
-
 #include "MRTStructure.h"
-
-#include <list>
 
 class MRTTblDumpV2RibGeneric :
 	public MRTTblDumpV2RibHeader

@@ -31,9 +31,7 @@
 
 #include "BGPOpen.h"
 #include "OptionalParameterCapabilities.h"
-#include "Exceptions.h"
 
-#include <boost/iostreams/read.hpp>
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr BGPOpen::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPOpen" );

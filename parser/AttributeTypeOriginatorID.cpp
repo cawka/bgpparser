@@ -30,11 +30,8 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeOriginatorID.h"
-#include "Exceptions.h"
 
 using namespace std;
-
-#include <boost/iostreams/read.hpp>
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr AttributeTypeOriginatorID::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeOriginatorID" );

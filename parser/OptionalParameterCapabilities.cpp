@@ -2,11 +2,8 @@
 #include <bgpparser.h>
 
 #include "OptionalParameterCapabilities.h"
-#include "Exceptions.h"
 
 using namespace std;
-
-#include <boost/iostreams/read.hpp>
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr OptionalParameterCapabilities::Logger = log4cxx::Logger::getLogger( "bgpparser.OptionalParameterCapabilities" );

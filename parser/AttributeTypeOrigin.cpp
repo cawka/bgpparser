@@ -31,10 +31,8 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeOrigin.h"
-#include "Exceptions.h"
-using namespace std;
 
-#include <boost/iostreams/read.hpp>
+using namespace std;
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr AttributeTypeOrigin::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeOrigin" );
@@ -45,6 +43,7 @@ AttributeTypeOrigin::AttributeTypeOrigin( AttributeType &header, istream &input 
 	LOG4CXX_TRACE(Logger,"");
 	bool error= sizeof(uint8_t)!=
 				io::read( input, reinterpret_cast<char*>(&origin), sizeof(uint8_t) );
+
 	if( error )
 	{
 		LOG4CXX_ERROR( Logger, "Parsing error" );

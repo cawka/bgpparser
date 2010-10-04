@@ -30,11 +30,8 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeClusterList.h"
-#include "Exceptions.h"
 
 using namespace std;
-
-#include <boost/iostreams/read.hpp>
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr AttributeTypeClusterList::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeClusterList" );

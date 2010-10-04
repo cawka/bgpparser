@@ -33,7 +33,6 @@
 
 #include "BGPCommonHeader.h"
 #include "BGPStructure.h"
-#include <list>
 
 class BGPUpdate: public BGPCommonHeader
 {

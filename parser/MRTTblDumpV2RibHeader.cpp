@@ -38,12 +38,8 @@
 #include "AttributeTypeAggregator.h"
 #include "AttributeTypeAS4Aggregator.h"
 
-#include "Exceptions.h"
-
-#include <boost/iostreams/read.hpp>
-namespace io=boost::iostreams;
-
 using namespace std;
+namespace io=boost::iostreams;
 
 log4cxx::LoggerPtr MRTTblDumpV2RibHeader::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibHeader" );
 

@@ -30,19 +30,9 @@
 #define _MRTTBLDUMPV2RIBHEADER_H_
 
 #include "MRTCommonHeader.h"
-
-#ifdef WIN32
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#else
-#include <netinet/in.h>
-#endif	/* WIN32 */
-
-#include "MRTStructure.h"
 #include "MRTTblDumpV2PeerIndexTbl.h"
 #include "TblDumpV2RibEntry.h"
 
-#include <list>
 
 class MRTTblDumpV2RibHeader :
 	public MRTCommonHeader
@@ -63,6 +53,7 @@ public:
 
 	static void setPeerIndexTbl(MRTTblDumpV2PeerIndexTblPtr peerIndexTbl) { MRTTblDumpV2RibHeader::_peerIndexTbl = peerIndexTbl; }
 	static MRTTblDumpV2PeerIndexTblPtr getPeerIndexTbl() { return MRTTblDumpV2RibHeader::_peerIndexTbl; }
+	static const MRTTblDumpV2PeerIndexTblPeerEntryPtr getPeer( uint16_t peerIndex ) { return MRTTblDumpV2RibHeader::_peerIndexTbl->getPeer( peerIndex ); }
 
 	virtual void printMe();
 	virtual void printMe( const MRTTblDumpV2PeerIndexTblPtr& );

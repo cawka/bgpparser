@@ -31,13 +31,8 @@
 #include <bgpparser.h>
 
 #include "BGPAttribute.h"
-#include "Exceptions.h"
-using namespace std;
 
-#include <boost/iostreams/read.hpp>
-#include <boost/iostreams/skip.hpp>
-#include <boost/iostreams/device/array.hpp>
-#include <boost/iostreams/stream.hpp>
+using namespace std;
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr BGPAttribute::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPAttribute" );

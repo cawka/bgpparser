@@ -30,12 +30,8 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeMPUnreachNLRI.h"
-#include "Exceptions.h"
-using namespace std;
 
-#include <boost/iostreams/read.hpp>
-#include <boost/iostreams/skip.hpp>
-#include <boost/foreach.hpp>
+using namespace std;
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr AttributeTypeMPUnreachNLRI::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeMPUnreachNLRI" );

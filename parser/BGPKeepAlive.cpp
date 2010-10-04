@@ -30,6 +30,7 @@
 #include <bgpparser.h>
 
 #include "BGPKeepAlive.h"
+
 using namespace std;
 
 log4cxx::LoggerPtr BGPKeepAlive::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPKeepAlive" );

@@ -30,9 +30,7 @@
 #include <bgpparser.h>
 
 #include "MRTTblDumpV2RibGeneric.h"
-#include "Exceptions.h"
 
-#include <boost/iostreams/read.hpp>
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr MRTTblDumpV2RibGeneric::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibGeneric" );

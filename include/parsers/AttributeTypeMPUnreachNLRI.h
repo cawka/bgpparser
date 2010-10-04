@@ -32,8 +32,6 @@
 #include "AttributeType.h"
 #include "BGPStructure.h"
 
-#include <list>
-
 class AttributeTypeMPUnreachNLRI :
 	public AttributeType
 {

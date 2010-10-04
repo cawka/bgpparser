@@ -31,7 +31,7 @@
 #include <bgpparser.h>
 
 #include "MRTTblDumpV2RibIPv4Unicast.h"
-#include "Exceptions.h"
+
 using namespace std;
 
 log4cxx::LoggerPtr MRTTblDumpV2RibIPv4Unicast::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibIPv4Unicast" );

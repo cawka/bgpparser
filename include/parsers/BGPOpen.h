@@ -32,7 +32,6 @@
 
 #include "BGPCommonHeader.h"
 #include "OptionalParameter.h"
-#include <list>
 
 class BGPOpen : public BGPCommonHeader
 {

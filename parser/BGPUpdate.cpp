@@ -35,11 +35,8 @@
 #include "AttributeTypeAS4Path.h"
 #include "AttributeTypeAggregator.h"
 #include "AttributeTypeAS4Aggregator.h"
-#include "Exceptions.h"
-using namespace std;
 
-#include <boost/iostreams/read.hpp>
-#include <boost/iostreams/skip.hpp>
+using namespace std;
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr BGPUpdate::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPUpdate" );
@@ -82,7 +79,7 @@ BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4 )
 			throw BGPError( );
 		}
 
-		boost::shared_ptr<Route> wRoute=boost::shared_ptr<Route>( new Route( prefixLen, input ) );
+		NLRIUnReachablePtr wRoute = NLRIUnReachablePtr(new NLRIUnReachable( prefixLen, input ));
 		withdrawnRoutes.push_back( wRoute );
 
 		left -= 1+wRoute->getNumOctets( );
@@ -101,7 +98,7 @@ BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4 )
 	left=pathAttributesLength;
 	while( left>0 )
 	{
-		boost::shared_ptr<BGPAttribute> attrib = boost::shared_ptr<BGPAttribute>( new BGPAttribute(input, isAS4) );
+		BGPAttributePtr attrib = BGPAttributePtr(new BGPAttribute(input, isAS4));
 
 		if( attrib->getAttributeValue( ).get() == NULL )
 		{
@@ -185,7 +182,7 @@ BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4 )
 			throw BGPError( );
 		}
 
-		boost::shared_ptr<Route> aRoute=boost::shared_ptr<Route>( new Route( prefixLen, input ) );
+		NLRIReachablePtr aRoute = NLRIReachablePtr(new NLRIReachable( prefixLen, input ));
 		announcedRoutes.push_back( aRoute );
 
 		left -= 1+aRoute->getNumOctets( );

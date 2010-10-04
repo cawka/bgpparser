@@ -32,7 +32,6 @@
 #define _ATTRIBUTETYPE_H_
 
 #include "BGPStructure.h"
-#include <string>
 
 class AttributeType;
 typedef boost::shared_ptr<AttributeType> AttributeTypePtr;

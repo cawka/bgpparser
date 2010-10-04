@@ -33,8 +33,6 @@
 
 #include "AttributeType.h"
 
-#include <list>
-
 #define COMMUNITY_NO_EXPORT             0xFFFFFF01
 #define COMMUNITY_NO_ADVERTISE          0xFFFFFF02
 #define COMMUNITY_NO_EXPORT_SUBCONFED   0xFFFFFF03

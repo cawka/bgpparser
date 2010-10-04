@@ -1,6 +1,6 @@
 
 #ifndef _GJVOIDDEPTHFIRST_H_
-#define _GKVOIDDEPTHFIRST_H_
+#define _GJVOIDDEPTHFIRST_H_
 
 #include "GJVoidVisitor.h"
 
@@ -48,7 +48,8 @@
 
 class GJVoidDepthFirst : public GJVoidVisitor
 {
-	virtual void visit( MRTCommonHeader &n, boost::any &param )
+public:
+	virtual void visit( MRTCommonHeader &n, boost::any param )
 	{
 //		n.getTimestamp( )
 //		n.getType( )
@@ -56,7 +57,7 @@ class GJVoidDepthFirst : public GJVoidVisitor
 //		n.getLength( )
 	}
 
-	virtual void visit( MRTBgp4MPMessage &n, boost::any &param )
+	virtual void visit( MRTBgp4MPMessage &n, boost::any param )
 	{
 //		n.getTimestamp( )
 //		n.getType( )
@@ -73,12 +74,12 @@ class GJVoidDepthFirst : public GJVoidVisitor
 		n.getPayload()->accept( *this, param );
 	}
 
-	virtual void visit( MRTBgp4MPMessageAS4 &n, boost::any &param )
+	virtual void visit( MRTBgp4MPMessageAS4 &n, boost::any param )
 	{
 		static_cast<MRTBgp4MPMessage>( n ).accept( *this, param );
 	}
 
-	virtual void visit( MRTBgp4MPStateChange &n, boost::any &param )
+	virtual void visit( MRTBgp4MPStateChange &n, boost::any param )
 	{
 //		n.getTimestamp( )
 //		n.getType( )
@@ -95,12 +96,12 @@ class GJVoidDepthFirst : public GJVoidVisitor
 //		n.getNewState( )
 	}
 
-	virtual void visit( MRTBgp4MPStateChangeAS4 &n, boost::any &param )
+	virtual void visit( MRTBgp4MPStateChangeAS4 &n, boost::any param )
 	{
-		static_cast<MRTBgp4MPStateChangeAS4>( n ).accept( *this, param );
+		static_cast<MRTBgp4MPStateChange>( n ).accept( *this, param );
 	}
 
-	virtual void visit( MRTTblDump &n, boost::any &param )
+	virtual void visit( MRTTblDump &n, boost::any param )
 	{
 //		n.getTimestamp( )
 //		n.getType( )
@@ -116,9 +117,14 @@ class GJVoidDepthFirst : public GJVoidVisitor
 //		n.getPeerIP( )
 //		n.getPeerAS( )
 //		n.getAttributeLength( )
+
+		BOOST_FOREACH( const BGPAttributePtr &attr, n.getAttributes() )
+		{
+			attr->accept( *this, param );
+		}
 	}
 
-	virtual void visit( MRTTblDumpV2PeerIndexTbl &n, boost::any &param )
+	virtual void visit( MRTTblDumpV2PeerIndexTbl &n, boost::any param )
 	{
 //		n.getTimestamp( )
 //		n.getType( )
@@ -131,7 +137,7 @@ class GJVoidDepthFirst : public GJVoidVisitor
 //		n.getPeerEntries( )
 	}
 
-	virtual void visit( MRTTblDumpV2RibHeader &n, boost::any &param )
+	virtual void visit( MRTTblDumpV2RibHeader &n, boost::any param )
 	{
 //		n.getTimestamp( )
 //		n.getType( )
@@ -153,28 +159,28 @@ class GJVoidDepthFirst : public GJVoidVisitor
 		}
 	}
 
-	virtual void visit( MRTTblDumpV2RibGeneric &n, boost::any &param )
+	virtual void visit( MRTTblDumpV2RibGeneric &n, boost::any param )
 	{
 		static_cast<MRTTblDumpV2RibHeader>( n ).accept( *this, param );
 	}
-	virtual void visit( MRTTblDumpV2RibIPv4Multicast &n, boost::any &param )
+	virtual void visit( MRTTblDumpV2RibIPv4Multicast &n, boost::any param )
 	{
 		static_cast<MRTTblDumpV2RibHeader>( n ).accept( *this, param );
 	}
-	virtual void visit( MRTTblDumpV2RibIPv4Unicast &n, boost::any &param )
+	virtual void visit( MRTTblDumpV2RibIPv4Unicast &n, boost::any param )
 	{
 		static_cast<MRTTblDumpV2RibHeader>( n ).accept( *this, param );
 	}
-	virtual void visit( MRTTblDumpV2RibIPv6Multicast &n, boost::any &param )
+	virtual void visit( MRTTblDumpV2RibIPv6Multicast &n, boost::any param )
 	{
 		static_cast<MRTTblDumpV2RibHeader>( n ).accept( *this, param );
 	}
-	virtual void visit( MRTTblDumpV2RibIPv6Unicast &n, boost::any &param )
+	virtual void visit( MRTTblDumpV2RibIPv6Unicast &n, boost::any param )
 	{
 		static_cast<MRTTblDumpV2RibHeader>( n ).accept( *this, param );
 	}
 
-	virtual void visit( TblDumpV2RibEntry &n, boost::any &param )
+	virtual void visit( TblDumpV2RibEntry &n, boost::any param )
 	{
 //		n.getPeerIndex( )
 //		n.getOriginatedTime( )
@@ -186,21 +192,21 @@ class GJVoidDepthFirst : public GJVoidVisitor
 		}
 	}
 
-	virtual void visit( BGPCommonHeader &n, boost::any &param )
+	virtual void visit( BGPCommonHeader &n, boost::any param )
 	{
 //		n.getMarker()
 //		n.getLength()
 //		n.getType()
 	}
 
-	virtual void visit( BGPKeepAlive &n, boost::any &param )
+	virtual void visit( BGPKeepAlive &n, boost::any param )
 	{
 //		n.getMarker()
 //		n.getLength()
 //		n.getType()
 	}
 
-	virtual void visit( BGPNotification &n, boost::any &param )
+	virtual void visit( BGPNotification &n, boost::any param )
 	{
 //		n.getMarker()
 //		n.getLength()
@@ -211,7 +217,7 @@ class GJVoidDepthFirst : public GJVoidVisitor
 //		n.getData( )
 	}
 
-	virtual void visit( BGPOpen &n, boost::any &param )
+	virtual void visit( BGPOpen &n, boost::any param )
 	{
 //		n.getMarker()
 //		n.getLength()
@@ -224,12 +230,12 @@ class GJVoidDepthFirst : public GJVoidVisitor
 //		n.getOptParmLen( )
 //		n.isAS4Supported( )
 
-		BOOST_FOREACH( const OptionalParameterPtr &param, n.getOptParams( ) )
+		BOOST_FOREACH( const OptionalParameterPtr &optparam, n.getOptParams( ) )
 		{
-			param->accept( *this, param );
+			optparam->accept( *this, param );
 		}
 	}
-	virtual void visit( BGPRouteRefresh &n, boost::any &param )
+	virtual void visit( BGPRouteRefresh &n, boost::any param )
 	{
 //		n.getMarker()
 //		n.getLength()
@@ -239,7 +245,7 @@ class GJVoidDepthFirst : public GJVoidVisitor
 //		n.getRes( )
 //		n.getSafi( )
 	}
-	virtual void visit( BGPUpdate &n, boost::any &param )
+	virtual void visit( BGPUpdate &n, boost::any param )
 	{
 //		n.getMarker()
 //		n.getLength()
@@ -265,7 +271,7 @@ class GJVoidDepthFirst : public GJVoidVisitor
 		}
 	}
 
-	virtual void visit( BGPAttribute &n, boost::any &param )
+	virtual void visit( BGPAttribute &n, boost::any param )
 	{
 //		n.getAttributeFlags( )
 //		n.getAttributeTypeCode( )
@@ -275,13 +281,13 @@ class GJVoidDepthFirst : public GJVoidVisitor
 		n.getAttributeValue()->accept( *this, param );
 	}
 
-	virtual void visit( AttributeType &n, boost::any &param )
+	virtual void visit( AttributeType &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
 //		n.getAS4( )
 	}
-	virtual void visit( AttributeTypeAS4Aggregator &n, boost::any &param )
+	virtual void visit( AttributeTypeAS4Aggregator &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -290,7 +296,7 @@ class GJVoidDepthFirst : public GJVoidVisitor
 //		n.getAggregatorLastAS( )
 //		n.getAggregatorBGPSpeakerIPAddress( )
 	}
-	virtual void visit( AttributeTypeASPath &n, boost::any &param )
+	virtual void visit( AttributeTypeASPath &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -302,13 +308,13 @@ class GJVoidDepthFirst : public GJVoidVisitor
 			segment->accept( *this, param );
 		}
 	}
-	virtual void visit( AttributeTypeASPathSegment &n, boost::any &param )
+	virtual void visit( AttributeTypeASPathSegment &n, boost::any param )
 	{
 //		n.getPathSegmentType( )
 //		n.getPathSegmentLength( )
 //		n.getPathSegmentValue( )
 	}
-	virtual void visit( AttributeTypeAS4Path &n, boost::any &param )
+	virtual void visit( AttributeTypeAS4Path &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -319,13 +325,13 @@ class GJVoidDepthFirst : public GJVoidVisitor
 			segment->accept( *this, param );
 		}
 	}
-	virtual void visit( AttributeTypeAS4PathSegment &n, boost::any &param )
+	virtual void visit( AttributeTypeAS4PathSegment &n, boost::any param )
 	{
 //		n.getPathSegmentType( )
 //		n.getPathSegmentLength( )
 //		n.getPathSegmentValue( )
 	}
-	virtual void visit( AttributeTypeAggregator &n, boost::any &param )
+	virtual void visit( AttributeTypeAggregator &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -335,13 +341,13 @@ class GJVoidDepthFirst : public GJVoidVisitor
 //		n.getAggregatorLastASComplete( )
 //		n.getAggregatorBGPSpeakerIPAddress( )
 	}
-	virtual void visit( AttributeTypeAtomicAggregate &n, boost::any &param )
+	virtual void visit( AttributeTypeAtomicAggregate &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
 //		n.getAS4( )
 	}
-	virtual void visit( AttributeTypeClusterList &n, boost::any &param )
+	virtual void visit( AttributeTypeClusterList &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -349,7 +355,7 @@ class GJVoidDepthFirst : public GJVoidVisitor
 
 //		n.getClusterList( )
 	}
-	virtual void visit( AttributeTypeCommunities &n, boost::any &param )
+	virtual void visit( AttributeTypeCommunities &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -357,7 +363,7 @@ class GJVoidDepthFirst : public GJVoidVisitor
 
 //		n.getCommunityValues( )
 	}
-	virtual void visit( AttributeTypeExtCommunities &n, boost::any &param )
+	virtual void visit( AttributeTypeExtCommunities &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -365,7 +371,7 @@ class GJVoidDepthFirst : public GJVoidVisitor
 
 //		n.getExtCommunityValues( )
 	}
-	virtual void visit( AttributeTypeLocalPref &n, boost::any &param )
+	virtual void visit( AttributeTypeLocalPref &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -373,7 +379,7 @@ class GJVoidDepthFirst : public GJVoidVisitor
 
 //		n.getLocalPrefValue( )
 	}
-	virtual void visit( AttributeTypeMPReachNLRI &n, boost::any &param )
+	virtual void visit( AttributeTypeMPReachNLRI &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -395,7 +401,7 @@ class GJVoidDepthFirst : public GJVoidVisitor
 			route->accept( *this, param );
 		}
 	}
-	virtual void visit( AttributeTypeMPUnreachNLRI &n, boost::any &param )
+	virtual void visit( AttributeTypeMPUnreachNLRI &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -409,7 +415,7 @@ class GJVoidDepthFirst : public GJVoidVisitor
 			route->accept( *this, param );
 		}
 	}
-	virtual void visit( AttributeTypeMultiExitDisc &n, boost::any &param )
+	virtual void visit( AttributeTypeMultiExitDisc &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -417,7 +423,7 @@ class GJVoidDepthFirst : public GJVoidVisitor
 
 //		n.getMultiExitDiscValue( )
 	}
-	virtual void visit( AttributeTypeNextHop &n, boost::any &param )
+	virtual void visit( AttributeTypeNextHop &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -426,7 +432,7 @@ class GJVoidDepthFirst : public GJVoidVisitor
 //		n.getNextHopIPAddress( )
 //		n.getNextHopAFI( )
 	}
-	virtual void visit( AttributeTypeOrigin &n, boost::any &param )
+	virtual void visit( AttributeTypeOrigin &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -434,7 +440,7 @@ class GJVoidDepthFirst : public GJVoidVisitor
 
 //		n.getOrigin( )
 	}
-	virtual void visit( AttributeTypeOriginatorID &n, boost::any &param )
+	virtual void visit( AttributeTypeOriginatorID &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -443,12 +449,12 @@ class GJVoidDepthFirst : public GJVoidVisitor
 //		n.getOrigin( )
 	}
 
-	virtual void visit( OptionalParameter &n, boost::any &param )
+	virtual void visit( OptionalParameter &n, boost::any param )
 	{
 //		n.getType( )
 //		n.getLength( )
 	}
-	virtual void visit( OptionalParameterCapabilities &n, boost::any &param )
+	virtual void visit( OptionalParameterCapabilities &n, boost::any param )
 	{
 //		n.getType( )
 //		n.getLength( )
@@ -458,7 +464,7 @@ class GJVoidDepthFirst : public GJVoidVisitor
 //		n.getCapValue( )
 	}
 
-	virtual void visit( Route &n, boost::any &param )
+	virtual void visit( Route &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getPrefix( )
@@ -466,14 +472,14 @@ class GJVoidDepthFirst : public GJVoidVisitor
 //		+ helper methods available, see Route
 	}
 
-	virtual void visit( NLRIReachable &n, boost::any &param )
+	virtual void visit( NLRIReachable &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getPrefix( )
 //		n.getNumOctets( )
 //		+ helper methods available, see Route
 	}
-	virtual void visit( NLRIUnReachable &n, boost::any &param )
+	virtual void visit( NLRIUnReachable &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getPrefix( )

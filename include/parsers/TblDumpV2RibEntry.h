@@ -32,8 +32,6 @@
 #include "MRTTblDumpV2PeerIndexTbl.h"
 #include "BGPAttribute.h"
 
-#include <list>
-
 class TblDumpV2RibEntry : public Node
 {
 public:

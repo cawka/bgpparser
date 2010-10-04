@@ -30,7 +30,6 @@
 #include <bgpparser.h>
 
 #include "BGPCommonHeader.h"
-#include "Exceptions.h"
 
 #include "BGPOpen.h"
 #include "BGPUpdate.h"
@@ -38,13 +37,8 @@
 #include "BGPNotification.h"
 #include "BGPRouteRefresh.h"
 
-#include <boost/iostreams/read.hpp>
-#include <boost/iostreams/skip.hpp>
-#include <boost/iostreams/device/array.hpp>
-#include <boost/iostreams/stream.hpp>
-namespace io = boost::iostreams;
-
 using namespace std;
+namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr BGPCommonHeader::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPCommonHeader" );
 

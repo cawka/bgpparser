@@ -1,6 +1,6 @@
 
 #ifndef _GJDEPTHFIRST_H_
-#define _GKDEPTHFIRST_H_
+#define _GJDEPTHFIRST_H_
 
 #include "GJVisitor.h"
 
@@ -48,7 +48,7 @@
 
 class GJDepthFirst : public GJVisitor
 {
-	virtual boost::any& visit( MRTCommonHeader &n, boost::any &param )
+	virtual boost::any visit( MRTCommonHeader &n, boost::any param )
 	{
 //		n.getTimestamp( )
 //		n.getType( )
@@ -57,7 +57,7 @@ class GJDepthFirst : public GJVisitor
 		return boost::any();
 	}
 
-	virtual boost::any& visit( MRTBgp4MPMessage &n, boost::any &param )
+	virtual boost::any visit( MRTBgp4MPMessage &n, boost::any param )
 	{
 //		n.getTimestamp( )
 //		n.getType( )
@@ -74,12 +74,12 @@ class GJDepthFirst : public GJVisitor
 		return n.getPayload()->accept( *this, param );
 	}
 
-	virtual boost::any& visit( MRTBgp4MPMessageAS4 &n, boost::any &param )
+	virtual boost::any visit( MRTBgp4MPMessageAS4 &n, boost::any param )
 	{
 		return static_cast<MRTBgp4MPMessage>( n ).accept( *this, param );
 	}
 
-	virtual boost::any& visit( MRTBgp4MPStateChange &n, boost::any &param )
+	virtual boost::any visit( MRTBgp4MPStateChange &n, boost::any param )
 	{
 //		n.getTimestamp( )
 //		n.getType( )
@@ -97,12 +97,12 @@ class GJDepthFirst : public GJVisitor
 		return boost::any();
 	}
 
-	virtual boost::any& visit( MRTBgp4MPStateChangeAS4 &n, boost::any &param )
+	virtual boost::any visit( MRTBgp4MPStateChangeAS4 &n, boost::any param )
 	{
-		return static_cast<MRTBgp4MPStateChangeAS4>( n ).accept( *this, param );
+		return static_cast<MRTBgp4MPStateChange>( n ).accept( *this, param );
 	}
 
-	virtual boost::any& visit( MRTTblDump &n, boost::any &param )
+	virtual boost::any visit( MRTTblDump &n, boost::any param )
 	{
 //		n.getTimestamp( )
 //		n.getType( )
@@ -118,10 +118,16 @@ class GJDepthFirst : public GJVisitor
 //		n.getPeerIP( )
 //		n.getPeerAS( )
 //		n.getAttributeLength( )
+
+		BOOST_FOREACH( const BGPAttributePtr &attr, n.getAttributes() )
+		{
+			attr->accept( *this, param );
+		}
+
 		return boost::any();
 	}
 
-	virtual boost::any& visit( MRTTblDumpV2PeerIndexTbl &n, boost::any &param )
+	virtual boost::any visit( MRTTblDumpV2PeerIndexTbl &n, boost::any param )
 	{
 //		n.getTimestamp( )
 //		n.getType( )
@@ -135,7 +141,7 @@ class GJDepthFirst : public GJVisitor
 		return boost::any();
 	}
 
-	virtual boost::any& visit( MRTTblDumpV2RibHeader &n, boost::any &param )
+	virtual boost::any visit( MRTTblDumpV2RibHeader &n, boost::any param )
 	{
 //		n.getTimestamp( )
 //		n.getType( )
@@ -158,28 +164,28 @@ class GJDepthFirst : public GJVisitor
 		return boost::any();
 	}
 
-	virtual boost::any& visit( MRTTblDumpV2RibGeneric &n, boost::any &param )
+	virtual boost::any visit( MRTTblDumpV2RibGeneric &n, boost::any param )
 	{
 		return static_cast<MRTTblDumpV2RibHeader>( n ).accept( *this, param );
 	}
-	virtual boost::any& visit( MRTTblDumpV2RibIPv4Multicast &n, boost::any &param )
+	virtual boost::any visit( MRTTblDumpV2RibIPv4Multicast &n, boost::any param )
 	{
 		return static_cast<MRTTblDumpV2RibHeader>( n ).accept( *this, param );
 	}
-	virtual boost::any& visit( MRTTblDumpV2RibIPv4Unicast &n, boost::any &param )
+	virtual boost::any visit( MRTTblDumpV2RibIPv4Unicast &n, boost::any param )
 	{
 		return static_cast<MRTTblDumpV2RibHeader>( n ).accept( *this, param );
 	}
-	virtual boost::any& visit( MRTTblDumpV2RibIPv6Multicast &n, boost::any &param )
+	virtual boost::any visit( MRTTblDumpV2RibIPv6Multicast &n, boost::any param )
 	{
 		return static_cast<MRTTblDumpV2RibHeader>( n ).accept( *this, param );
 	}
-	virtual boost::any& visit( MRTTblDumpV2RibIPv6Unicast &n, boost::any &param )
+	virtual boost::any visit( MRTTblDumpV2RibIPv6Unicast &n, boost::any param )
 	{
 		return static_cast<MRTTblDumpV2RibHeader>( n ).accept( *this, param );
 	}
 
-	virtual boost::any& visit( TblDumpV2RibEntry &n, boost::any &param )
+	virtual boost::any visit( TblDumpV2RibEntry &n, boost::any param )
 	{
 //		n.getPeerIndex( )
 //		n.getOriginatedTime( )
@@ -193,7 +199,7 @@ class GJDepthFirst : public GJVisitor
 		return boost::any();
 	}
 
-	virtual boost::any& visit( BGPCommonHeader &n, boost::any &param )
+	virtual boost::any visit( BGPCommonHeader &n, boost::any param )
 	{
 //		n.getMarker()
 //		n.getLength()
@@ -201,7 +207,7 @@ class GJDepthFirst : public GJVisitor
 		return boost::any();
 	}
 
-	virtual boost::any& visit( BGPKeepAlive &n, boost::any &param )
+	virtual boost::any visit( BGPKeepAlive &n, boost::any param )
 	{
 //		n.getMarker()
 //		n.getLength()
@@ -209,7 +215,7 @@ class GJDepthFirst : public GJVisitor
 		return boost::any();
 	}
 
-	virtual boost::any& visit( BGPNotification &n, boost::any &param )
+	virtual boost::any visit( BGPNotification &n, boost::any param )
 	{
 //		n.getMarker()
 //		n.getLength()
@@ -221,7 +227,7 @@ class GJDepthFirst : public GJVisitor
 		return boost::any();
 	}
 
-	virtual boost::any& visit( BGPOpen &n, boost::any &param )
+	virtual boost::any visit( BGPOpen &n, boost::any param )
 	{
 //		n.getMarker()
 //		n.getLength()
@@ -234,13 +240,13 @@ class GJDepthFirst : public GJVisitor
 //		n.getOptParmLen( )
 //		n.isAS4Supported( )
 
-		BOOST_FOREACH( const OptionalParameterPtr &param, n.getOptParams( ) )
+		BOOST_FOREACH( const OptionalParameterPtr &optparam, n.getOptParams( ) )
 		{
-			param->accept( *this, param );
+			optparam->accept( *this, param );
 		}
 		return boost::any();
 	}
-	virtual boost::any& visit( BGPRouteRefresh &n, boost::any &param )
+	virtual boost::any visit( BGPRouteRefresh &n, boost::any param )
 	{
 //		n.getMarker()
 //		n.getLength()
@@ -251,7 +257,7 @@ class GJDepthFirst : public GJVisitor
 //		n.getSafi( )
 		return boost::any();
 	}
-	virtual boost::any& visit( BGPUpdate &n, boost::any &param )
+	virtual boost::any visit( BGPUpdate &n, boost::any param )
 	{
 //		n.getMarker()
 //		n.getLength()
@@ -278,7 +284,7 @@ class GJDepthFirst : public GJVisitor
 		return boost::any();
 	}
 
-	virtual boost::any& visit( BGPAttribute &n, boost::any &param )
+	virtual boost::any visit( BGPAttribute &n, boost::any param )
 	{
 //		n.getAttributeFlags( )
 //		n.getAttributeTypeCode( )
@@ -289,14 +295,14 @@ class GJDepthFirst : public GJVisitor
 		return boost::any();
 	}
 
-	virtual boost::any& visit( AttributeType &n, boost::any &param )
+	virtual boost::any visit( AttributeType &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
 //		n.getAS4( )
 		return boost::any();
 	}
-	virtual boost::any& visit( AttributeTypeAS4Aggregator &n, boost::any &param )
+	virtual boost::any visit( AttributeTypeAS4Aggregator &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -306,7 +312,7 @@ class GJDepthFirst : public GJVisitor
 //		n.getAggregatorBGPSpeakerIPAddress( )
 		return boost::any();
 	}
-	virtual boost::any& visit( AttributeTypeASPath &n, boost::any &param )
+	virtual boost::any visit( AttributeTypeASPath &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -320,19 +326,19 @@ class GJDepthFirst : public GJVisitor
 		return boost::any();
 	}
 
-	virtual boost::any& visit( AttributeTypeASPathSegment &n, boost::any &param )
+	virtual boost::any visit( AttributeTypeASPathSegment &n, boost::any param )
 	{
 //		n.getPathSegmentType( )
 //		n.getPathSegmentLength( )
 //		n.getPathSegmentValue( )
 		return boost::any();
 	}
-	virtual boost::any& visit( AttributeTypeAS4PathSegment &n, boost::any &param )
+	virtual boost::any visit( AttributeTypeAS4PathSegment &n, boost::any param )
 	{
 		return static_cast<AttributeTypeASPathSegment>( n ).accept( *this, param );
 	}
 
-	virtual boost::any& visit( AttributeTypeAS4Path &n, boost::any &param )
+	virtual boost::any visit( AttributeTypeAS4Path &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -345,7 +351,7 @@ class GJDepthFirst : public GJVisitor
 		return boost::any();
 	}
 
-	virtual boost::any& visit( AttributeTypeAggregator &n, boost::any &param )
+	virtual boost::any visit( AttributeTypeAggregator &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -356,14 +362,14 @@ class GJDepthFirst : public GJVisitor
 //		n.getAggregatorBGPSpeakerIPAddress( )
 		return boost::any();
 	}
-	virtual boost::any& visit( AttributeTypeAtomicAggregate &n, boost::any &param )
+	virtual boost::any visit( AttributeTypeAtomicAggregate &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
 //		n.getAS4( )
 		return boost::any();
 	}
-	virtual boost::any& visit( AttributeTypeClusterList &n, boost::any &param )
+	virtual boost::any visit( AttributeTypeClusterList &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -372,7 +378,7 @@ class GJDepthFirst : public GJVisitor
 //		n.getClusterList( )
 		return boost::any();
 	}
-	virtual boost::any& visit( AttributeTypeCommunities &n, boost::any &param )
+	virtual boost::any visit( AttributeTypeCommunities &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -381,7 +387,7 @@ class GJDepthFirst : public GJVisitor
 //		n.getCommunityValues( )
 		return boost::any();
 	}
-	virtual boost::any& visit( AttributeTypeExtCommunities &n, boost::any &param )
+	virtual boost::any visit( AttributeTypeExtCommunities &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -390,7 +396,7 @@ class GJDepthFirst : public GJVisitor
 //		n.getExtCommunityValues( )
 		return boost::any();
 	}
-	virtual boost::any& visit( AttributeTypeLocalPref &n, boost::any &param )
+	virtual boost::any visit( AttributeTypeLocalPref &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -399,7 +405,7 @@ class GJDepthFirst : public GJVisitor
 //		n.getLocalPrefValue( )
 		return boost::any();
 	}
-	virtual boost::any& visit( AttributeTypeMPReachNLRI &n, boost::any &param )
+	virtual boost::any visit( AttributeTypeMPReachNLRI &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -422,7 +428,7 @@ class GJDepthFirst : public GJVisitor
 		}
 		return boost::any();
 	}
-	virtual boost::any& visit( AttributeTypeMPUnreachNLRI &n, boost::any &param )
+	virtual boost::any visit( AttributeTypeMPUnreachNLRI &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -437,7 +443,7 @@ class GJDepthFirst : public GJVisitor
 		}
 		return boost::any();
 	}
-	virtual boost::any& visit( AttributeTypeMultiExitDisc &n, boost::any &param )
+	virtual boost::any visit( AttributeTypeMultiExitDisc &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -446,7 +452,7 @@ class GJDepthFirst : public GJVisitor
 //		n.getMultiExitDiscValue( )
 		return boost::any();
 	}
-	virtual boost::any& visit( AttributeTypeNextHop &n, boost::any &param )
+	virtual boost::any visit( AttributeTypeNextHop &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -456,7 +462,7 @@ class GJDepthFirst : public GJVisitor
 //		n.getNextHopAFI( )
 		return boost::any();
 	}
-	virtual boost::any& visit( AttributeTypeOrigin &n, boost::any &param )
+	virtual boost::any visit( AttributeTypeOrigin &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -465,7 +471,7 @@ class GJDepthFirst : public GJVisitor
 //		n.getOrigin( )
 		return boost::any();
 	}
-	virtual boost::any& visit( AttributeTypeOriginatorID &n, boost::any &param )
+	virtual boost::any visit( AttributeTypeOriginatorID &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getData( )
@@ -475,13 +481,13 @@ class GJDepthFirst : public GJVisitor
 		return boost::any();
 	}
 
-	virtual boost::any& visit( OptionalParameter &n, boost::any &param )
+	virtual boost::any visit( OptionalParameter &n, boost::any param )
 	{
 //		n.getType( )
 //		n.getLength( )
 		return boost::any();
 	}
-	virtual boost::any& visit( OptionalParameterCapabilities &n, boost::any &param )
+	virtual boost::any visit( OptionalParameterCapabilities &n, boost::any param )
 	{
 //		n.getType( )
 //		n.getLength( )
@@ -492,7 +498,7 @@ class GJDepthFirst : public GJVisitor
 		return boost::any();
 	}
 
-	virtual boost::any& visit( Route &n, boost::any &param )
+	virtual boost::any visit( Route &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getPrefix( )
@@ -501,7 +507,7 @@ class GJDepthFirst : public GJVisitor
 		return boost::any();
 	}
 
-	virtual boost::any& visit( NLRIReachable &n, boost::any &param )
+	virtual boost::any visit( NLRIReachable &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getPrefix( )
@@ -509,7 +515,7 @@ class GJDepthFirst : public GJVisitor
 //		+ helper methods available, see Route
 		return boost::any();
 	}
-	virtual boost::any& visit( NLRIUnReachable &n, boost::any &param )
+	virtual boost::any visit( NLRIUnReachable &n, boost::any param )
 	{
 //		n.getLength( )
 //		n.getPrefix( )

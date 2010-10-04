@@ -30,7 +30,7 @@
 #include <bgpparser.h>
 
 #include "MRTTblDumpV2RibIPv4Multicast.h"
-#include "Exceptions.h"
+
 using namespace std;
 
 MRTTblDumpV2RibIPv4Multicast::MRTTblDumpV2RibIPv4Multicast( MRTCommonHeader &header, std::istream &input )

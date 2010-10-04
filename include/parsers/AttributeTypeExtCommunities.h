@@ -34,8 +34,6 @@
 #include "AttributeType.h"
 #include "MRTStructure.h"
 
-#include <list>
-
 typedef struct ExtCommunityValue
 {
 	uint8_t		typeHigh;

@@ -32,18 +32,9 @@
 
 #include "MRTCommonHeader.h"
 
-#ifdef WIN32
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#else
-#include <netinet/in.h>
-#endif	/* WIN32 */
-
 #include "MRTStructure.h"
 #include "BGPAttribute.h"
 #include "MRTTblDumpV2RibHeader.h"
-
-#include <list>
 
 /* MRT type TABLE_DUMP */
 class MRTTblDump :

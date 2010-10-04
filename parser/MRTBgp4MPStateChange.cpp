@@ -30,11 +30,8 @@
 #include <bgpparser.h>
 
 #include "MRTBgp4MPStateChange.h"
-#include "Exceptions.h"
 
 using namespace std;
-
-#include <boost/iostreams/read.hpp>
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr MRTBgp4MPStateChange::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTBgp4MPStateChange" );
@@ -107,37 +104,6 @@ MRTBgp4MPStateChange::~MRTBgp4MPStateChange(void) {
 	/* nothing */
 }
 
-uint32_t MRTBgp4MPStateChange::getPeerAS(void) const {
-	return peerAS;
-}
-
-uint32_t MRTBgp4MPStateChange::getLocalAS(void) const {
-	return localAS;
-}
-
-uint16_t MRTBgp4MPStateChange::getInterfaceIndex(void) const {
-	return interfaceIndex;
-}
-
-uint16_t MRTBgp4MPStateChange::getAddressFamily(void) const {
-	return addressFamily;
-}
-
-IPAddress MRTBgp4MPStateChange::getPeerIP(void) const {
-	return peerIP;
-}
-
-IPAddress MRTBgp4MPStateChange::getLocalIP(void) const {
-	return localIP;
-}
-
-uint16_t MRTBgp4MPStateChange::getOldState(void) const {
-	return oldState;
-}
-
-uint16_t MRTBgp4MPStateChange::getNewState(void) const {
-	return newState;
-}
 
 void MRTBgp4MPStateChange::printMe() {
 	cout << "PEER_IP: ";

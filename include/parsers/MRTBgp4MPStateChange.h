@@ -30,15 +30,6 @@
 #define _MRTBGP4MPSTATECHANGE_H_
 
 #include "MRTCommonHeader.h"
-
-#ifdef WIN32
-#include <winsock2.h>
-#include <Ws2tcpip.h>
-#else
-#include <sys/socket.h>
-#include <netinet/in.h>
-#endif	/* WIN32 */
-
 #include "MRTStructure.h"
 
 class MRTBgp4MPStateChange :
@@ -84,6 +75,38 @@ protected:
 private:
 	static log4cxx::LoggerPtr Logger;
 };
+
+uint32_t MRTBgp4MPStateChange::getPeerAS(void) const {
+	return peerAS;
+}
+
+uint32_t MRTBgp4MPStateChange::getLocalAS(void) const {
+	return localAS;
+}
+
+uint16_t MRTBgp4MPStateChange::getInterfaceIndex(void) const {
+	return interfaceIndex;
+}
+
+uint16_t MRTBgp4MPStateChange::getAddressFamily(void) const {
+	return addressFamily;
+}
+
+IPAddress MRTBgp4MPStateChange::getPeerIP(void) const {
+	return peerIP;
+}
+
+IPAddress MRTBgp4MPStateChange::getLocalIP(void) const {
+	return localIP;
+}
+
+uint16_t MRTBgp4MPStateChange::getOldState(void) const {
+	return oldState;
+}
+
+uint16_t MRTBgp4MPStateChange::getNewState(void) const {
+	return newState;
+}
 
 typedef boost::shared_ptr<MRTBgp4MPStateChange> MRTBgp4MPStateChangePtr;
 

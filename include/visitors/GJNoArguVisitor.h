@@ -54,6 +54,8 @@ public:
 	virtual boost::any visit( TblDumpV2RibEntry& 		)=0;
 
 	virtual boost::any visit( Route& )=0;
+	virtual boost::any visit( NLRIReachable&	 		)=0;
+	virtual boost::any visit( NLRIUnReachable& 			)=0;
 };
 
 #endif

@@ -33,24 +33,6 @@
 #ifndef __BGPCOMMOMHEADER_H_
 #define __BGPCOMMOMHEADER_H_
 
-
-#ifdef WIN32
-/* enable 32-bit time_t structure */
-#define _USE_32BIT_TIME_T
-#include <winsock2.h>
-
-#else
-#include <netinet/in.h>
-#endif	/* WIN32 */
-
-#include <set>
-#include <vector>
-#include <string>
-#include <iostream>
-#include <cstdio>
-#include <cstdlib>
-#include <ctime>
-
 #include "BGPAttribute.h"
 
 /*

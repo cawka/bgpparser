@@ -47,12 +47,7 @@
 #include "AttributeTypeOrigin.h"
 #include "AttributeTypeMPReachNLRI.h"
 #include "AttributeTypeMPUnreachNLRI.h"
-#include "Exceptions.h"
 
-#include <boost/iostreams/read.hpp>
-#include <boost/iostreams/skip.hpp>
-#include <boost/iostreams/device/array.hpp>
-#include <boost/iostreams/stream.hpp>
 namespace io = boost::iostreams;
 
 using namespace std;
@@ -111,7 +106,7 @@ AttributeTypePtr AttributeType::newAttribute(uint8_t attrType, uint16_t len, ist
 		// ADD MORE ATTRIBUTES HERE
 
 		default: {
-			LOG4CXX_ERROR(Logger,"Unknown attribute type code ["<<(int)attrType<<"]");
+//			LOG4CXX_ERROR(Logger,"Unknown attribute type code ["<<(int)attrType<<"]");
 			attr =  AttributeTypePtr( new AttributeType(header) );
 			break;
 		}

@@ -34,7 +34,6 @@
 
 #include "AttributeType.h"
 #include "AttributeTypeASPath.h"
-#include <list>
 
 class AttributeTypeAS4PathSegment : public AttributeTypeASPathSegment
 {

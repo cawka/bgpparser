@@ -35,8 +35,6 @@
 #include "MRTStructure.h"
 #include "MRTCommonHeader.h"
 
-#include <string>
-
 class Route : public Node
 {
 public:
@@ -49,7 +47,7 @@ public:
 	inline IPAddress setPrefix(IPAddress in_prefix) { memcpy(&prefix, &in_prefix, sizeof(IPAddress)); return prefix; }
 	inline int getNumOctets() { return numOctets; }
 
-	std::string toString(uint16_t afi=AFI_IPv4);
+	inline std::string toString(uint16_t afi=AFI_IPv4);
 	
 	void printMe(uint16_t afi=AFI_IPv4);
 	void printMeCompact(uint16_t afi=AFI_IPv4);
@@ -112,6 +110,14 @@ public:
 };
 
 typedef boost::shared_ptr<NLRIUnReachable> NLRIUnReachablePtr;
+
+std::string Route::toString( uint16_t afi )
+{
+	std::ostringstream os;
+	os << FORMAT_IP_ADDRESS( prefix, afi ) << "/" << (int)length;
+
+	return os.str( );
+}
 
 #endif /* __BGPSTRUCTURE_H_ */
 

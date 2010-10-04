@@ -7,7 +7,7 @@
 #
 #   This macro sets:
 #
-#     DEBUG
+#     DEBUG/NDEBUG
 #
 
 AC_DEFUN([AX_DEBUG],
@@ -22,10 +22,8 @@ AC_DEFUN([AX_DEBUG],
 	
 	if test x"$debugit" = x"yes"; then
 		AC_DEFINE([DEBUG],[],[Debug Mode])
-		AM_CXXFLAGS="$AM_CXXFLAGS -g -Wall -Werror -Wno-uninitialized -O0"
 	else
 		AC_DEFINE([NDEBUG],[],[No-debug Mode])
-		AM_CXXFLAGS="$AM_CXXFLAGS -O3"
 	fi
 ] )
 

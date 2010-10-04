@@ -31,13 +31,8 @@
 #include <bgpparser.h>
 
 #include "BGPStructure.h"
-#include "Exceptions.h"
 
-#include <sstream>
 using namespace std;
-
-#include <boost/iostreams/read.hpp>
-#include <boost/iostreams/skip.hpp>
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr Route::Logger=log4cxx::Logger::getLogger( "bgpparser.Route" );
@@ -72,17 +67,4 @@ void Route::printMe( uint16_t afi )
 void Route::printMeCompact( uint16_t afi )
 {
 	printMe( afi );
-}
-
-string Route::toString( uint16_t afi )
-{
-	ostringstream os;
-
-	if (afi == AFI_IPv4)      { os << FORMAT_IPv4_ADDRESS(prefix.ipv4);   }
-	else if (afi == AFI_IPv6) { os << FORMAT_IPv6_ADDRESS(prefix.ipv6);   }
-	else                      { os << FORMAT_IPv4_ADDRESS(prefix.ipv4);   }
-
-	os << "/" << (int)length;
-
-	return os.str( );
 }

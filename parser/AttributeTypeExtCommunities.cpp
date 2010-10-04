@@ -31,10 +31,8 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeExtCommunities.h"
-#include "Exceptions.h"
-using namespace std;
 
-#include <boost/iostreams/read.hpp>
+using namespace std;
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr AttributeTypeExtCommunities::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeExtCommunities" );

@@ -31,11 +31,8 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeMultiExitDisc.h"
-#include "Exceptions.h"
 
 using namespace std;
-
-#include <boost/iostreams/read.hpp>
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr AttributeTypeMultiExitDisc::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeMultiExitDisc" );

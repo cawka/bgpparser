@@ -35,8 +35,6 @@
 #include "AttributeType.h"
 class AttributeTypeAS4Path;
 
-#include <list>
-
 const int AS_TRANS=23456;
 
 class AttributeTypeASPathSegment : public Node

@@ -36,7 +36,7 @@
 class AttributeTypeOrigin : public AttributeType
 {
 public:
-	enum Origin
+	enum
 	{
 		IGP = 0, EGP, INCOMPLETE
 	};
@@ -44,9 +44,8 @@ public:
 	AttributeTypeOrigin( AttributeType &header, std::istream &input );
 	virtual ~AttributeTypeOrigin(void);	
 	
-	void setOrigin(Origin org) { origin = org; }
-	void setOrigin(unsigned int org) { origin = (Origin)org; }
-	Origin getOrigin() { return origin; }
+	void setOrigin(uint8_t org) { origin = org; }
+	uint8_t getOrigin() { return origin; }
 	virtual void printMe();
 	virtual void printMeCompact();
 //	virtual AttributeType* clone() { return new AttributeTypeOrigin(length, origin, value); }
@@ -57,7 +56,7 @@ public:
 	virtual boost::any accept( GJVisitor &v, boost::any param ) { return v.visit( *this, param ); }
 
 protected:
-	Origin origin;
+	uint8_t origin;
 
 private:
 	static log4cxx::LoggerPtr Logger;

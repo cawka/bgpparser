@@ -31,11 +31,8 @@
 #include <bgpparser.h>
 
 #include "AttributeTypeAS4Path.h"
-#include "Exceptions.h"
-using namespace std;
 
-#include <boost/iostreams/read.hpp>
-#include <boost/foreach.hpp>
+using namespace std;
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr AttributeTypeAS4Path::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeAS4Path" );

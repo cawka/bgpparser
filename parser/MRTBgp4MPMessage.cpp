@@ -36,11 +36,8 @@
 #include "BGPKeepAlive.h"
 #include "BGPOpen.h"
 #include "BGPRouteRefresh.h"
-#include "Exceptions.h"
 
 using namespace std;
-
-#include <boost/iostreams/read.hpp>
 namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr MRTBgp4MPMessage::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTBgp4MPMessage" );
