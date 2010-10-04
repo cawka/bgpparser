@@ -58,7 +58,7 @@ xmlNodePtr AttributeTypeCommunitiesDumper::genXml()
     const char *atag = "AS";
     const char *vtag = "VALUE";
 
-	BOOST_FOREACH( const CommunityValue &value, attr->getCommunityValue() )
+	BOOST_FOREACH( const CommunityValue &value, attr->getCommunityValues() )
     {
         if ( value.ASnum == 0xFFFF && value.info ==  0xFF01 )
         {
@@ -96,7 +96,7 @@ string AttributeTypeCommunitiesDumper::genAscii()
     ostringstream node;
     string sep  = "";
 
-    BOOST_FOREACH( const CommunityValue &value, attr->getCommunityValue() )
+    BOOST_FOREACH( const CommunityValue &value, attr->getCommunityValues() )
     {
         if ( value.ASnum == 0xFFFF && value.info == 0xFF01 )
         {

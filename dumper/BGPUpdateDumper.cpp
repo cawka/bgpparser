@@ -126,6 +126,9 @@ list<string> BGPUpdateDumper::genAsciiMsg(string peer_addr, string peer_as, bool
     BGPUpdatePtr bgp_update = dynamic_pointer_cast<BGPUpdate>( bgp_msg );
     list<string> bgp_msg_list;
 
+//	list<Route> NLRI;
+//	list<Route> WITHDRAWN;
+
     /* BGP Update node */
     // Attributes
     string as_path     = "";
@@ -154,7 +157,7 @@ list<string> BGPUpdateDumper::genAsciiMsg(string peer_addr, string peer_as, bool
             case 6: agg         = attr_dumper->genAscii(); break;
             case 7: aggregator  = attr_dumper->genAscii(); break;
             case 8: communities = attr_dumper->genAscii(); break;
-
+                    
             case 14: 
                     mp_reach   = attr;
                     break;
