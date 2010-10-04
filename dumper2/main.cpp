@@ -176,17 +176,35 @@ int main(int argc, char** argv)
 
 	AsciiVisitor ascii;
 
-    int i=1;
 	int mrt_id=0;
+	int count_error=0;
 	try
 	{
 		while( in.peek()!=-1 )
 		{
 			mrt_id++;
 
-			MRTMessagePtr msg=MRTCommonHeader::newMessage( in );
-			msg->accept( ascii );
-        }
+			try
+			{
+				MRTMessagePtr msg=MRTCommonHeader::newMessage( in );
+				msg->accept( ascii );
+			}
+            catch( MRTException e )
+            {
+                LOG4CXX_ERROR( _log, e.what() );
+                count_error++;
+            }
+            catch( BGPTextError e )
+            {
+                LOG4CXX_ERROR( _log, e.what() );
+                count_error++;
+            }
+            catch( BGPError e )
+            {
+                //information should be already logged, if the logger for bgpparser is enabled
+                count_error++;
+            }
+    	}
 	}
 	catch( EOFException e )
 	{
@@ -200,14 +218,9 @@ int main(int argc, char** argv)
 		cerr << "ERROR: " << e.what() << endl;
 		exit( 10 );
 	}
-//	catch( boost::bad_any_cast e )
-//	{
-//		cerr << "ERROR: " << e.what() << endl;
-//		exit( 10 );
-//	}
 	catch( BGPParserError &e )
 	{
-//		cerr << "ERROR in MRT #"<<mrt_id<<": " << e.what() << endl;
+		cerr << "ERROR in MRT #"<<mrt_id<<": " << e.what() << endl;
 		exit( 10 );
 	}
 

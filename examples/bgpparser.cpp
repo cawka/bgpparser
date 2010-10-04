@@ -29,31 +29,9 @@
 // testr.cpp : Defines the entry point for the console application.
 // Author: Jason Ryder
 //
-#define _USE_32BIT_TIME_T
-#include <cstdio>
-#include <cstdlib>
-
 #include <bgpparser.h>
 
-#include <ctime>
-#include <MRTCommonHeader.h>
-#include <MRTBgp4MPStateChange.h>
-#include <MRTBgp4MPMessage.h>
-#include <MRTBgp4MPEntry.h>
-#include <MRTBgp4MPSnapshot.h>
-#include <MRTTblDump.h>
-#include <MRTTblDumpV2PeerIndexTbl.h>
-#include <MRTTblDumpV2RibIPv4Unicast.h>
-#include <MRTTblDumpV2RibIPv4Multicast.h>
-#include <MRTTblDumpV2RibIPv6Unicast.h>
-#include <MRTTblDumpV2RibIPv6Multicast.h>
-#include <Exceptions.h>
-
-#include <BGPCommonHeader.h>
-#include <BGPUpdate.h>
-
-#include <AttributeType.h>
-#include <AttributeTypeOrigin.h>
+#include "SimplePrinter.h"
 
 #ifdef LOG4CXX
 #include <log4cxx/logger.h>
@@ -95,104 +73,12 @@ using namespace boost;
 
 bool PrintCompact=false;
 
-const char* rrchMRTTypes[] = {
-                            "NULL",
-                            "START",			// 1
-                            "DIE",
-                            "I_AM_DEAD",		// 3
-                            "PEER_DOWN", 
-                            "BGP",			// --5--
-                            "RIP", 
-                            "IDRP", 
-                            "RIPNG", 
-                            "BGP4PLUS", 
-                            "BGP4PLUS_01",	// --10--
-                            "OSPF",			// 11
-                            "TABLE_DUMP",	// 12
-                            "TABLE_DUMP_V2",	// 13
-                            "UNKNOWN", 
-                            "UNKNOWN",		// --15-- 
-                            "BGP4MP",		// 16
-                            "BGP4MP_ET",		// 17
-                            "UNKNOWN", 
-                            "UNKNOWN", 
-                            "UNKNOWN",		// --20--
-                            "UNKNOWN", 
-                            "UNKNOWN", 
-                            "UNKNOWN", 
-                            "UNKNOWN", 
-                            "UNKNOWN",		// --25--
-                            "UNKNOWN", 
-                            "UNKNOWN", 
-                            "UNKNOWN", 
-                            "UNKNOWN", 
-                            "UNKNOWN",		// --30--
-                            "UNKNOWN",
-                            "ISIS",			// 32
-                            "ISIS_ET",		// 33
-                            "UNKNOWN", 
-                            "UNKNOWN",		// --35--
-                            "UNKNOWN", 
-                            "UNKNOWN", 
-                            "UNKNOWN", 
-                            "UNKNOWN", 
-                            "UNKNOWN",		// --40--
-                            "UNKNOWN", 
-                            "UNKNOWN", 
-                            "UNKNOWN", 
-                            "UNKNOWN", 
-                            "UNKNOWN",		// --45--
-                            "UNKNOWN", 
-                            "UNKNOWN", 
-                            "OSPFv3",		// 48
-                            "OSPFv3_ET"		// 49
-						};
-
-const char* rrrchMRTSubTypes[][49]
-						= {	  
-							{/* 0 */}, {/* 1 */},
-							{/* 2 */}, {/* 3 */},
-							{/* 4 */}, {/* 5 */},
-							{/* 6 */}, {/* 7 */},
-							{/* 8 */}, {/* 9 */},
-							{/* 10 */}, 
-							{"OSPF_STATE_CHANGE", "OSPF_LSA_UPDATE"},	// 11
-							{"UNKNOWN", "AFI_IPv4", "AFI_IPv6"},			// 12
-							{"UNKNOWN", "PEER_INDEX_TABLE",						// 13
-								"RIB_IPV4_UNICAST", "RIB_IPV4_MULTICAST",
-								"RIB_IPV6_UNICAST", "RIB_IPV6_MULTICAST",
-								"RIB_GENERIC" },
-							{/* 14 */}, {/* 15 */},
-							{"BGP4MP_STATE_CHANGE", "BGP4MP_MESSAGE",	// 16
-								"BGP4MP_ENTRY", "BGP4MP_SNAPSHOT",
-								"BGP4MP_MESSAGE_AS4", "BGP4MP_STATE_CHANGE_AS4"}, 
-							{/* 17 */}, {/* 18 */},
-							{/* 19 */}, {/* 20 */},
-							{/* 21 */}, {/* 22 */},
-							{/* 23 */}, {/* 24 */},
-							{/* 25 */}, {/* 26 */},
-							{/* 27 */}, {/* 28 */},
-							{/* 29 */}, {/* 30 */},
-							{/* 31 */},
-							{"UNKNOWN"}, {"UNKNOWN"},					// 32, 33
-							{/* 34 */},
-							{/* 35 */}, {/* 36 */},
-							{/* 37 */}, {/* 38 */},
-							{/* 39 */}, {/* 40 */},
-							{/* 41 */}, {/* 42 */},
-							{/* 43 */}, {/* 44 */},
-							{/* 45 */}, {/* 46 */},
-							{/* 47 */}, 
-							{"UNKNOWN"}, {"UNKNOWN"}					// 48, 49
-						};
-
 #ifdef LOG4CXX
 static LoggerPtr _log=Logger::getLogger( "simple" );
 #endif
 
 int main(int argc, char** argv)
 {
-	uint32_t    unFlags = 0;
     po::variables_map CONFIG;
 
 	po::options_description opts( "General options" );
@@ -203,7 +89,7 @@ int main(int argc, char** argv)
 #endif
 		( "file",  po::value<string>(),
 				  "MRT file or - to input from stdin" )
-		( "compact", "Compact view" )
+//		( "compact", "Compact view" )
 		( "format", po::value<string>(),
 				  "Compression format: txt, z, gz, or bz2 (will be overridden by the actual extension of the file)" )
 	;
@@ -295,330 +181,40 @@ int main(int argc, char** argv)
 	else
 		in.push( input_file );
 
-//	_log->info( "Parsing started" );
-
-	// Set any flags
-//	if( string(argv[1])=="--" )
-//	{
-//		unFlags = 0x80000000;
-//		char* pchFlagVals = argv[1];
-//		while(*(++pchFlagVals) != '\0')
-//			unFlags |= rnFlags[(uint32_t)*pchFlagVals];
-//	}
-
 	//printf("flags = 0x%08x\n", unFlags);
 	LOG4CXX_INFO( _log, "Parsing file [" << filename << "]" );
-    MRTTblDumpV2PeerIndexTblPtr peerIndexTbl;
 
-	MRTMessagePtr msg;
     int i=1;
 	int mrt_id=0;
+	SimplePrinter printer;
+	int count_error=0;
 	try
 	{
 		while( in.peek()!=-1 )
 		{
 			mrt_id++;
-//			LOG4CXX_INFO( _log, mrt_id++ );
-            size_t szBytesRead = 0;
 
-            msg=MRTCommonHeader::newMessage( in );
-
-            /* Get time to display */
-            time_t      tmTime = (time_t)msg->getTimestamp();
-            struct tm   *ts;
-            char        rchTime[80];
-            rchTime[0]=0;
-         
-            /* Format and print the time, "ddd yyyy-mm-dd hh:mm:ss zzz" */
-//            ts = localtime(&tmTime);
-//            strftime(rchTime, sizeof(rchTime), "%a %Y-%m-%d %H:%M:%S %Z", ts);
-
-//            if( !PrintCompact )
-//                printf("\nTIME: %s\n", rchTime);
-//            else
-//                printf("%u", (uint32_t)tmTime);
-
-            if ( !PrintCompact )
+			try
+			{
+				MRTMessagePtr msg=MRTCommonHeader::newMessage( in );
+				msg->accept( printer );
+			}
+            catch( MRTException e )
             {
-//                cout << "TYPE: " << rrchMRTTypes[msg->getType()] << "/";
-//                cout << rrrchMRTSubTypes[msg->getType()][msg->getSubType()];
+                LOG4CXX_ERROR( _log, e.what() );
+                count_error++;
             }
-            
-            switch(msg->getType())
+            catch( BGPTextError e )
             {
-                case TABLE_DUMP:
-                {
-                    if (PrintCompact) {
-//                        cout << "|" << rrchMRTTypes[msg->getType()];
-//                        cout << "|" << msg->getSubType();
-                    }
-                    else
-                    {
-                        cout << endl;
-                    }
-                    switch(msg->getSubType())
-                    {
-                        case AFI_IPv4:
-                        case AFI_IPv6:
-                        {
-                            MRTTblDumpPtr tblDump = dynamic_pointer_cast<MRTTblDump>( msg );
-//                            tblDump->printMeCompact();
-                        }
-                        break;
-
-                        default:
-                            break;
-                    }		
-                }
-                break;
-
-                case TABLE_DUMP_V2:
-                {
-                    if (PrintCompact) {
-//                        cout << "|" << rrchMRTTypes[msg->getType()];
-//                        cout << "|";
-                    }
-                    else
-                    {
-                        cout << endl;
-                    }
-                    switch(msg->getSubType())
-                    {
-                        case RIB_IPV4_UNICAST:
-                        {
-                            MRTTblDumpV2RibIPv4UnicastPtr tblDumpIpv4Msg =
-                            		dynamic_pointer_cast<MRTTblDumpV2RibIPv4Unicast>( msg );
-                            // consider passing peerIndexTbl to printMe
-//                            if (PrintCompact)
-                                tblDumpIpv4Msg->printMeCompact(peerIndexTbl);
-//                            else
-//                                tblDumpIpv4Msg->printMe(peerIndexTbl);
-                        }
-                        break;
-
-                        case RIB_IPV4_MULTICAST:
-                        {
-                            MRTTblDumpV2RibIPv4MulticastPtr tblDumpIpv4Msg =
-                            		dynamic_pointer_cast<MRTTblDumpV2RibIPv4Multicast>( msg );
-                            //cout << endl;
-//                            tblDumpIpv4Msg->printMe(peerIndexTbl);
-                        }
-                        break;
-
-                        case RIB_IPV6_UNICAST:
-                        {
-                            MRTTblDumpV2RibIPv6UnicastPtr tblDumpIpv6Msg =
-                            		dynamic_pointer_cast<MRTTblDumpV2RibIPv6Unicast>( msg );
-                            //cout << endl;
-//                            if (PrintCompact)
-//                                tblDumpIpv6Msg->printMeCompact(peerIndexTbl);
-//                            else
-//                                tblDumpIpv6Msg->printMe(peerIndexTbl);
-                        }
-                        break;
-
-                        case RIB_IPV6_MULTICAST:
-                        {
-                            MRTTblDumpV2RibIPv6MulticastPtr tblDumpIpv6Msg =
-                            		dynamic_pointer_cast<MRTTblDumpV2RibIPv6Multicast>( msg );
-                            //cout << endl;
-//                            tblDumpIpv6Msg->printMe(peerIndexTbl);
-                        }
-                        break;
-                        
-                        case PEER_INDEX_TABLE:
-                        {
-                            //cout << "  Setting a peer index table." << cout;
-                            peerIndexTbl = dynamic_pointer_cast<MRTTblDumpV2PeerIndexTbl>( msg );
-//                            cout << "PEERINDEXTABLE";
-                        }
-                        break;
-
-                        default:
-                            break;
-                    }		
-                }
-                break;
-                
-                case BGP4MP:
-                {
-                    switch(msg->getSubType())
-                    {
-                        case BGP4MP_MESSAGE:
-                        {
-                            if (PrintCompact ) {
-                                cout << "|" << rrchMRTTypes[msg->getType()];
-                            }
-                            MRTBgp4MPMessagePtr bgp4MPmsg = dynamic_pointer_cast<MRTBgp4MPMessage>( msg );
-
-                            BGPMessagePtr bgpMessage = bgp4MPmsg->getPayload();
-                            if( bgpMessage.get() == NULL ) { break; }
-                            switch(bgpMessage->Type())
-                            {
-                                case BGPCommonHeader::UPDATE:
-                                {
-                                    if ( !PrintCompact )
-                                    {
-//                                        cout << "/" << "Update" ;
-//                                        cout << endl;
-                                        BGPUpdate* bgpUpdate = dynamic_cast<BGPUpdate*>(bgpMessage.get());
-//                                        cout << "FROM: ";
-//                                        PRINT_IP_ADDR(bgp4MPmsg->getPeerIP().ipv4);
-//                                        cout << " AS" << bgp4MPmsg->getPeerAS() << endl;
-//                                        cout << "TO: ";
-//                                        PRINT_IP_ADDR(bgp4MPmsg->getLocalIP().ipv4);
-//                                        cout << " AS" << bgp4MPmsg->getLocalAS() << endl;
-//
-//                                        bgpUpdate->printMe();
-                                    }
-                                    else
-                                    {
-//                                        cout << "|";
-                                        BGPUpdate* bgpUpdate = dynamic_cast<BGPUpdate*>(bgpMessage.get());
-//                                        if( bgp4MPmsg->getAddressFamily() == AFI_IPv4 ) {
-//                                            PRINT_IP_ADDR(bgp4MPmsg->getPeerIP().ipv4);
-//                                            cout << "|" << bgp4MPmsg->getPeerAS() << "|";
-//                                            PRINT_IP_ADDR(bgp4MPmsg->getLocalIP().ipv4);
-//                                            cout << "|" << bgp4MPmsg->getLocalAS() << "|";
-//                                        } else {
-//                                            PRINT_IPv6_ADDR(bgp4MPmsg->getPeerIP().ipv6);
-//                                            cout << "|" << bgp4MPmsg->getPeerAS() << "|";
-//                                            PRINT_IPv6_ADDR(bgp4MPmsg->getLocalIP().ipv6);
-//                                            cout << "|" << bgp4MPmsg->getLocalAS() << "|";
-//                                        }
-//                                        bgpUpdate->printMeCompact();
-                                    }
-                                }
-                                break;
-                        
-                                case BGPCommonHeader::KEEPALIVE: 
-                                {
-//                                    cout << "/" << "KEEPALIVE";
-                                }
-                                break;
-
-                                default: 
-                                break;
-                            }
-                        }
-                        break;
-                        
-                        case BGP4MP_MESSAGE_AS4:
-                        {
-                            if (PrintCompact ) {
-//                                cout << "|" << rrchMRTTypes[msg->getType()];
-                            }
-                            MRTBgp4MPMessagePtr bgp4MPmsg = dynamic_pointer_cast<MRTBgp4MPMessage>( msg );
-                            BGPMessagePtr bgpMessage = bgp4MPmsg->getPayload();
-                            if( bgpMessage.get() == NULL ) { break; }
-                            switch(bgpMessage->Type())
-                            {
-                                case BGPCommonHeader::UPDATE:
-                                {
-                                    if ( !PrintCompact )
-                                    {
-//                                        cout << "/" << "Update" ;
-//                                        cout << endl;
-//                                        BGPUpdate* bgpUpdate = dynamic_cast<BGPUpdate*>(bgpMessage.get());
-//                                        cout << "FROM: ";
-//                                        PRINT_IP_ADDR(bgp4MPmsg->getPeerIP().ipv4);
-//                                        cout << " AS" << bgp4MPmsg->getPeerAS() << endl;
-//                                        cout << "TO: ";
-//                                        PRINT_IP_ADDR(bgp4MPmsg->getLocalIP().ipv4);
-//                                        cout << " AS" << bgp4MPmsg->getLocalAS() << endl;
-//
-//                                        bgpUpdate->printMe();
-                                    }
-                                    else
-                                    {
-//                                        cout << "|";
-//                                        BGPUpdate* bgpUpdate = dynamic_cast<BGPUpdate*>(bgpMessage.get());
-//                                        if( bgp4MPmsg->getAddressFamily() == AFI_IPv4 ) {
-//                                            PRINT_IP_ADDR(bgp4MPmsg->getPeerIP().ipv4);
-//                                        } else {
-//                                            PRINT_IPv6_ADDR(bgp4MPmsg->getPeerIP().ipv6);
-//                                        }
-//
-//                                        uint16_t t, b;
-//                                        uint32_t asn;
-//                                        cout << "|";
-//                                        asn = bgp4MPmsg->getPeerAS();
-//                                        t = (uint16_t)((asn>>16)&0xFFFF);
-//                                        b = (uint16_t)((asn)&0xFFFF);
-//                                        if( t == 0 ) {
-//                                            printf("%u",b);
-//                                        } else {
-//                                            printf("%u.%u",t,b);
-//                                        }
-//                                        cout << "|";
-//
-//                                        if( bgp4MPmsg->getAddressFamily() == AFI_IPv4 ) {
-//                                            PRINT_IP_ADDR(bgp4MPmsg->getLocalIP().ipv4);
-//                                        } else {
-//                                            PRINT_IPv6_ADDR(bgp4MPmsg->getLocalIP().ipv6);
-//                                        }
-//
-//                                        cout << "|";
-//                                        asn = bgp4MPmsg->getLocalAS();
-//                                        t = (uint16_t)((asn>>16)&0xFFFF);
-//                                        b = (uint16_t)((asn)&0xFFFF);
-//                                        if( t == 0 ) {
-//                                            printf("%u",b);
-//                                        } else {
-//                                            printf("%u.%u",t,b);
-//                                        }
-//                                        cout << "|";
-//                                        bgpUpdate->printMeCompact();
-                                    }
-                                }
-                                break;
-                        
-                                case BGPCommonHeader::KEEPALIVE: 
-                                {
-//                                    cout << "/" << "KEEPALIVE";
-                                }
-                                break;
-
-                                default: break;
-                            }
-                        }
-                        break;
-
-                        case BGP4MP_STATE_CHANGE:
-                        {
-                            MRTBgp4MPStateChangePtr bgp4MPmsg = dynamic_pointer_cast<MRTBgp4MPStateChange>( msg );
-                            if (PrintCompact ) {
-//                                cout << "|" << "STATE" << "|";
-//                                bgp4MPmsg->printMeCompact();
-                            } else {
-                                cout << "/" << "STATE_CHANGE";
-                                bgp4MPmsg->printMe();
-                            }
-                        }
-                        break;
-                        case BGP4MP_STATE_CHANGE_AS4:
-                        {
-                            MRTBgp4MPStateChangePtr bgp4MPmsg = dynamic_pointer_cast<MRTBgp4MPStateChange>( msg );
-                            if (PrintCompact ) {
-//                                cout << "|" << "STATE" << "|";
-//                                bgp4MPmsg->printMeCompact();
-                            } else {
-                                cout << "/" << "STATE_CHANGE_AS4";
-                                bgp4MPmsg->printMe();
-                            }
-                        }
-                        break;
-                        
-                        default: break;
-                    }
-                }
-                break;
-            
-                default: break;		
+                LOG4CXX_ERROR( _log, e.what() );
+                count_error++;
             }
-
-//            cout << endl;
-        }
+            catch( BGPError e )
+            {
+                //information should be already logged, if the logger for bgpparser is enabled
+                count_error++;
+            }
+		}
 	}
 	catch( EOFException e )
 	{
@@ -632,27 +228,6 @@ int main(int argc, char** argv)
 		cerr << "ERROR: " << e.what() << endl;
 		exit( 10 );
 	}
-	catch( BGPParserError &e )
-	{
-//		cerr << "ERROR in MRT #"<<mrt_id<<": " << e.what() << endl;
-		exit( 10 );
-	}
-//	catch( const string &e )
-//	{
-//		cerr << "ERROR: " << e << endl;
-//		exit( 10 );
-//	}
-//	catch( BGPParserError &e )
-//	{
-//		cerr << "ERORR: " << e.what( ) << endl;
-//		exit( 10 );
-//	}
-//	catch( ... )
-//	{
-//		cerr << "Unknown exception" << endl;
-//		exit( 10 );
-//	}
-
 
 	LOG4CXX_INFO( _log, "Parsing ended" );
 	return 0;
