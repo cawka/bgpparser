@@ -33,4 +33,6 @@ stamp-h1
 .project
 .settings/
 *.h.gch
+AUTHORS
+ChangeLog
 

@@ -2,8 +2,6 @@ AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/include/parsers $(log4cxx_
 
 lib_LTLIBRARIES=libbgpparser.la
 
-libbgpparser_ladir=$(includedir)/bgpparser
-
 libbgpparser_la_SOURCES=\
 AttributeType.cpp \
 AttributeTypeAS4Aggregator.cpp \
@@ -44,9 +42,7 @@ MRTTblDumpV2RibIPv4Multicast.cpp \
 MRTTblDumpV2RibIPv4Unicast.cpp \
 MRTTblDumpV2RibIPv6Multicast.cpp \
 MRTTblDumpV2RibIPv6Unicast.cpp \
-TblDumpV2RibEntry.cpp
-
-libbgpparser_la_HEADERS = \
+TblDumpV2RibEntry.cpp \
 ../include/bgpparser.h \
 ../include/Exceptions.h \
 ../include/parsers/AttributeType.h \
@@ -89,5 +85,13 @@ libbgpparser_la_HEADERS = \
 ../include/parsers/MRTTblDumpV2RibIPv4Unicast.h \
 ../include/parsers/MRTTblDumpV2RibIPv6Multicast.h \
 ../include/parsers/MRTTblDumpV2RibIPv6Unicast.h \
-../include/parsers/TblDumpV2RibEntry.h
+../include/parsers/TblDumpV2RibEntry.h \
+../include/visitors/DepthFirstVisitor.h \
+../include/visitors/ForwardDeclarations.h \
+../include/visitors/GJDepthFirst.h \
+../include/visitors/GJNoArguVisitor.h \
+../include/visitors/GJVisitor.h \
+../include/visitors/GJVoidDepthFirst.h \
+../include/visitors/GJVoidVisitor.h \
+../include/visitors/Visitor.h
 

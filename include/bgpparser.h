@@ -29,7 +29,7 @@
 #ifndef _BGPPARSER_H_
 #define _BGPPARSER_H_
 
-#include <config.h>
+#include "config.h"
 
 #include <iostream>
 #include <string>
