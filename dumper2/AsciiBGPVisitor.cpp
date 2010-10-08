@@ -69,11 +69,15 @@ void AsciiBGPVisitor::visit( BGPUpdate &n, boost::any param )
 void AsciiBGPVisitor::visit( AttributeTypeMPReachNLRI &n, boost::any param )
 {
 	InfoPtr info=boost::any_cast<InfoPtr>( param );
-	info->next_hop = FORMAT_IP_ADDRESS( n.getNextHopAddress(), info->afi );
 
-	if( n.getAFI()==0 ) return;
+	if( n.getAFI()==0 )
+	{
+		info->next_hop = FORMAT_IP_ADDRESS( n.getNextHopAddress(), info->afi );
+		return;
+	}
 
 	info->afi      = n.getAFI( ); // should be set everywhere except TABLE_DUMP_V2
+	info->next_hop = FORMAT_IP_ADDRESS( n.getNextHopAddress(), info->afi );
 
 	BOOST_FOREACH( const NLRIReachablePtr& route, n.getNLRI() )
 	{
@@ -132,6 +136,7 @@ void AsciiBGPVisitor::visit( NLRIUnReachable &n, boost::any param )
 		<< FORMAT_IP_ADDRESS( info->peer_addr, info->peer_afi ) << "|"
 		<< info->peer_as << "|"
 		<< FORMAT_IP_ADDRESS( n.getPrefix(), info->afi )
+		<< "/" << (int)n.getLength()
 		<< "\n";
 }
 
