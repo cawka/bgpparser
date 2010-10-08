@@ -1,6 +1,9 @@
 
 fooincludedir=$(pkgincludedir)/visitors
 fooinclude_HEADERS = \
-DepthFirstVisitor.h     GJDepthFirst.h          GJVisitor.h             GJVoidVisitor.h \
-ForwardDeclarations.h   GJNoArguVisitor.h       GJVoidDepthFirst.h      Visitor.h
+Visitor.h				DepthFirstVisitor.h     \
+GJVisitor.h				GJDepthFirst.h      	\
+GJNoArguVisitor.h		GJNoArguVisitor.h		\
+GJVoidVisitor.h 		GJVoidDepthFirst.h		\
+ForwardDeclarations.h  
 

@@ -29,6 +29,7 @@
 #include <bgpparser.h>
 
 #include "AsciiVisitor.h"
+#include "IPTypeDiscoveryVisitor.h"
 
 #ifdef LOG4CXX
 #include <log4cxx/logger.h>
@@ -87,6 +88,8 @@ int main(int argc, char** argv)
 				  "MRT file or - to input from stdin" )
 		( "format", po::value<string>(),
 				  "Compression format: txt, z, gz, or bz2 (will be overridden by the actual extension of the file)" )
+		( "ipv6",    "Output only IPv6-related records")
+		( "ipv4",    "Output only IPv4-related records")
 	;
 
 	po::positional_options_description p;
@@ -169,12 +172,20 @@ int main(int argc, char** argv)
 		exit( 3 );
 	}
 
+	bool ipv6=false;
+	bool ipv4=false;
+
+	if( CONFIG.count("ipv4")>0 ) ipv4=true;
+	if( CONFIG.count("ipv6")>0 ) ipv6=true;
+	if( !CONFIG.count("ipv4") && !CONFIG.count("ipv6") ) { ipv4=true; ipv6=true; }
+
 	if( filename=="-" )
 		in.push( cin );
 	else
 		in.push( input_file );
 
 	AsciiVisitor ascii;
+	IPTypeDiscoveryVisitor iptype;
 
 	int mrt_id=0;
 	int count_error=0;
@@ -187,7 +198,15 @@ int main(int argc, char** argv)
 			try
 			{
 				MRTMessagePtr msg=MRTCommonHeader::newMessage( in );
-				msg->accept( ascii );
+				bool canprint=true;
+				if( !ipv4 || !ipv6 )
+				{
+					mrt_type type=any_cast<mrt_type>( msg->accept(iptype) );
+					if( ipv4 && type!=TYPE_IPv4 ) canprint=false;
+					if( ipv6 && type!=TYPE_IPv6 ) canprint=false;
+				}
+
+				if( canprint ) msg->accept( ascii );
 			}
             catch( MRTException e )
             {

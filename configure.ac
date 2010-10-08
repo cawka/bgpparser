@@ -28,7 +28,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.62)
-AC_INIT([bgpparser], [0.1.2], [rveloso@cs.ucla.edu])
+AC_INIT([bgpparser], [0.1.2], [alexander.afanasyev@ucla.edu])
 AC_CONFIG_SRCDIR([parser/AttributeType.cpp])
 AC_CONFIG_HEADERS([include/config.h])
 
@@ -59,24 +59,17 @@ AX_DEBUG
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdint.h string.h sys/socket.h unistd.h])
 
-dnl # Checks for typedefs, structures, and compiler characteristics.
-dnl AC_HEADER_STDBOOL
-dnl AC_C_INLINE
-dnl AC_TYPE_SIZE_T
-dnl AC_TYPE_SSIZE_T
-dnl AC_TYPE_UINT16_T
-dnl AC_TYPE_UINT32_T
-dnl AC_TYPE_UINT8_T
-dnl 
-dnl 
-dnl # Checks for library functions.
-dnl AC_FUNC_MALLOC
-dnl AC_CHECK_FUNCS([inet_ntoa memset])
-dnl AC_CHECK_FUNCS([memmove])
-dnl AC_CHECK_FUNCS([strerror])
-dnl AC_CHECK_FUNCS([strstr])
-dnl AC_CHECK_HEADERS([limits.h])
-dnl AC_FUNC_REALLOC
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT8_T
+
+
+# Checks for library functions.
 
 
 AC_OUTPUT(Makefile bgpparser.pc

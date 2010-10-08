@@ -17,6 +17,10 @@ AM_LDFLAGS = \
 bin_PROGRAMS = bgpparser2
 
 bgpparser2_SOURCES = \
-AsciiVisitor.cpp AsciiBGPVisitor.cpp ASSegmentVisitor.cpp \
-main.cpp
+	AsciiVisitor.cpp AsciiVisitor.h \
+	AsciiBGPVisitor.cpp AsciiBGPVisitor.h \
+	ASSegmentVisitor.cpp ASSegmentVisitor.h \
+	IPTypeDiscoveryVisitor.cpp IPTypeDiscoveryVisitor.h \
+	Params.h \
+	main.cpp
 
