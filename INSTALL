@@ -1,17 +1,48 @@
-The BGP parser needs the following libraries to compile:
----------------------------------------------------------
+The following libraries are required for BGP parser:
 
-+ libxml2
-download from http://xmlsoft.org/ or use a package management util to install libxml2-2.x
+* libxml-2.0
+* boost at least version 1.44
+** boost-system
+** boost-filesystem
+** boost-program_options
+** boost-regex
+** boost-iostreams
+* (optional, disabled by default) log4cxx
+
+In FreeBSD these dependencies can be installed using ports:
+* textproc/libxml2
+* devel/boost-libs
+* devel/log4cxx 
+
+For example, if `portupdate' port is installed, run the following:
+  portupgrade -N libxml2 boost-libs log4cxx
+
+!!! Due to design bug/feature, log4cxx crashes on exit when used in
+multiprocessor environment (see LOGCXX-322).  Until log4cxx-0.10.1 released
+which hopefully resolve the issue, it is recommended to use the "hacked"
+version from git.
+
+see https://github.com/cawka/log4cxx/commit/544911a77cdb071f629a628f539d6809b8cf5a9f
+
+git clone https://cawka@github.com/cawka/log4cxx.git
+cd log4cxx
+./autogen.sh
+./configure
+make && make install
+
 
 Installation:
 ---------------------------------------------------------
 ./configure
 	or
-./configure CXXFLAGS=-O3
+(recommended) ./configure --enable-log4cxx CXXFLAGS=-O3
 
-make
-sudo make install
+(*) make   
+    sudo make install
 
 The binary is called bgpparser and placed under the $prefix/bin/ directory
+
+If ./configure is missing, run ./bootstrap.sh to create it
+
+(*) In FreeBSD use gmake instead, due to use of precompiled headers
 
