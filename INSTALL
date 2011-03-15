@@ -46,3 +46,10 @@ If ./configure is missing, run ./bootstrap.sh to create it
 
 (*) In FreeBSD use gmake instead, due to use of precompiled headers
 
+
+!!!! Attention OSX users !!!!
+If you're using a non-apple version of gcc, for example compiled using
+Macports, Boost library *have to* be build with the same version of the
+compiler.  In short, you cannot use Macport's version of Boost if you're using
+Macport's version of gcc.
+

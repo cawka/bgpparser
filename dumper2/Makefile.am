@@ -5,7 +5,6 @@ AM_CPPFLAGS=-I$(top_srcdir)/include \
 bgpparser2_LDADD   = ../parser/libbgpparser.la
 
 AM_LDFLAGS = \
-	-static-libtool-libs \
 	$(log4cxx_LIBS) \
 	$(BOOST_LDFLAGS) \
 		$(BOOST_SYSTEM_LIB) \
@@ -13,6 +12,8 @@ AM_LDFLAGS = \
 		$(BOOST_PROGRAM_OPTIONS_LIB) \
 		$(BOOST_REGEX_LIB) \
 		$(BOOST_IOSTREAMS_LIB)
+
+#	-static-libtool-libs 
 
 bin_PROGRAMS = bgpparser2
 
