@@ -30,7 +30,7 @@
 #   and this notice are preserved. This file is offered as-is, without any
 #   warranty.
 
-#serial 15
+#serial 19
 
 AC_DEFUN([AX_BOOST_SIGNALS],
 [
@@ -46,7 +46,7 @@ AC_DEFUN([AX_BOOST_SIGNALS],
             ax_boost_user_signals_lib=""
         else
 		    want_boost="yes"
-        	ax_boost_user_signals_lib="$withval"
+		ax_boost_user_signals_lib="$withval"
 		fi
         ],
         [want_boost="yes"]
@@ -65,11 +65,11 @@ AC_DEFUN([AX_BOOST_SIGNALS],
         AC_CACHE_CHECK(whether the Boost::Signals library is available,
 					   ax_cv_boost_signals,
         [AC_LANG_PUSH([C++])
-		 AC_COMPILE_IFELSE(AC_LANG_PROGRAM([[@%:@include <boost/signal.hpp>
+		 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[@%:@include <boost/signal.hpp>
 											]],
                                   [[boost::signal<void ()> sig;
                                     return 0;
-                                  ]]),
+                                  ]])],
                            ax_cv_boost_signals=yes, ax_cv_boost_signals=no)
          AC_LANG_POP([C++])
 		])
@@ -82,14 +82,14 @@ AC_DEFUN([AX_BOOST_SIGNALS],
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_SIGNALS_LIB="-l$ax_lib"; AC_SUBST(BOOST_SIGNALS_LIB) link_signals="yes"; break],
                                  [link_signals="no"])
-  				done
+				done
                 if test "x$link_signals" != "xyes"; then
                 for libextension in `ls $BOOSTLIBDIR/boost_signals*.{dll,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^\(boost_signals.*\)\.dll.*$;\1;' -e 's;^\(boost_signals.*\)\.a*$;\1;'` ; do
                      ax_lib=${libextension}
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_SIGNALS_LIB="-l$ax_lib"; AC_SUBST(BOOST_SIGNALS_LIB) link_signals="yes"; break],
                                  [link_signals="no"])
-  				done
+				done
                 fi
 
             else
@@ -109,6 +109,6 @@ AC_DEFUN([AX_BOOST_SIGNALS],
 		fi
 
 		CPPFLAGS="$CPPFLAGS_SAVED"
-    	LDFLAGS="$LDFLAGS_SAVED"
+	LDFLAGS="$LDFLAGS_SAVED"
 	fi
 ])

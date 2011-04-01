@@ -29,7 +29,7 @@
 #   and this notice are preserved. This file is offered as-is, without any
 #   warranty.
 
-#serial 14
+#serial 18
 
 AC_DEFUN([AX_BOOST_SERIALIZATION],
 [
@@ -45,7 +45,7 @@ AC_DEFUN([AX_BOOST_SERIALIZATION],
             ax_boost_user_serialization_lib=""
         else
 		    want_boost="yes"
-        	ax_boost_user_serialization_lib="$withval"
+		ax_boost_user_serialization_lib="$withval"
 		fi
         ],
         [want_boost="yes"]
@@ -65,14 +65,14 @@ AC_DEFUN([AX_BOOST_SERIALIZATION],
         AC_CACHE_CHECK(whether the Boost::Serialization library is available,
 					   ax_cv_boost_serialization,
         [AC_LANG_PUSH([C++])
-			 AC_COMPILE_IFELSE(AC_LANG_PROGRAM([[@%:@include <fstream>
+			 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[@%:@include <fstream>
 												 @%:@include <boost/archive/text_oarchive.hpp>
                                                  @%:@include <boost/archive/text_iarchive.hpp>
 												]],
                                    [[std::ofstream ofs("filename");
 									boost::archive::text_oarchive oa(ofs);
 									 return 0;
-                                   ]]),
+                                   ]])],
                    ax_cv_boost_serialization=yes, ax_cv_boost_serialization=no)
          AC_LANG_POP([C++])
 		])
@@ -85,14 +85,14 @@ AC_DEFUN([AX_BOOST_SERIALIZATION],
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_SERIALIZATION_LIB="-l$ax_lib"; AC_SUBST(BOOST_SERIALIZATION_LIB) link_serialization="yes"; break],
                                  [link_serialization="no"])
-  				done
+				done
                 if test "x$link_serialization" != "xyes"; then
                 for libextension in `ls $BOOSTLIBDIR/boost_serialization*.{dll,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^\(boost_serialization.*\)\.dll.*$;\1;' -e 's;^\(boost_serialization.*\)\.a*$;\1;'` ; do
                      ax_lib=${libextension}
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_SERIALIZATION_LIB="-l$ax_lib"; AC_SUBST(BOOST_SERIALIZATION_LIB) link_serialization="yes"; break],
                                  [link_serialization="no"])
-  				done
+				done
                 fi
 
             else
@@ -112,6 +112,6 @@ AC_DEFUN([AX_BOOST_SERIALIZATION],
 		fi
 
 		CPPFLAGS="$CPPFLAGS_SAVED"
-    	LDFLAGS="$LDFLAGS_SAVED"
+	LDFLAGS="$LDFLAGS_SAVED"
 	fi
 ])

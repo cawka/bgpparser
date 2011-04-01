@@ -29,7 +29,7 @@
 #   and this notice are preserved. This file is offered as-is, without any
 #   warranty.
 
-#serial 14
+#serial 18
 
 AC_DEFUN([AX_BOOST_IOSTREAMS],
 [
@@ -45,7 +45,7 @@ AC_DEFUN([AX_BOOST_IOSTREAMS],
             ax_boost_user_iostreams_lib=""
         else
 		    want_boost="yes"
-        	ax_boost_user_iostreams_lib="$withval"
+		ax_boost_user_iostreams_lib="$withval"
 		fi
         ],
         [want_boost="yes"]
@@ -64,14 +64,14 @@ AC_DEFUN([AX_BOOST_IOSTREAMS],
         AC_CACHE_CHECK(whether the Boost::IOStreams library is available,
 					   ax_cv_boost_iostreams,
         [AC_LANG_PUSH([C++])
-		 AC_COMPILE_IFELSE(AC_LANG_PROGRAM([[@%:@include <boost/iostreams/filtering_stream.hpp>
+		 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[@%:@include <boost/iostreams/filtering_stream.hpp>
 											 @%:@include <boost/range/iterator_range.hpp>
 											]],
                                   [[std::string  input = "Hello World!";
-       								 namespace io = boost::iostreams;
+								 namespace io = boost::iostreams;
 									 io::filtering_istream  in(boost::make_iterator_range(input));
 									 return 0;
-                                   ]]),
+                                   ]])],
                              ax_cv_boost_iostreams=yes, ax_cv_boost_iostreams=no)
          AC_LANG_POP([C++])
 		])
@@ -84,14 +84,14 @@ AC_DEFUN([AX_BOOST_IOSTREAMS],
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_IOSTREAMS_LIB="-l$ax_lib"; AC_SUBST(BOOST_IOSTREAMS_LIB) link_iostreams="yes"; break],
                                  [link_iostreams="no"])
-  				done
+				done
                 if test "x$link_iostreams" != "xyes"; then
                 for libextension in `ls $BOOSTLIBDIR/boost_iostreams*.{dll,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^\(boost_iostreams.*\)\.dll.*$;\1;' -e 's;^\(boost_iostreams.*\)\.a*$;\1;'` ; do
                      ax_lib=${libextension}
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_IOSTREAMS_LIB="-l$ax_lib"; AC_SUBST(BOOST_IOSTREAMS_LIB) link_iostreams="yes"; break],
                                  [link_iostreams="no"])
-  				done
+				done
                 fi
 
             else
@@ -111,6 +111,6 @@ AC_DEFUN([AX_BOOST_IOSTREAMS],
 		fi
 
 		CPPFLAGS="$CPPFLAGS_SAVED"
-    	LDFLAGS="$LDFLAGS_SAVED"
+	LDFLAGS="$LDFLAGS_SAVED"
 	fi
 ])

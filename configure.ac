@@ -32,7 +32,8 @@ AC_INIT([bgpparser], [0.1.2], [alexander.afanasyev@ucla.edu])
 AC_CONFIG_SRCDIR([parser/AttributeType.cpp])
 AC_CONFIG_HEADERS([include/config.h])
 
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE(1.11)
+AM_SILENT_RULES([yes])
 
 AC_PROG_CC
 AC_PROG_CXX
