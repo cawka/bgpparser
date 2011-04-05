@@ -66,10 +66,10 @@ namespace po = boost::program_options;
 #include <boost/scoped_array.hpp>
 
 #include <boost/iostreams/categories.hpp>
-namespace io = boost::iostreams;
 
 using namespace std;
 using namespace boost;
+using namespace boost::iostreams;
 
 bool PrintCompact=false;
 
@@ -155,17 +155,17 @@ int main(int argc, char** argv)
 	if( regex_match(filename, m, regex("^.*\\.(gz|bz2)$")) ) format=m[1];
 	////////////////////////////////////////////////////////////////////////////
 
-	io::filtering_stream<io::input> in;
+	filtering_stream<input> in;
 
 	if( format=="gz" )
 	{
 		LOG4CXX_DEBUG( _log, "Input file has GZIP format" );
-		in.push( io::gzip_decompressor() );
+		in.push( gzip_decompressor() );
 	}
 	else if( format=="bz2" )
 	{
 		LOG4CXX_DEBUG( _log, "Input file has BZIP2 format" );
-		in.push( io::bzip2_decompressor() );
+		in.push( bzip2_decompressor() );
 	}
 
 	ifstream input_file( filename.c_str(), ios_base::in | ios_base::binary );
@@ -221,8 +221,8 @@ int main(int argc, char** argv)
 		LOG4CXX_DEBUG( _log, "EOF" );
 		; //do nothing
 	}
-//	catch( io::gzip_error e )
-//	catch( io::bzip2_error e )
+//	catch( gzip_error e )
+//	catch( bzip2_error e )
 	catch( std::istream::failure e )
 	{
 		cerr << "ERROR: " << e.what() << endl;
