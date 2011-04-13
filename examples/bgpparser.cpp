@@ -188,6 +188,8 @@ int main(int argc, char** argv)
 	int mrt_id=0;
 	SimplePrinter printer;
 	int count_error=0;
+	MRTTblDumpV2PeerIndexTblPtr tbldumpv2_indextbl;
+
 	try
 	{
 		while( in.peek()!=-1 )
@@ -196,7 +198,8 @@ int main(int argc, char** argv)
 
 			try
 			{
-				MRTMessagePtr msg=MRTCommonHeader::newMessage( in );
+				MRTMessagePtr msg=MRTCommonHeader::newMessage( in, tbldumpv2_indextbl );
+
 				msg->accept( printer );
 			}
             catch( MRTException e )

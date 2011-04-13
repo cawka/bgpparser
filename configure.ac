@@ -28,7 +28,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.62)
-AC_INIT([bgpparser], [0.2], [alexander.afanasyev@ucla.edu])
+AC_INIT([bgpparser], [0.2.1], [alexander.afanasyev@ucla.edu])
 AC_CONFIG_SRCDIR([parser/AttributeType.cpp])
 AC_CONFIG_HEADERS([include/config.h])
 

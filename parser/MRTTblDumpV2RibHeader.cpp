@@ -85,6 +85,7 @@ void MRTTblDumpV2RibHeader::init( istream &input )
 		throw BGPError( );
 	}
 
+	assert( _peerIndexTbl.get()!=NULL );
 	for( int i=0; i<entryCount; i++ )
 		ribs.push_back( TblDumpV2RibEntryPtr(new TblDumpV2RibEntry( _peerIndexTbl,input )) );
 }

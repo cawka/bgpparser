@@ -86,7 +86,8 @@ MRTCommonHeader::~MRTCommonHeader(void) {
 /* 
  * Factory method for creating MRTMessages
  */ 
-MRTMessagePtr MRTCommonHeader::newMessage( istream &input ) {
+MRTMessagePtr MRTCommonHeader::newMessage( istream &input, MRTTblDumpV2PeerIndexTblPtr &indexTbl )
+{
 	LOG4CXX_TRACE( Logger, "==> MRTCommonHeader::newMessage( istream &input )" );
 
 	MRTMessagePtr msg;
@@ -106,9 +107,6 @@ MRTMessagePtr MRTCommonHeader::newMessage( istream &input ) {
 		LOG4CXX_INFO(Logger,"Nonsupported MRT type ["<<(int)header->getType()<<"]");
 //		return msg;
 	}
-
-
-	MRTTblDumpV2PeerIndexTblPtr tbldumpv2_indextbl;
 
 	try
 	{
@@ -167,44 +165,44 @@ MRTMessagePtr MRTCommonHeader::newMessage( istream &input ) {
 				case PEER_INDEX_TABLE:
 				{
 					LOG4CXX_TRACE(Logger,"MRTTblDumpV2PeerIndexTbl");
-	
-					tbldumpv2_indextbl = MRTTblDumpV2PeerIndexTblPtr( new MRTTblDumpV2PeerIndexTbl(*header, in) );
-					msg = MRTMessagePtr( tbldumpv2_indextbl );
+
+					indexTbl = MRTTblDumpV2PeerIndexTblPtr( new MRTTblDumpV2PeerIndexTbl(*header, in) );
+					msg = MRTMessagePtr( indexTbl );
 					break;
 				}
 				case RIB_IPV4_UNICAST:
 				{
 					LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibIPv4Unicast");
 	
-					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv4Unicast(tbldumpv2_indextbl, *header, in) );
+					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv4Unicast(indexTbl, *header, in) );
 					break;
 				}
 				case RIB_IPV4_MULTICAST:
 				{
 					LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibIPv4Multicast");
 	
-					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv4Multicast(tbldumpv2_indextbl, *header, in) );
+					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv4Multicast(indexTbl, *header, in) );
 					break;
 				}
 				case RIB_IPV6_UNICAST:
 				{
 					LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibIPv6Unicast");
 	
-					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv6Unicast(tbldumpv2_indextbl, *header, in) );
+					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv6Unicast(indexTbl, *header, in) );
 					break;
 				}
 				case RIB_IPV6_MULTICAST:
 				{
 					LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibIPv6Multicast");
 	
-					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv6Multicast(tbldumpv2_indextbl, *header, in) );
+					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv6Multicast(indexTbl, *header, in) );
 					break;
 				}
 				case RIB_GENERIC:
 				{
 					LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibGeneric");
 	
-					msg = MRTMessagePtr( new MRTTblDumpV2RibGeneric(tbldumpv2_indextbl, *header, in) );
+					msg = MRTMessagePtr( new MRTTblDumpV2RibGeneric(indexTbl, *header, in) );
 					break;
 				}
 				default:

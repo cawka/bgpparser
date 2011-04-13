@@ -31,6 +31,9 @@
 
 #include "MRTStructure.h"
 
+class MRTTblDumpV2PeerIndexTbl;
+typedef boost::shared_ptr<MRTTblDumpV2PeerIndexTbl> MRTTblDumpV2PeerIndexTblPtr;
+
 /* the MRTCommonHeader is a MRTMessage */
 typedef class MRTCommonHeader	MRTMessage;
 typedef class boost::shared_ptr<MRTCommonHeader> MRTMessagePtr;
@@ -50,7 +53,8 @@ public:
 	const boost::shared_ptr<char> &getData( ) const { return data; }
 
 	/* static interface... uint8_t pointer will be updated to new location in file after call */
-	static MRTMessagePtr newMessage( std::istream &input );
+	/* !!! For MRTTblDumpV2 formats, parameter should specify MRTTblDumpV2PeerIndexTblPtr !!! */
+	static MRTMessagePtr newMessage( std::istream &input, MRTTblDumpV2PeerIndexTblPtr &indexTbl );
 
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
 	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }

@@ -186,6 +186,7 @@ int main(int argc, char** argv)
 
 	AsciiVisitor ascii;
 	IPTypeDiscoveryVisitor iptype;
+	MRTTblDumpV2PeerIndexTblPtr tbldumpv2_indextbl;
 
 	int mrt_id=0;
 	int count_error=0;
@@ -197,7 +198,7 @@ int main(int argc, char** argv)
 
 			try
 			{
-				MRTMessagePtr msg=MRTCommonHeader::newMessage( in );
+				MRTMessagePtr msg=MRTCommonHeader::newMessage( in, tbldumpv2_indextbl );
 				bool canprint=true;
 				if( !ipv4 || !ipv6 )
 				{

@@ -257,13 +257,14 @@ int main(int argc, char** argv)
 	if (flag_root) cout << "<BGP_MESSAGES>" << endl;
 
 	unsigned int unTotalBytesRead = 0;
+	MRTTblDumpV2PeerIndexTblPtr tbldumpv2_indextbl;
 
 	shared_ptr<MRTTblDumpV2Dumper> mrt_tblv2_dumper( new MRTTblDumpV2Dumper() );
 	while( in.peek()!=-1 )
 	{
 		try
 		{
-			MRTMessagePtr msg = MRTCommonHeader::newMessage( in );
+			MRTMessagePtr msg = MRTCommonHeader::newMessage( in, tbldumpv2_indextbl );
 
 			switch( msg->getType() )
 			{
