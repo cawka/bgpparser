@@ -30,6 +30,7 @@ if test x"$log4cxx" = x"yes"; then
 	PKG_CHECK_MODULES( log4cxx, [liblog4cxx] )
 	AC_SUBST(log4cxx_CFLAGS)
 	AC_SUBST(log4cxx_LIBS)
+	AC_SUBST(LIBLOG4CXX, [liblog4cxx])
 fi
 ] )
 

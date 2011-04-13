@@ -35,19 +35,12 @@ AC_CONFIG_HEADERS([include/config.h])
 AM_INIT_AUTOMAKE(1.11)
 AM_SILENT_RULES([yes])
 
-# Precompiled headers are not working with libtool for some reason...
-# # Decide on precompiled headers
-# AC_ARG_ENABLE(precompiled-headers, 
-# 			  [  --enable-precomiled-headers=(gcc|clang)	Turn on precompiled headers], 
-# 			  [case "${enableval}" in
-# 				gcc)   pch=gcc ;; 
-# 				clang) pch=clang ;; 
-# 				*) AC_MSG_ERROR(bad value ${enableval} for --enable-precompiled-headers) ;;
-# 			  esac], 
-# 			  [pch=none])
-# 
-# AM_CONDITIONAL( [GCC], [test x$pch = xgcc] )
-# AM_CONDITIONAL( [CLANG], [test x$pch = xclang] )
+# Decide on precompiled headers
+AC_ARG_ENABLE(pch, 
+			  [  --enable-pch		Turn on precompiled headers], 
+			  [pch=true])
+
+AM_CONDITIONAL( [PCH], [test x$pch = xtrue] )
 
 # 
 AC_PROG_CC
