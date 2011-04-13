@@ -35,6 +35,21 @@ AC_CONFIG_HEADERS([include/config.h])
 AM_INIT_AUTOMAKE(1.11)
 AM_SILENT_RULES([yes])
 
+# Precompiled headers are not working with libtool for some reason...
+# # Decide on precompiled headers
+# AC_ARG_ENABLE(precompiled-headers, 
+# 			  [  --enable-precomiled-headers=(gcc|clang)	Turn on precompiled headers], 
+# 			  [case "${enableval}" in
+# 				gcc)   pch=gcc ;; 
+# 				clang) pch=clang ;; 
+# 				*) AC_MSG_ERROR(bad value ${enableval} for --enable-precompiled-headers) ;;
+# 			  esac], 
+# 			  [pch=none])
+# 
+# AM_CONDITIONAL( [GCC], [test x$pch = xgcc] )
+# AM_CONDITIONAL( [CLANG], [test x$pch = xclang] )
+
+# 
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_LIBTOOL
@@ -69,9 +84,7 @@ AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
 
-
 # Checks for library functions.
-
 
 AC_OUTPUT(Makefile bgpparser.pc
 		  include/Makefile

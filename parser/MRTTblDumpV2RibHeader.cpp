@@ -43,10 +43,9 @@ namespace io=boost::iostreams;
 
 log4cxx::LoggerPtr MRTTblDumpV2RibHeader::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibHeader" );
 
-MRTTblDumpV2PeerIndexTblPtr MRTTblDumpV2RibHeader::_peerIndexTbl;
-
-MRTTblDumpV2RibHeader::MRTTblDumpV2RibHeader( MRTCommonHeader &header, istream &input )
+MRTTblDumpV2RibHeader::MRTTblDumpV2RibHeader( MRTTblDumpV2PeerIndexTblPtr &peer_tbl, MRTCommonHeader &header, istream &input )
 : MRTCommonHeader(header)
+, _peerIndexTbl( peer_tbl )
 {
 	bool error=false;
 	/* copy out the sequence number, increment the pointer, and convert to host order */
@@ -87,7 +86,7 @@ void MRTTblDumpV2RibHeader::init( istream &input )
 	}
 
 	for( int i=0; i<entryCount; i++ )
-		ribs.push_back( TblDumpV2RibEntryPtr( new TblDumpV2RibEntry( input )) );
+		ribs.push_back( TblDumpV2RibEntryPtr(new TblDumpV2RibEntry( _peerIndexTbl,input )) );
 }
 
 MRTTblDumpV2RibHeader::~MRTTblDumpV2RibHeader(void) {
@@ -165,89 +164,89 @@ MRTTblDumpV2RibHeader::~MRTTblDumpV2RibHeader(void) {
 
 	LOG4CXX_TRACE(Logger,"END MRTTblDumpV2RibHeader::processAttributes(...)");
 }
-
-
-void MRTTblDumpV2RibHeader::printMe()
-{
-	cout << "PREFIX: ";
-	if( afi==AFI_IPv4 )
-	{
-		PRINT_IP_ADDR(prefix.ipv4);
-	}
-	else
-	{
-		PRINT_IPv6_ADDR(prefix.ipv6);
-	}
-	cout << "/" << (int)(prefixLength & BITMASK_8) << endl;
-	cout << "SEQUENCE: " << sequenceNumber;
-}
-
-void MRTTblDumpV2RibHeader::printMe( const MRTTblDumpV2PeerIndexTblPtr &peerIndexTbl )
-{
-	printMe();
-	cout << endl;
-	// Now continue with information from the peer index table
-	list<TblDumpV2RibEntryPtr>::iterator iter;
-	for (iter = ribs.begin(); iter != ribs.end(); iter++)
-	{
-		int peerIndex = (*iter)->getPeerIndex();
-
-		const MRTTblDumpV2PeerIndexTblPeerEntryPtr &peer=peerIndexTbl->getPeer( peerIndex );
-		cout << "FROM: ";
-		// print from IP
-		if (peer->IPType == AFI_IPv4) {
-			PRINT_IP_ADDR(peer->peerIP.ipv4);
-		} else {
-			PRINT_IPv6_ADDR(peer->peerIP.ipv6);
-		}
-		cout << " AS" << peer->peerAS;
-		cout << endl;
-
-		(*iter)->printMe();
-		cout << endl;
-	}
-}
-
-void MRTTblDumpV2RibHeader::printMeCompact() {
-	PRINT_IP_ADDR(prefix.ipv4) ;
-	cout << "/" << (int)(prefixLength & BITMASK_8);
-	cout << "|" << sequenceNumber << "|";
-}
-
-void MRTTblDumpV2RibHeader::printMeCompact( const MRTTblDumpV2PeerIndexTblPtr &peerIndexTbl )
-{
-	list<TblDumpV2RibEntryPtr>::iterator iter;
-
-	cout << "ENTRY_CNT: " << ribs.size() << endl;
-	for (iter = ribs.begin(); iter != ribs.end(); iter++)
-	{
-		printMeCompact();
-
-		int peerIndex=(*iter)->getPeerIndex( );
-
-		const MRTTblDumpV2PeerIndexTblPeerEntryPtr &peer=peerIndexTbl->getPeer( peerIndex );
-
-		// print from IP
-		if (peer->IPType == AFI_IPv4) {
-			PRINT_IP_ADDR(peer->peerIP.ipv4);
-		} else {
-			PRINT_IPv6_ADDR(peer->peerIP.ipv6);
-		}
-
-		// Print from AS
-		uint16_t top, bottom;
-		top = (uint16_t)((peer->peerAS>>16)&0xFFFF);
-		bottom = (uint16_t)((peer->peerAS)&0xFFFF);
-		printf("|");
-		if( top == 0 ) {
-			printf("%u",bottom);
-		} else {
-			printf("%u.%u",top,bottom);
-		}
-		printf("|");
-
-		(*iter)->printMeCompact();
-		cout << endl;
-	}
-}
-
+//
+//
+//void MRTTblDumpV2RibHeader::printMe()
+//{
+//	cout << "PREFIX: ";
+//	if( afi==AFI_IPv4 )
+//	{
+//		PRINT_IP_ADDR(prefix.ipv4);
+//	}
+//	else
+//	{
+//		PRINT_IPv6_ADDR(prefix.ipv6);
+//	}
+//	cout << "/" << (int)(prefixLength & BITMASK_8) << endl;
+//	cout << "SEQUENCE: " << sequenceNumber;
+//}
+//
+//void MRTTblDumpV2RibHeader::printMe( const MRTTblDumpV2PeerIndexTblPtr &peerIndexTbl )
+//{
+//	printMe();
+//	cout << endl;
+//	// Now continue with information from the peer index table
+//	list<TblDumpV2RibEntryPtr>::iterator iter;
+//	for (iter = ribs.begin(); iter != ribs.end(); iter++)
+//	{
+//		int peerIndex = (*iter)->getPeerIndex();
+//
+//		const MRTTblDumpV2PeerIndexTblPeerEntryPtr &peer=peerIndexTbl->getPeer( peerIndex );
+//		cout << "FROM: ";
+//		// print from IP
+//		if (peer->IPType == AFI_IPv4) {
+//			PRINT_IP_ADDR(peer->peerIP.ipv4);
+//		} else {
+//			PRINT_IPv6_ADDR(peer->peerIP.ipv6);
+//		}
+//		cout << " AS" << peer->peerAS;
+//		cout << endl;
+//
+//		(*iter)->printMe();
+//		cout << endl;
+//	}
+//}
+//
+//void MRTTblDumpV2RibHeader::printMeCompact() {
+//	PRINT_IP_ADDR(prefix.ipv4) ;
+//	cout << "/" << (int)(prefixLength & BITMASK_8);
+//	cout << "|" << sequenceNumber << "|";
+//}
+//
+//void MRTTblDumpV2RibHeader::printMeCompact( const MRTTblDumpV2PeerIndexTblPtr &peerIndexTbl )
+//{
+//	list<TblDumpV2RibEntryPtr>::iterator iter;
+//
+//	cout << "ENTRY_CNT: " << ribs.size() << endl;
+//	for (iter = ribs.begin(); iter != ribs.end(); iter++)
+//	{
+//		printMeCompact();
+//
+//		int peerIndex=(*iter)->getPeerIndex( );
+//
+//		const MRTTblDumpV2PeerIndexTblPeerEntryPtr &peer=peerIndexTbl->getPeer( peerIndex );
+//
+//		// print from IP
+//		if (peer->IPType == AFI_IPv4) {
+//			PRINT_IP_ADDR(peer->peerIP.ipv4);
+//		} else {
+//			PRINT_IPv6_ADDR(peer->peerIP.ipv6);
+//		}
+//
+//		// Print from AS
+//		uint16_t top, bottom;
+//		top = (uint16_t)((peer->peerAS>>16)&0xFFFF);
+//		bottom = (uint16_t)((peer->peerAS)&0xFFFF);
+//		printf("|");
+//		if( top == 0 ) {
+//			printf("%u",bottom);
+//		} else {
+//			printf("%u.%u",top,bottom);
+//		}
+//		printf("|");
+//
+//		(*iter)->printMeCompact();
+//		cout << endl;
+//	}
+//}
+//

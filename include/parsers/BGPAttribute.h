@@ -70,9 +70,6 @@ public:
 	bool isComplete( )       const { return !isPartial(); };
 	bool isExtendedLength( ) const { return ((attributeFlags & 0x10) == 0) ? false : true; };
 
-	virtual void printMe() { value->printMe(); };
-	virtual void printMeCompact() { value->printMeCompact(); };
-	
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
 	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
 	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }

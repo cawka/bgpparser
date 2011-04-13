@@ -189,11 +189,11 @@ BGPNotification::BGPNotification( BGPCommonHeader &header, istream &input )
 
 BGPNotification::~BGPNotification(void) {
 }
-
-void BGPNotification::printMe() {
-	/* nothing */
-}
-
-void BGPNotification::printMeCompact() {
-	std::cout << errorCode << "|" << subErrorCode;
-}
+//
+//void BGPNotification::printMe() {
+//	/* nothing */
+//}
+//
+//void BGPNotification::printMeCompact() {
+//	std::cout << errorCode << "|" << subErrorCode;
+//}

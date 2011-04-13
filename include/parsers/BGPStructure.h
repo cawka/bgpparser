@@ -49,9 +49,6 @@ public:
 
 	inline std::string toString(uint16_t afi=AFI_IPv4);
 	
-	void printMe(uint16_t afi=AFI_IPv4);
-	void printMeCompact(uint16_t afi=AFI_IPv4);
-
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
 	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
 	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }

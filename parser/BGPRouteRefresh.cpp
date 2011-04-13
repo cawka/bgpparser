@@ -71,11 +71,3 @@ BGPRouteRefresh::BGPRouteRefresh( BGPCommonHeader &header, istream &input )
 BGPRouteRefresh::~BGPRouteRefresh() { 
 	/* nothing */
 }
-
-void BGPRouteRefresh::printMe() {
-	/* nothing */
-}
-
-void BGPRouteRefresh::printMeCompact() {
-	/* nothing */
-}

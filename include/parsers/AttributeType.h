@@ -50,10 +50,6 @@ public:
 	bool getAS4() const { return isAS4; }
 	void setAS4(bool isAS4) { this->isAS4 = isAS4; };
 
-	virtual void printMe() { /*cout << "AttributeType Default";*/ };
-	virtual void printMeCompact() { /*cout << "AttributeType Default";*/ };
-//	virtual AttributeType* clone() { /*cout << "Cloning AttributeType" << endl;*/ return new AttributeType(length, value, isAS4); }
-
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
 	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
 	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }

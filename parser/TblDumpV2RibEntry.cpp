@@ -37,7 +37,8 @@ namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr TblDumpV2RibEntry::Logger = log4cxx::Logger::getLogger( "bgpparser.TblDumpV2RibEntry" );
 
-TblDumpV2RibEntry::TblDumpV2RibEntry( std::istream &input )
+TblDumpV2RibEntry::TblDumpV2RibEntry( MRTTblDumpV2PeerIndexTblPtr &peer_tbl, std::istream &input )
+: _peerIndexTbl( peer_tbl )
 {
 	LOG4CXX_TRACE(Logger,"");
 
@@ -65,57 +66,11 @@ TblDumpV2RibEntry::TblDumpV2RibEntry( std::istream &input )
 		throw BGPError( );
 	}
 
-	MRTTblDumpV2PeerIndexTblPeerEntryPtr peer=MRTTblDumpV2RibHeader::getPeerIndexTbl()->getPeer( peerIndex );
-
-	MRTTblDumpV2RibHeader::processAttributes( attributes, input, attributeLength, peer->isAS4);
+	MRTTblDumpV2PeerIndexTblPeerEntryPtr peer=_peerIndexTbl->getPeer( peerIndex );
+	
+	MRTTblDumpV2RibHeader::processAttributes( attributes, input, attributeLength, peer->isAS4 );
 }
 
 TblDumpV2RibEntry::~TblDumpV2RibEntry(void)
 {
 }
-
-// TODO: Can we print from this abstract of a level?
-//       Seems like we don't know AFI, SAFI...
-void TblDumpV2RibEntry::printMe( const MRTTblDumpV2PeerIndexTblPtr &peerIndexTbl )
-{
-	cout << "TblDumpV2RibEntry with Peer Index Table" << endl; 
-	cout << "Peer Index: " << peerIndex;
-	fflush(stdout);
-
-	vector<MRTTblDumpV2PeerIndexTblPeerEntryPtr>::const_iterator iter;
-	int i=0;
-	for (iter = peerIndexTbl->getPeerEntries().begin(); i < peerIndex; iter++, i++)
-	{ /* Do nothing -- looking up the correct index */ }
-	cout << "iter should be at " << i;
-}	
-
-void TblDumpV2RibEntry::printMe() { 
-	struct tm  *ts;
-	time_t time=originatedTime;
-	ts = gmtime( &time );
-	char buf[80];
-	strftime(buf, sizeof(buf), "%m/%d/%Y %H:%M:%S", ts);
-	cout << "  ORIGINATED: " << buf;
-	// Print out the BGP Attributes
-	list<BGPAttributePtr>::iterator iter;
-	for (iter = attributes.begin(); iter != attributes.end(); iter++) {
-		cout << endl << "  ";
-		(*iter)->printMe();
-	}
-}	
-
-void TblDumpV2RibEntry::printMeCompact() {
-	list<BGPAttributePtr>::iterator iter;
-
-	cout << "ATTR_CNT: " << attributes.size() << "|";
-	for (iter = attributes.begin(); iter != attributes.end(); iter++) {
-		(*iter)->printMeCompact();
-		cout << "|";
-	}
-}
-
-void TblDumpV2RibEntry::printMeCompact(const MRTTblDumpV2PeerIndexTblPtr &peerIndexTbl) {
-	/* nothing */
-}
-
-

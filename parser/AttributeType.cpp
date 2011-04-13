@@ -126,6 +126,7 @@ std::string AttributeType::getTypeStr(uint8_t attrType) {
 		case COMMUNITIES:      { return "COMMUNITIES";      break; }
 		case ORIGINATOR_ID:    { return "ORIGINATOR_ID";    break; }
 		case CLUSTER_LIST:     { return "CLUSTER_LIST";     break; }
+		case EXT_COMMUNITIES:  { return "EXT_COMMUNITIES";  break; }
 		case MP_REACH_NLRI:    { return "MP_REACH_NLRI";    break; }
 		case MP_UNREACH_NLRI:  { return "MP_UNREACH_NLRI";  break; }
 		case NEW_AS_PATH:      { return "AS4_PATH";         break; }

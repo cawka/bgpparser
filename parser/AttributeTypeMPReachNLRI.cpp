@@ -203,28 +203,28 @@ void AttributeTypeMPReachNLRI::addNLRI(NLRIReachablePtr &nlri)
 		this->nlri.push_back( nlri );
 	}
 };
-
-void AttributeTypeMPReachNLRI::printMe() {
-	cout << "ANNOUNCE:";
-	
-	BOOST_FOREACH( NLRIReachablePtr entry, nlri )
-	{
-		cout << endl;
-		entry->printMe(afi);
-	}
-}
-
-void AttributeTypeMPReachNLRI::printMeCompact() {
-	cout << "MBGP-NEXTHOP: ";
-	if( afi == AFI_IPv4 ) {
-		PRINT_IP_ADDR(nextHopAddress.ipv4);
-	} else {
-		PRINT_IPv6_ADDR(nextHopAddress.ipv6);
-	}
-	cout << "^MBGP-ANNOUNCE:";
-	BOOST_FOREACH( NLRIReachablePtr entry, nlri )
-	{
-		cout << " ";
-		entry->printMeCompact(afi);
-	}
-}
+//
+//void AttributeTypeMPReachNLRI::printMe() {
+//	cout << "ANNOUNCE:";
+//
+//	BOOST_FOREACH( NLRIReachablePtr entry, nlri )
+//	{
+//		cout << endl;
+//		entry->printMe(afi);
+//	}
+//}
+//
+//void AttributeTypeMPReachNLRI::printMeCompact() {
+//	cout << "MBGP-NEXTHOP: ";
+//	if( afi == AFI_IPv4 ) {
+//		PRINT_IP_ADDR(nextHopAddress.ipv4);
+//	} else {
+//		PRINT_IPv6_ADDR(nextHopAddress.ipv6);
+//	}
+//	cout << "^MBGP-ANNOUNCE:";
+//	BOOST_FOREACH( NLRIReachablePtr entry, nlri )
+//	{
+//		cout << " ";
+//		entry->printMeCompact(afi);
+//	}
+//}

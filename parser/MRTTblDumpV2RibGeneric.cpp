@@ -35,8 +35,8 @@ namespace io = boost::iostreams;
 
 log4cxx::LoggerPtr MRTTblDumpV2RibGeneric::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibGeneric" );
 
-MRTTblDumpV2RibGeneric::MRTTblDumpV2RibGeneric( MRTCommonHeader &header, std::istream &input )
-					   : MRTTblDumpV2RibHeader(header,input)
+MRTTblDumpV2RibGeneric::MRTTblDumpV2RibGeneric( MRTTblDumpV2PeerIndexTblPtr &peer_tbl, MRTCommonHeader &header, std::istream &input )
+					   : MRTTblDumpV2RibHeader(peer_tbl,header,input)
 {
 	bool error=false;
 

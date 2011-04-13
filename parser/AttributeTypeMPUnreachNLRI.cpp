@@ -82,24 +82,24 @@ AttributeTypeMPUnreachNLRI::AttributeTypeMPUnreachNLRI( AttributeType &header, s
 
 AttributeTypeMPUnreachNLRI::~AttributeTypeMPUnreachNLRI(void) {
 }
-
-void AttributeTypeMPUnreachNLRI::printMe() {
-	cout << "MBGP-WITHDRAWN: ";
-	
-	BOOST_FOREACH( NLRIUnReachablePtr entry, nlri )
-	{
-		cout << endl;
-		entry->printMe( afi );
-	}
-}
-
-void AttributeTypeMPUnreachNLRI::printMeCompact()
-{
-	cout << "MBGP-WITHDRAWN:";
-
-	BOOST_FOREACH( NLRIUnReachablePtr entry, nlri )
-	{
-		cout << " ";
-		entry->printMeCompact( afi );
-	}
-}
+//
+//void AttributeTypeMPUnreachNLRI::printMe() {
+//	cout << "MBGP-WITHDRAWN: ";
+//
+//	BOOST_FOREACH( NLRIUnReachablePtr entry, nlri )
+//	{
+//		cout << endl;
+//		entry->printMe( afi );
+//	}
+//}
+//
+//void AttributeTypeMPUnreachNLRI::printMeCompact()
+//{
+//	cout << "MBGP-WITHDRAWN:";
+//
+//	BOOST_FOREACH( NLRIUnReachablePtr entry, nlri )
+//	{
+//		cout << " ";
+//		entry->printMeCompact( afi );
+//	}
+//}

@@ -1,4 +1,8 @@
-AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/include/parsers $(log4cxx_CFLAGS) $(BOOST_CPPFLAGS)
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/include/parsers $(log4cxx_CFLAGS) $(BOOST_CPPFLAGS) $(PCH)
+
+# if CLANG
+# PCH = -include ../bgpparser.h.gch
+# endif
 
 lib_LTLIBRARIES=libbgpparser.la
 

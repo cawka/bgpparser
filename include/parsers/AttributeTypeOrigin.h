@@ -46,9 +46,6 @@ public:
 	
 	void setOrigin(uint8_t org) { origin = org; }
 	uint8_t getOrigin() { return origin; }
-	virtual void printMe();
-	virtual void printMeCompact();
-//	virtual AttributeType* clone() { return new AttributeTypeOrigin(length, origin, value); }
 
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
 	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }

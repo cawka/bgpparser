@@ -54,21 +54,21 @@ AttributeTypeOrigin::AttributeTypeOrigin( AttributeType &header, istream &input 
 AttributeTypeOrigin::~AttributeTypeOrigin(void) {
 	/* nothing */
 }
-
-void AttributeTypeOrigin::printMe() { 
-	cout << "ORIGIN: ";
-	switch(origin) {
-	case IGP: cout << "IGP"; break;
-	case EGP: cout << "EGP"; break;
-	default:  cout << "INCOMPLETE"; break;
-	}
-}
-
-void AttributeTypeOrigin::printMeCompact() { 
-	cout << "ORIGIN: ";
-	switch(origin) {
-	case IGP: cout << "IGP"; break;
-	case EGP: cout << "EGP"; break;
-	default:  cout << "INCOMPLETE"; break;
-	}
-}
+//
+//void AttributeTypeOrigin::printMe() {
+//	cout << "ORIGIN: ";
+//	switch(origin) {
+//	case IGP: cout << "IGP"; break;
+//	case EGP: cout << "EGP"; break;
+//	default:  cout << "INCOMPLETE"; break;
+//	}
+//}
+//
+//void AttributeTypeOrigin::printMeCompact() {
+//	cout << "ORIGIN: ";
+//	switch(origin) {
+//	case IGP: cout << "IGP"; break;
+//	case EGP: cout << "EGP"; break;
+//	default:  cout << "INCOMPLETE"; break;
+//	}
+//}

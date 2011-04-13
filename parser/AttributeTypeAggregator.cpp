@@ -77,22 +77,22 @@ AttributeTypeAggregator::~AttributeTypeAggregator( )
 
 }
 
-void AttributeTypeAggregator::printMe() { 
-	cout << "AGGREGATOR: AS" << aggregatorLastAS << " "; 
-	PRINT_IP_ADDR(bgpSpeakerIPAddress.ipv4);
-}
-
-void AttributeTypeAggregator::printMeCompact() { 
-	cout << "AGGREGATOR: ";
-
-	uint16_t t, b;
-	t = (uint16_t)((aggregatorLastAS>>16)&0xFFFF); 
-	b = (uint16_t)((aggregatorLastAS)&0xFFFF); 
-	if( t == 0 ) { 
-		printf("%u ",b);
-	} else {
-		printf("%u.%u ",t,b);
-	}
-	PRINT_IP_ADDR(bgpSpeakerIPAddress.ipv4);
-}
-
+//void AttributeTypeAggregator::printMe() {
+//	cout << "AGGREGATOR: AS" << aggregatorLastAS << " ";
+//	PRINT_IP_ADDR(bgpSpeakerIPAddress.ipv4);
+//}
+//
+//void AttributeTypeAggregator::printMeCompact() {
+//	cout << "AGGREGATOR: ";
+//
+//	uint16_t t, b;
+//	t = (uint16_t)((aggregatorLastAS>>16)&0xFFFF);
+//	b = (uint16_t)((aggregatorLastAS)&0xFFFF);
+//	if( t == 0 ) {
+//		printf("%u ",b);
+//	} else {
+//		printf("%u.%u ",t,b);
+//	}
+//	PRINT_IP_ADDR(bgpSpeakerIPAddress.ipv4);
+//}
+//

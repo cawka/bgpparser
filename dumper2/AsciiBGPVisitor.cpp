@@ -26,8 +26,8 @@ void AsciiBGPVisitor::visit( MRTTblDumpV2RibHeader &n, boost::any param )
 
 	BOOST_FOREACH( const TblDumpV2RibEntryPtr &entry, n.getRibEntries() )
 	{
-		MRTTblDumpV2PeerIndexTblPeerEntryPtr peer=MRTTblDumpV2RibHeader::getPeer( entry->getPeerIndex() );
-
+		const MRTTblDumpV2PeerIndexTblPeerEntryPtr peer=n.getPeer( *entry );
+		
 		info->peer_addr=peer->peerIP;
 		info->peer_as  =peer->peerAS;
 		info->peer_afi =peer->IPType;
@@ -241,6 +241,14 @@ void AsciiBGPVisitor::visit( AttributeTypeAggregator &n, boost::any param )
 {
 	std::ostringstream os;
 	os << (int)n.getAggregatorLastASComplete( ) << " "
+	   << n.getAggregatorBGPSpeakerIPAddress().ipv4;
+	boost::any_cast<InfoPtr>(param)->agg = os.str( );
+}
+
+void AsciiBGPVisitor::visit( AttributeTypeAS4Aggregator &n, boost::any param )
+{
+	std::ostringstream os;
+	os << (int)n.getAggregatorLastAS( ) << " "
 	   << n.getAggregatorBGPSpeakerIPAddress().ipv4;
 	boost::any_cast<InfoPtr>(param)->agg = os.str( );
 }

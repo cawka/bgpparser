@@ -37,14 +37,10 @@ class AttributeTypeClusterList : public AttributeType
 {
 public:
 	AttributeTypeClusterList(AttributeType &header, std::istream &input);
-	
 	virtual ~AttributeTypeClusterList(void);	
 	
-//	void setClusterList(uint32_t value) { cluster_list.push_back(value); }
 	const std::list<uint32_t>& getClusterList(void) const { return cluster_list; }
-	virtual void printMe();
-	virtual void printMeCompact();
-	
+
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
 	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
 	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }

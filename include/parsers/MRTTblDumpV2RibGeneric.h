@@ -36,7 +36,7 @@ class MRTTblDumpV2RibGeneric :
 	public MRTTblDumpV2RibHeader
 {
 public:
-	MRTTblDumpV2RibGeneric(MRTCommonHeader &header, std::istream &input);
+	MRTTblDumpV2RibGeneric(MRTTblDumpV2PeerIndexTblPtr &peertbl, MRTCommonHeader &header, std::istream &input);
 	virtual ~MRTTblDumpV2RibGeneric(void);
 
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }

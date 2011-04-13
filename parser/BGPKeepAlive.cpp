@@ -44,11 +44,3 @@ BGPKeepAlive::BGPKeepAlive( BGPCommonHeader &header, istream &input )
 BGPKeepAlive::~BGPKeepAlive() { 
 	/* nothing */
 }
-
-void BGPKeepAlive::printMe() {
-	/* nothing */
-}
-
-void BGPKeepAlive::printMeCompact() {
-	/* nothing */
-}

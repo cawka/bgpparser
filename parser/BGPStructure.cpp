@@ -58,13 +58,13 @@ Route::Route( uint8_t aLength, istream &input )
 		}
 	}
 }
-
-void Route::printMe( uint16_t afi )
-{
-	cout << toString( afi );
-}
-
-void Route::printMeCompact( uint16_t afi )
-{
-	printMe( afi );
-}
+//
+//void Route::printMe( uint16_t afi )
+//{
+//	cout << toString( afi );
+//}
+//
+//void Route::printMeCompact( uint16_t afi )
+//{
+//	printMe( afi );
+//}

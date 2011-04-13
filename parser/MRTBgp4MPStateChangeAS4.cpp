@@ -57,4 +57,3 @@ MRTBgp4MPStateChangeAS4::MRTBgp4MPStateChangeAS4( MRTCommonHeader &header, istre
 	processIPs( input );
 	processStates( input );
 }
-

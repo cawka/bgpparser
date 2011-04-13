@@ -37,8 +37,8 @@ namespace io = boost::iostreams;
 log4cxx::LoggerPtr MRTTblDumpV2RibIPv6Multicast::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibIPv6Multicast" );
 
 
-MRTTblDumpV2RibIPv6Multicast::MRTTblDumpV2RibIPv6Multicast( MRTCommonHeader &header, std::istream &input )
-: MRTTblDumpV2RibHeader(header, input)
+MRTTblDumpV2RibIPv6Multicast::MRTTblDumpV2RibIPv6Multicast( MRTTblDumpV2PeerIndexTblPtr &peer_tbl, MRTCommonHeader &header, std::istream &input )
+: MRTTblDumpV2RibHeader(peer_tbl, header, input)
 {
 	LOG4CXX_TRACE( Logger, "" );
 

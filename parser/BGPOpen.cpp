@@ -90,11 +90,3 @@ BGPOpen::BGPOpen( BGPCommonHeader &header, std::istream &input )
 BGPOpen::~BGPOpen() { 
 	/* nothing */
 }
-
-void BGPOpen::printMe() {
-	/* nothing */
-}
-
-void BGPOpen::printMeCompact() {
-	/* nothing */
-}

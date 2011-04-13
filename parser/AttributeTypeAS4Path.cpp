@@ -102,40 +102,28 @@ AttributeTypeAS4Path::~AttributeTypeAS4Path(void)
 {
 }
 
-//AttributeType* AttributeTypeAS4Path::clone() {
-//	AttributeTypeAS4Path *atAS4Path = new AttributeTypeAS4Path();
-//	// TODO: copy each element in pathSegments list using pathSegments's clone()
-//	list<AttributeTypeAS4PathSegment>::iterator it;
-//	for (it = pathSegments->begin(); it != pathSegments->end(); it++) {
-//		atAS4Path->setAS4PathSegment((*it));
+//void AttributeTypeAS4Path::printMe()
+//{
+//	cout << "AS4_PATH:";
+//	list<AttributeTypeASPathSegmentPtr>::iterator it;
+//
+//	for (it = pathSegments.begin(); it != pathSegments.end(); it++)
+//	{
+//		//cout << endl << "  ";
+//		(*it)->printMe();
 //	}
-//	atAS4Path->setPathSegmentType(getPathSegmentType());
-//	atAS4Path->setPathSegmentLength(getPathSegmentLength());
-//	return atAS4Path;
 //}
-
-void AttributeTypeAS4Path::printMe() 
-{ 
-	cout << "AS4_PATH:";
-	list<AttributeTypeASPathSegmentPtr>::iterator it;
-
-	for (it = pathSegments.begin(); it != pathSegments.end(); it++)
-	{
-		//cout << endl << "  ";
-		(*it)->printMe();
-	}
-}
-
-void AttributeTypeAS4Path::printMeCompact()
-{
-	list<AttributeTypeASPathSegmentPtr>::iterator it;
-
-	for (it = pathSegments.begin(); it != pathSegments.end(); it++)
-	{
-		//cout << endl << "  ";
-		(*it)->printMeCompact();
-	}
-}
+//
+//void AttributeTypeAS4Path::printMeCompact()
+//{
+//	list<AttributeTypeASPathSegmentPtr>::iterator it;
+//
+//	for (it = pathSegments.begin(); it != pathSegments.end(); it++)
+//	{
+//		//cout << endl << "  ";
+//		(*it)->printMeCompact();
+//	}
+//}
 
 uint32_t AttributeTypeAS4Path::getCountOfASNs( ) const
 {

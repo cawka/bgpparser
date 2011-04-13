@@ -63,9 +63,6 @@ public:
 
 	void add( uint32_t asn )								 { pathSegmentValue.push_back(asn); }
 
-	virtual void printMe();
-	virtual void printMeCompact();
-
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
 	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
 	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }
@@ -94,9 +91,6 @@ public:
 	const std::list<AttributeTypeASPathSegmentPtr> &getPathSegments(void)         const { return pathSegments;         }
 	const std::list<AttributeTypeASPathSegmentPtr> &getPathSegmentsComplete(void) const { return pathSegmentsComplete; }
 	
-	virtual void printMe();
-	virtual void printMeCompact();
-
 	uint32_t getCountOfASNs( ) const;
 
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }

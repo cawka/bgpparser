@@ -42,9 +42,6 @@ public:
 	virtual BGP_MESSAGE_TYPE Type()    { return KEEPALIVE;   }
 	virtual std::string      TypeStr() { return "KEEPALIVE"; };
 	
-	virtual void printMe();
-	virtual void printMeCompact();
-	
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
 	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
 	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }

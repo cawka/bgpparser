@@ -69,28 +69,28 @@ AttributeTypeExtCommunities::AttributeTypeExtCommunities( AttributeType &header,
 AttributeTypeExtCommunities::~AttributeTypeExtCommunities(void)
 {
 }
-
-void AttributeTypeExtCommunities::printMe() {
-	cout << "EXTENDED_COMMUNITIES:";
-	list<ExtCommunityValue>::iterator iter;
-
-	for(iter = extCommunityValues.begin(); iter != extCommunityValues.end(); iter++) {
-		cout << " " << (int)(*iter).typeHigh << ":" << (int)(*iter).typeLow << ":";
-		printf("%02x%02x%02x%02x%02x%02x", 
-					(*iter).rchValue[0], (*iter).rchValue[1], (*iter).rchValue[2],
-					(*iter).rchValue[3], (*iter).rchValue[4], (*iter).rchValue[5] );
-	}
-}
-
-void AttributeTypeExtCommunities::printMeCompact() {
-	cout << "EXTENDED_COMMUNITIES: ";
-	list<ExtCommunityValue>::iterator iter;
-	bool isFirstLoop = true;
-	for(iter = extCommunityValues.begin(); iter != extCommunityValues.end(); iter++) {
-		cout << (isFirstLoop ? "" : " ") << (int)(*iter).typeHigh << ":" << (int)(*iter).typeLow << ":";
-		printf("%02x%02x%02x%02x%02x%02x", 
-					(*iter).rchValue[0], (*iter).rchValue[1], (*iter).rchValue[2],
-					(*iter).rchValue[3], (*iter).rchValue[4], (*iter).rchValue[5] );
-		isFirstLoop = false;
-	}
-}
+//
+//void AttributeTypeExtCommunities::printMe() {
+//	cout << "EXTENDED_COMMUNITIES:";
+//	list<ExtCommunityValue>::iterator iter;
+//
+//	for(iter = extCommunityValues.begin(); iter != extCommunityValues.end(); iter++) {
+//		cout << " " << (int)(*iter).typeHigh << ":" << (int)(*iter).typeLow << ":";
+//		printf("%02x%02x%02x%02x%02x%02x",
+//					(*iter).rchValue[0], (*iter).rchValue[1], (*iter).rchValue[2],
+//					(*iter).rchValue[3], (*iter).rchValue[4], (*iter).rchValue[5] );
+//	}
+//}
+//
+//void AttributeTypeExtCommunities::printMeCompact() {
+//	cout << "EXTENDED_COMMUNITIES: ";
+//	list<ExtCommunityValue>::iterator iter;
+//	bool isFirstLoop = true;
+//	for(iter = extCommunityValues.begin(); iter != extCommunityValues.end(); iter++) {
+//		cout << (isFirstLoop ? "" : " ") << (int)(*iter).typeHigh << ":" << (int)(*iter).typeLow << ":";
+//		printf("%02x%02x%02x%02x%02x%02x",
+//					(*iter).rchValue[0], (*iter).rchValue[1], (*iter).rchValue[2],
+//					(*iter).rchValue[3], (*iter).rchValue[4], (*iter).rchValue[5] );
+//		isFirstLoop = false;
+//	}
+//}

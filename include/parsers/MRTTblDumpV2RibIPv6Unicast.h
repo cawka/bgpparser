@@ -38,7 +38,7 @@ class MRTTblDumpV2RibIPv6Unicast :
 	public MRTTblDumpV2RibHeader
 {
 public:
-	MRTTblDumpV2RibIPv6Unicast(MRTCommonHeader &header, std::istream &input);
+	MRTTblDumpV2RibIPv6Unicast(MRTTblDumpV2PeerIndexTblPtr &peer_tbl, MRTCommonHeader &header, std::istream &input);
 	virtual ~MRTTblDumpV2RibIPv6Unicast(void);
 
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }

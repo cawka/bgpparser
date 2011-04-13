@@ -47,10 +47,6 @@ public:
 	void addNLRI(NLRIUnReachablePtr nlri) { this->nlri.push_back(nlri); };
 	const std::list<NLRIUnReachablePtr> &getNLRI(void) const { return nlri; };
 
-	virtual void printMe();
-	virtual void printMeCompact();
-	AttributeType* clone();
-
 	bool getCorrupt(void) { return corrupt; };
 	void setCorrupt(bool c) { corrupt = c; };
 	

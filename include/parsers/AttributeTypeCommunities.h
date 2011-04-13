@@ -54,9 +54,6 @@ public:
 	const std::list<CommunityValue>& getCommunityValues(void) const { return communityValues; };
 //	void setCommunityValue(CommunityValue communityVal) { this->communityValues->push_back(communityVal); };
 
-	void printMe();
-	void printMeCompact();
-
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
 	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
 	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }

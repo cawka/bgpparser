@@ -55,11 +55,11 @@ AttributeTypeMultiExitDisc::AttributeTypeMultiExitDisc(AttributeType &header, is
 AttributeTypeMultiExitDisc::~AttributeTypeMultiExitDisc(void) {
 	/* nothing */
 }
-
-void AttributeTypeMultiExitDisc::printMeCompact() {
-	std::cout << "MULTI_EXIT_DISC: " << discriminator;
-}
-
-void AttributeTypeMultiExitDisc::printMe() {
-	std::cout << "MULTI_EXIT_DISC: " << discriminator;
-}
+//
+//void AttributeTypeMultiExitDisc::printMeCompact() {
+//	std::cout << "MULTI_EXIT_DISC: " << discriminator;
+//}
+//
+//void AttributeTypeMultiExitDisc::printMe() {
+//	std::cout << "MULTI_EXIT_DISC: " << discriminator;
+//}

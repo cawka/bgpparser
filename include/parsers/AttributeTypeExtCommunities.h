@@ -51,9 +51,6 @@ public:
 	const std::list<ExtCommunityValue>& getExtCommunityValues(void) const { return extCommunityValues; };
 //	void setExtCommunityValue(ExtCommunityValue ExtCommunityVal) { this->extCommunityValues->push_back(ExtCommunityVal); };
 
-	void printMe();
-	void printMeCompact();
-
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
 	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
 	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }

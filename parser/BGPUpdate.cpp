@@ -189,81 +189,37 @@ BGPUpdate::BGPUpdate(BGPCommonHeader &header, istream &input, bool isAS4 )
 	}
 }
 
-//BGPUpdate::BGPUpdate(bool isAS4)
-//		 : BGPCommonHeader() {
-//	setLength(0);
-//	setType((uint8_t)BGPCommonHeader::UPDATE);
-//
-//	withdrawnRoutes = new list<Route>();
-//	pathAttributes  = new list<BGPAttribute>();
-//	announcedRoutes = new list<Route>();
-//}
-
 BGPUpdate::~BGPUpdate() { 
 }
 
-void BGPUpdate::printMe()
-{
-	if (withdrawnRoutes.size() > 0)
-	{
-		cout << "WITHDRAWN:" << endl;
-		for( std::list<RoutePtr>::iterator routeIter = withdrawnRoutes.begin( );
-				routeIter != withdrawnRoutes.end( ); routeIter++ )
-		{
-			cout << "  ";
-			(*routeIter)->printMe( );
-			cout << endl;
-		}
-	}
-	
-	for( std::list<BGPAttributePtr>::iterator attrIter = pathAttributes.begin( );
-			attrIter != pathAttributes.end( ); attrIter++ )
-	{
-		(*attrIter)->printMe( );
-		cout << endl;
-	}
-	
-	if( announcedRoutes.size( ) > 0 )
-	{
-		cout << "ANNOUNCED:" << endl;
-		for( std::list<RoutePtr>::iterator routeIter = announcedRoutes.begin( );
-				routeIter != announcedRoutes.end( ); routeIter++ )
-		{
-			cout << "  ";
-			(*routeIter)->printMe( );
-			cout << endl;
-		}
-	}
-}
-
-void BGPUpdate::printMeCompact()
-{
-	bool isFirstLoop = true;
-	cout << "WITH_CNT: " << withdrawnRoutes.size() << "|";
-	for( std::list<RoutePtr>::iterator routeIter = withdrawnRoutes.begin( );
-					routeIter != withdrawnRoutes.end( ); routeIter++ )
-	{
-		isFirstLoop ? isFirstLoop = false : cout << " ";
-		(*routeIter)->printMe( );
-	}
-	cout << "|";
-	
-	cout << "ATTR_CNT: " << pathAttributes.size() << "|";
-
-	for( std::list<BGPAttributePtr>::iterator attrIter = pathAttributes.begin( );
-				attrIter != pathAttributes.end( ); attrIter++ )
-	{
-		(*attrIter)->printMeCompact();
-		cout << "|";
-	}
-	
-	isFirstLoop = true;
-	cout << "ANN_CNT: " << announcedRoutes.size() << "|";
-	for( std::list<RoutePtr>::iterator routeIter = announcedRoutes.begin( );
-					routeIter != announcedRoutes.end( ); routeIter++ )
-	{
-		isFirstLoop ? isFirstLoop = false : cout << " ";
-		(*routeIter)->printMe( );
-	}
-	cout << "|";
-}
+//void BGPUpdate::printMeCompact()
+//{
+//	bool isFirstLoop = true;
+//	cout << "WITH_CNT: " << withdrawnRoutes.size() << "|";
+//	for( std::list<RoutePtr>::iterator routeIter = withdrawnRoutes.begin( );
+//					routeIter != withdrawnRoutes.end( ); routeIter++ )
+//	{
+//		isFirstLoop ? isFirstLoop = false : cout << " ";
+//		(*routeIter)->printMe( );
+//	}
+//	cout << "|";
+//
+//	cout << "ATTR_CNT: " << pathAttributes.size() << "|";
+//
+//	for( std::list<BGPAttributePtr>::iterator attrIter = pathAttributes.begin( );
+//				attrIter != pathAttributes.end( ); attrIter++ )
+//	{
+//		(*attrIter)->printMeCompact();
+//		cout << "|";
+//	}
+//
+//	isFirstLoop = true;
+//	cout << "ANN_CNT: " << announcedRoutes.size() << "|";
+//	for( std::list<RoutePtr>::iterator routeIter = announcedRoutes.begin( );
+//					routeIter != announcedRoutes.end( ); routeIter++ )
+//	{
+//		isFirstLoop ? isFirstLoop = false : cout << " ";
+//		(*routeIter)->printMe( );
+//	}
+//	cout << "|";
+//}

@@ -28,6 +28,7 @@ public:
 	virtual void visit( AttributeTypeMultiExitDisc &n, 	boost::any param );
 	virtual void visit( AttributeTypeLocalPref &n, 		boost::any param );
 	virtual void visit( AttributeTypeAtomicAggregate &n,boost::any param );
+	virtual void visit( AttributeTypeAS4Aggregator &n,	boost::any param );
 	virtual void visit( AttributeTypeAggregator &n, 	boost::any param );
 	virtual void visit( AttributeTypeCommunities &n, 	boost::any param );
 

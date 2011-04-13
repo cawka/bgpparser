@@ -35,18 +35,13 @@
 class TblDumpV2RibEntry : public Node
 {
 public:
-	TblDumpV2RibEntry( std::istream &input );
+	TblDumpV2RibEntry( MRTTblDumpV2PeerIndexTblPtr &peer_tbl, std::istream &input );
 	virtual ~TblDumpV2RibEntry(void);
 
 	uint16_t getPeerIndex( )       const { return peerIndex; };
 	time_t   getOriginatedTime( )  const { return originatedTime; };
 	uint16_t getAttributeLength( ) const { return attributeLength; };
 	const std::list<BGPAttributePtr> &getAttributes(void) const { return attributes; };
-	
-	virtual void printMe();
-	virtual void printMe( const MRTTblDumpV2PeerIndexTblPtr &peerIndexTbl );
-	virtual void printMeCompact();
-	virtual void printMeCompact( const MRTTblDumpV2PeerIndexTblPtr &peerIndexTbl );
 
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
 	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
@@ -57,7 +52,9 @@ protected:
 	uint16_t peerIndex; // This is an index into the PEER_INDEX_TABLE MRT record
 	uint32_t originatedTime;
 	uint16_t attributeLength;		/* consider removing attribute length field */
-	
+
+	MRTTblDumpV2PeerIndexTblPtr _peerIndexTbl;
+
 	/* add list of BGPAttributes */
 	std::list<BGPAttributePtr> attributes;
 

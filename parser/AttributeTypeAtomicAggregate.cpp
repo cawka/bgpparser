@@ -46,6 +46,6 @@ AttributeTypeAtomicAggregate::~AttributeTypeAtomicAggregate(void) {
 	/* nothing */
 }
 
-void AttributeTypeAtomicAggregate::printMe() { std::cout << "ATOMIC_AGGREGATE"; }
-void AttributeTypeAtomicAggregate::printMeCompact() { std::cout << "AA: AG"; }
-
+//void AttributeTypeAtomicAggregate::printMe() { std::cout << "ATOMIC_AGGREGATE"; }
+//void AttributeTypeAtomicAggregate::printMeCompact() { std::cout << "AA: AG"; }
+//

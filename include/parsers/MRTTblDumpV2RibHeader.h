@@ -51,14 +51,7 @@ public:
 
 	static void processAttributes( std::list<BGPAttributePtr> &, std::istream &input, int len, bool isAS4 );
 
-	static void setPeerIndexTbl(MRTTblDumpV2PeerIndexTblPtr peerIndexTbl) { MRTTblDumpV2RibHeader::_peerIndexTbl = peerIndexTbl; }
-	static MRTTblDumpV2PeerIndexTblPtr getPeerIndexTbl() { return MRTTblDumpV2RibHeader::_peerIndexTbl; }
-	static const MRTTblDumpV2PeerIndexTblPeerEntryPtr getPeer( uint16_t peerIndex ) { return MRTTblDumpV2RibHeader::_peerIndexTbl->getPeer( peerIndex ); }
-
-	virtual void printMe();
-	virtual void printMe( const MRTTblDumpV2PeerIndexTblPtr& );
-	virtual void printMeCompact();
-	virtual void printMeCompact( const MRTTblDumpV2PeerIndexTblPtr& );
+	inline const MRTTblDumpV2PeerIndexTblPeerEntryPtr getPeer( const TblDumpV2RibEntry &entry );
 
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
 	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
@@ -66,7 +59,7 @@ public:
 	virtual boost::any accept( GJVisitor &v, boost::any param ) { return v.visit( *this, param ); }
 
 protected:
-	MRTTblDumpV2RibHeader( MRTCommonHeader &header, std::istream &input );
+	MRTTblDumpV2RibHeader( MRTTblDumpV2PeerIndexTblPtr &peertbl, MRTCommonHeader &header, std::istream &input );
 	void init( std::istream &input );
 
 protected:
@@ -78,7 +71,7 @@ protected:
 	uint16_t safi;
 
 	std::list<TblDumpV2RibEntryPtr> ribs;
-	static MRTTblDumpV2PeerIndexTblPtr _peerIndexTbl;
+	MRTTblDumpV2PeerIndexTblPtr _peerIndexTbl;
 
 	static log4cxx::LoggerPtr Logger;
 };
@@ -109,5 +102,9 @@ uint16_t MRTTblDumpV2RibHeader::getSAFI(void) const {
 	return safi;
 }
 
+const MRTTblDumpV2PeerIndexTblPeerEntryPtr MRTTblDumpV2RibHeader::getPeer( const TblDumpV2RibEntry &entry )
+{ 
+	return _peerIndexTbl->getPeer( entry.getPeerIndex() );
+}
 
 #endif	/* _MRTTBLDUMPV2RIBHEADER_H_ */

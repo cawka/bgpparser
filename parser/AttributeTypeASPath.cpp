@@ -88,63 +88,63 @@ AttributeTypeASPathSegment::~AttributeTypeASPathSegment(void)
 {
 }
 
-void AttributeTypeASPathSegment::printMe() { 
-	switch (pathSegmentType) {
-		case AS_SEQUENCE: break;
-		case AS_SET: cout << " {";
-	}
-		
-	list<uint32_t>::iterator it;
-	for (it = pathSegmentValue.begin(); it != pathSegmentValue.end(); it++) {
-		cout << " " << *it;
-	}
-	
-	switch (pathSegmentType) {
-		case AS_SEQUENCE: break;
-		case AS_SET: cout << "}";
-	}
-}
-
-void AttributeTypeASPathSegment::printMeCompact()
-{
-	uint16_t top, bottom;
-	list<uint32_t>::iterator it;
-	switch (pathSegmentType) {
-		case AS_SEQUENCE: {
-			cout << " ";
-			bool isFirst = true;
-			for (it = pathSegmentValue.begin(); it != pathSegmentValue.end(); it++) {
-				cout << (isFirst ? "" : " ");
-				top = (uint16_t)(((*it)>>16)&0xFFFF);
-				bottom = (uint16_t)((*it)&0xFFFF);
-				if( top == 0 ) {
-					printf("%u", bottom);
-				} else {
-					printf("%u.%u", top, bottom);
-				}
-				isFirst = false;
-			}
-			break;
-		}
-		case AS_SET: {
-			cout << " {";
-			bool isFirst = true;
-			for (it = pathSegmentValue.begin(); it != pathSegmentValue.end(); it++) {
-				cout << (isFirst ? "" : ",");
-				top = (uint16_t)(((*it)>>16)&0xFFFF);
-				bottom = (uint16_t)((*it)&0xFFFF);
-				if( top == 0 ) {
-					printf("%u", bottom);
-				} else {
-					printf("%u.%u", top, bottom);
-				}
-				isFirst = false;
-			}
-			cout << "}";
-			break;
-		}
-	}
-}
+//void AttributeTypeASPathSegment::printMe() {
+//	switch (pathSegmentType) {
+//		case AS_SEQUENCE: break;
+//		case AS_SET: cout << " {";
+//	}
+//
+//	list<uint32_t>::iterator it;
+//	for (it = pathSegmentValue.begin(); it != pathSegmentValue.end(); it++) {
+//		cout << " " << *it;
+//	}
+//
+//	switch (pathSegmentType) {
+//		case AS_SEQUENCE: break;
+//		case AS_SET: cout << "}";
+//	}
+//}
+//
+//void AttributeTypeASPathSegment::printMeCompact()
+//{
+//	uint16_t top, bottom;
+//	list<uint32_t>::iterator it;
+//	switch (pathSegmentType) {
+//		case AS_SEQUENCE: {
+//			cout << " ";
+//			bool isFirst = true;
+//			for (it = pathSegmentValue.begin(); it != pathSegmentValue.end(); it++) {
+//				cout << (isFirst ? "" : " ");
+//				top = (uint16_t)(((*it)>>16)&0xFFFF);
+//				bottom = (uint16_t)((*it)&0xFFFF);
+//				if( top == 0 ) {
+//					printf("%u", bottom);
+//				} else {
+//					printf("%u.%u", top, bottom);
+//				}
+//				isFirst = false;
+//			}
+//			break;
+//		}
+//		case AS_SET: {
+//			cout << " {";
+//			bool isFirst = true;
+//			for (it = pathSegmentValue.begin(); it != pathSegmentValue.end(); it++) {
+//				cout << (isFirst ? "" : ",");
+//				top = (uint16_t)(((*it)>>16)&0xFFFF);
+//				bottom = (uint16_t)((*it)&0xFFFF);
+//				if( top == 0 ) {
+//					printf("%u", bottom);
+//				} else {
+//					printf("%u.%u", top, bottom);
+//				}
+//				isFirst = false;
+//			}
+//			cout << "}";
+//			break;
+//		}
+//	}
+//}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // AttributeTypeASPath
@@ -177,32 +177,32 @@ AttributeTypeASPath::~AttributeTypeASPath(void) {
 }
 
 
-void AttributeTypeASPath::printMe()
-{
-	cout << "ASPATH :";
-	for (list<AttributeTypeASPathSegmentPtr>::iterator it = pathSegments.begin();
-			it != pathSegments.end(); it++) {
-		(*it)->printMe();
-	}
-
-	cout << endl;
-	cout << "ASPATH':";
-	for (list<AttributeTypeASPathSegmentPtr>::iterator it = pathSegmentsComplete.begin();
-			it != pathSegmentsComplete.end(); it++)
-	{
-		(*it)->printMe();
-	}
-}
-
-void AttributeTypeASPath::printMeCompact()
-{
-	cout << "AS_SEQUENCE: ";
-	list<AttributeTypeASPathSegmentPtr>::iterator it;
-
-	for (it = pathSegments.begin(); it != pathSegments.end(); it++) {
-		(*it)->printMeCompact();
-	}
-}
+//void AttributeTypeASPath::printMe()
+//{
+//	cout << "ASPATH :";
+//	for (list<AttributeTypeASPathSegmentPtr>::iterator it = pathSegments.begin();
+//			it != pathSegments.end(); it++) {
+//		(*it)->printMe();
+//	}
+//
+//	cout << endl;
+//	cout << "ASPATH':";
+//	for (list<AttributeTypeASPathSegmentPtr>::iterator it = pathSegmentsComplete.begin();
+//			it != pathSegmentsComplete.end(); it++)
+//	{
+//		(*it)->printMe();
+//	}
+//}
+//
+//void AttributeTypeASPath::printMeCompact()
+//{
+//	cout << "AS_SEQUENCE: ";
+//	list<AttributeTypeASPathSegmentPtr>::iterator it;
+//
+//	for (it = pathSegments.begin(); it != pathSegments.end(); it++) {
+//		(*it)->printMeCompact();
+//	}
+//}
 
 void AttributeTypeASPath::genPathSegmentsComplete( const AttributeTypeAS4Path &as4_path )
 {

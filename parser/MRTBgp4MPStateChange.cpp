@@ -104,30 +104,17 @@ MRTBgp4MPStateChange::~MRTBgp4MPStateChange(void) {
 	/* nothing */
 }
 
-
-void MRTBgp4MPStateChange::printMe() {
-	cout << "PEER_IP: ";
-	switch(addressFamily) {
-		case AFI_IPv4: PRINT_IP_ADDR(peerIP.ipv4); break;
-		case AFI_IPv6: PRINT_IPv6_ADDR(peerIP.ipv6); break;
-	}
-	cout << endl;
-	cout << "PEER_ASN: " << peerAS << endl;
-	cout << "OLD_STATE: " << oldState << endl;
-	cout << "NEW_STATE: " << newState << endl;
-}
-
-void MRTBgp4MPStateChange::printMeCompact() {
-	uint16_t top, bottom;
-	top = (peerAS>>16)&0xFFFF;
-	bottom = (peerAS)&0XFFFF;
-	switch(addressFamily) {
-		case AFI_IPv4: PRINT_IP_ADDR(peerIP.ipv4); break;
-		case AFI_IPv6: PRINT_IPv6_ADDR(peerIP.ipv6); break;
-	}
-	if( top > 0 ) {
-		cout << "|" << top << "." << bottom << "|" << oldState << "|" << newState;
-	} else {
-		cout << "|" << bottom << "|" << oldState << "|" << newState;
-	}
-}
+//void MRTBgp4MPStateChange::printMeCompact() {
+//	uint16_t top, bottom;
+//	top = (peerAS>>16)&0xFFFF;
+//	bottom = (peerAS)&0XFFFF;
+//	switch(addressFamily) {
+//		case AFI_IPv4: PRINT_IP_ADDR(peerIP.ipv4); break;
+//		case AFI_IPv6: PRINT_IPv6_ADDR(peerIP.ipv6); break;
+//	}
+//	if( top > 0 ) {
+//		cout << "|" << top << "." << bottom << "|" << oldState << "|" << newState;
+//	} else {
+//		cout << "|" << bottom << "|" << oldState << "|" << newState;
+//	}
+//}

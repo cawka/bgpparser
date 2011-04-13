@@ -33,8 +33,8 @@
 
 using namespace std;
 
-MRTTblDumpV2RibIPv4Multicast::MRTTblDumpV2RibIPv4Multicast( MRTCommonHeader &header, std::istream &input )
-: MRTTblDumpV2RibHeader(header, input)
+MRTTblDumpV2RibIPv4Multicast::MRTTblDumpV2RibIPv4Multicast( MRTTblDumpV2PeerIndexTblPtr &peer_tbl, MRTCommonHeader &header, std::istream &input )
+: MRTTblDumpV2RibHeader(peer_tbl, header, input)
 {
 	LOG4CXX_TRACE( Logger, "" );
 

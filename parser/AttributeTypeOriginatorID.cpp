@@ -53,17 +53,17 @@ AttributeTypeOriginatorID::AttributeTypeOriginatorID( AttributeType &header, ist
 AttributeTypeOriginatorID::~AttributeTypeOriginatorID(void) {
 	/* nothing */
 }
-
-void AttributeTypeOriginatorID::printMe() { 
-	IPAddress addr;
-	memcpy(&addr,&originator_id,sizeof(uint32_t));
-	std::cout << "ORIGINATOR-ID: ";
-	PRINT_IP_ADDR(addr.ipv4);
-}
-
-void AttributeTypeOriginatorID::printMeCompact() { 
-	IPAddress addr;
-	memcpy(&addr,&originator_id,sizeof(uint32_t));
-	std::cout << "ORIGINATOR-ID: ";
-	PRINT_IP_ADDR(addr.ipv4);
-}
+//
+//void AttributeTypeOriginatorID::printMe() {
+//	IPAddress addr;
+//	memcpy(&addr,&originator_id,sizeof(uint32_t));
+//	std::cout << "ORIGINATOR-ID: ";
+//	PRINT_IP_ADDR(addr.ipv4);
+//}
+//
+//void AttributeTypeOriginatorID::printMeCompact() {
+//	IPAddress addr;
+//	memcpy(&addr,&originator_id,sizeof(uint32_t));
+//	std::cout << "ORIGINATOR-ID: ";
+//	PRINT_IP_ADDR(addr.ipv4);
+//}

@@ -107,6 +107,9 @@ MRTMessagePtr MRTCommonHeader::newMessage( istream &input ) {
 //		return msg;
 	}
 
+
+	MRTTblDumpV2PeerIndexTblPtr tbldumpv2_indextbl;
+
 	try
 	{
 		if( header->getType( ) == BGP4MP )
@@ -165,45 +168,43 @@ MRTMessagePtr MRTCommonHeader::newMessage( istream &input ) {
 				{
 					LOG4CXX_TRACE(Logger,"MRTTblDumpV2PeerIndexTbl");
 	
-					MRTTblDumpV2PeerIndexTblPtr indexTbl( new MRTTblDumpV2PeerIndexTbl(*header, in) );
-					MRTTblDumpV2RibHeader::setPeerIndexTbl( indexTbl );
-	
-					msg = MRTMessagePtr( indexTbl );
+					tbldumpv2_indextbl = MRTTblDumpV2PeerIndexTblPtr( new MRTTblDumpV2PeerIndexTbl(*header, in) );
+					msg = MRTMessagePtr( tbldumpv2_indextbl );
 					break;
 				}
 				case RIB_IPV4_UNICAST:
 				{
 					LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibIPv4Unicast");
 	
-					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv4Unicast(*header, in) );
+					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv4Unicast(tbldumpv2_indextbl, *header, in) );
 					break;
 				}
 				case RIB_IPV4_MULTICAST:
 				{
 					LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibIPv4Multicast");
 	
-					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv4Multicast(*header, in) );
+					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv4Multicast(tbldumpv2_indextbl, *header, in) );
 					break;
 				}
 				case RIB_IPV6_UNICAST:
 				{
 					LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibIPv6Unicast");
 	
-					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv6Unicast(*header, in) );
+					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv6Unicast(tbldumpv2_indextbl, *header, in) );
 					break;
 				}
 				case RIB_IPV6_MULTICAST:
 				{
 					LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibIPv6Multicast");
 	
-					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv6Multicast(*header, in) );
+					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv6Multicast(tbldumpv2_indextbl, *header, in) );
 					break;
 				}
 				case RIB_GENERIC:
 				{
 					LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibGeneric");
 	
-					msg = MRTMessagePtr( new MRTTblDumpV2RibGeneric(*header, in) );
+					msg = MRTMessagePtr( new MRTTblDumpV2RibGeneric(tbldumpv2_indextbl, *header, in) );
 					break;
 				}
 				default:
@@ -219,9 +220,15 @@ MRTMessagePtr MRTCommonHeader::newMessage( istream &input ) {
 			}
 		}
 	}
-	catch( std::istream::failure e )
+	catch( std::istream::failure &e )
 	{
 		LOG4CXX_ERROR( Logger, "Error parsing MRT message (stream error). Setting type to MRT_INVALID" );
+		header->type=MRT_INVALID;
+		msg=header;
+	}
+	catch( BGPTextError &e )
+	{
+		LOG4CXX_ERROR( Logger, "Error parsing MRT message ("<< e.what() <<"). Setting type to MRT_INVALID" );
 		header->type=MRT_INVALID;
 		msg=header;
 	}

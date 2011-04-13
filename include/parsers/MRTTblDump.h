@@ -54,9 +54,6 @@ public:
 	inline uint16_t  getPeerAS( ) const;
 	inline uint16_t  getAttributeLength( ) const;
 	
-	virtual void printMe() { std::cout << "MRTTblDump"; };
-	virtual void printMeCompact();
-
 	const std::list<BGPAttributePtr> &getAttributes(void) const { return attributes; };
 
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }

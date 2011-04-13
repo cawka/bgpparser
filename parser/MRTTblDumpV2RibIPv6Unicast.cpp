@@ -35,8 +35,8 @@ using namespace std;
 log4cxx::LoggerPtr MRTTblDumpV2RibIPv6Unicast::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibIPv6Unicast" );
 
 
-MRTTblDumpV2RibIPv6Unicast::MRTTblDumpV2RibIPv6Unicast( MRTCommonHeader &header, std::istream &input ) :
-MRTTblDumpV2RibHeader(header, input)
+MRTTblDumpV2RibIPv6Unicast::MRTTblDumpV2RibIPv6Unicast( MRTTblDumpV2PeerIndexTblPtr &peer_tbl, MRTCommonHeader &header, std::istream &input ) :
+MRTTblDumpV2RibHeader(peer_tbl, header, input)
 {
 	LOG4CXX_TRACE( Logger, "" );
 

@@ -72,19 +72,19 @@ AttributeTypeNextHop::AttributeTypeNextHop( AttributeType &header, istream &inpu
 AttributeTypeNextHop::~AttributeTypeNextHop(void) {
 	/* nothing */
 }
-
-void AttributeTypeNextHop::printMeCompact() {
-	std::cout << "NEXT_HOP: ";
-	switch(afi) {
-		case AFI_IPv4: PRINT_IP_ADDR(nextHop.ipv4); break;
-		case AFI_IPv6: PRINT_IPv6_ADDR(nextHop.ipv6); break;
-	}
-}
-
-void AttributeTypeNextHop::printMe() {
-	std::cout << "NEXT_HOP: ";
-	switch(afi) {
-		case AFI_IPv4: PRINT_IP_ADDR(nextHop.ipv4); break;
-		case AFI_IPv6: PRINT_IPv6_ADDR(nextHop.ipv6); break;
-	}
-}
+//
+//void AttributeTypeNextHop::printMeCompact() {
+//	std::cout << "NEXT_HOP: ";
+//	switch(afi) {
+//		case AFI_IPv4: PRINT_IP_ADDR(nextHop.ipv4); break;
+//		case AFI_IPv6: PRINT_IPv6_ADDR(nextHop.ipv6); break;
+//	}
+//}
+//
+//void AttributeTypeNextHop::printMe() {
+//	std::cout << "NEXT_HOP: ";
+//	switch(afi) {
+//		case AFI_IPv4: PRINT_IP_ADDR(nextHop.ipv4); break;
+//		case AFI_IPv6: PRINT_IPv6_ADDR(nextHop.ipv6); break;
+//	}
+//}

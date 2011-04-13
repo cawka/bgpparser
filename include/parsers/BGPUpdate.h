@@ -50,10 +50,7 @@ public:
 	const std::list<BGPAttributePtr>& getPathAttributes()  { return pathAttributes; }
 	const std::list<RoutePtr>& 		  getWithdrawnRoutes() { return withdrawnRoutes; }
 	const std::list<RoutePtr>& 		  getNlriRoutes()      { return announcedRoutes; }
-	
-	virtual void printMe();
-	virtual void printMeCompact();
-	
+		
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
 	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
 	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }

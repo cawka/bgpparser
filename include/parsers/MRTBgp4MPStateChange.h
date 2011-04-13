@@ -48,9 +48,6 @@ public:
 	inline uint16_t getOldState( ) const;
 	inline uint16_t getNewState( ) const;
 
-	virtual void printMe(void);
-	virtual void printMeCompact(void);
-
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
 	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
 	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }

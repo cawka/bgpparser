@@ -126,30 +126,3 @@ MRTTblDump::MRTTblDump( MRTCommonHeader &header, istream &input )
 MRTTblDump::~MRTTblDump(void)
 {
 }
-
-void MRTTblDump::printMeCompact() {
-	cout << viewNumber << "|" << sequenceNumber << "|";
-	if (getSubType() == AFI_IPv4) {
-		PRINT_IP_ADDR(prefix.ipv4);
-	} else {
-		PRINT_IPv6_ADDR(prefix.ipv6);
-	}
-	cout << "/";
-	printf("%u", prefixLength);
-	cout << "|";
-	printf("%u", status);
-	cout << "|";
-
-	if (getSubType() == AFI_IPv4) {
-		PRINT_IP_ADDR(peerIP.ipv4);
-	} else {
-		PRINT_IPv6_ADDR(peerIP.ipv6);
-	}
-	cout << "|" << peerAS;
-
-	list<BGPAttributePtr>::iterator it;
-	for (it = attributes.begin(); it != attributes.end(); it++) {
-		cout << "|";
-		(*it)->printMeCompact();
-	}
-}

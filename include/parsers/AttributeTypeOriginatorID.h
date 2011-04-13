@@ -38,10 +38,7 @@ public:
 	AttributeTypeOriginatorID(AttributeType &header, std::istream &input);
 	virtual ~AttributeTypeOriginatorID(void);	
 	
-	void setOrigin(uint32_t oid) { originator_id = oid; }
 	uint32_t getOrigin() { return originator_id; }
-	virtual void printMe();
-	virtual void printMeCompact();
 	
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
 	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }

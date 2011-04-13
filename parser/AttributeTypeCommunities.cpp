@@ -62,41 +62,39 @@ AttributeTypeCommunities::AttributeTypeCommunities( AttributeType &header, std::
 AttributeTypeCommunities::~AttributeTypeCommunities(void) {
 }
 
-void AttributeTypeCommunities::printMe() {
-	cout << "COMMUNITIES:";
-	list<CommunityValue>::iterator iter;
-
-	for(iter = communityValues.begin(); iter != communityValues.end(); iter++) {
-		cout << " " << (*iter).ASnum << ":" << (*iter).info;
-	}
-}
-
-void AttributeTypeCommunities::printMeCompact() {
-	cout << "COMMUNITIES: ";
-	list<CommunityValue>::iterator iter;
-	bool isFirstLoop = true;
-	for(iter = communityValues.begin(); iter != communityValues.end(); iter++) {
-		cout << (isFirstLoop ? "" : " ");
-		uint32_t combVal = (uint32_t)((*iter).ASnum << 16) | (*iter).info;
-		switch(combVal) {
-			case COMMUNITY_NO_EXPORT: {
-				cout << "no-export";
-				break;
-			}
-			case COMMUNITY_NO_ADVERTISE: {
-				cout << "no-advertise";
-				break;
-			}
-			case COMMUNITY_LOCAL_AS: {
-				cout << "local-AS";
-				break;
-			}
-			default: {
-				cout << (*iter).ASnum << ":" << (*iter).info;
-			}
-		}
-		isFirstLoop = false;
-	}
-}
-
-
+//void AttributeTypeCommunities::printMe() {
+//	cout << "COMMUNITIES:";
+//	list<CommunityValue>::iterator iter;
+//
+//	for(iter = communityValues.begin(); iter != communityValues.end(); iter++) {
+//		cout << " " << (*iter).ASnum << ":" << (*iter).info;
+//	}
+//}
+//
+//void AttributeTypeCommunities::printMeCompact() {
+//	cout << "COMMUNITIES: ";
+//	list<CommunityValue>::iterator iter;
+//	bool isFirstLoop = true;
+//	for(iter = communityValues.begin(); iter != communityValues.end(); iter++) {
+//		cout << (isFirstLoop ? "" : " ");
+//		uint32_t combVal = (uint32_t)((*iter).ASnum << 16) | (*iter).info;
+//		switch(combVal) {
+//			case COMMUNITY_NO_EXPORT: {
+//				cout << "no-export";
+//				break;
+//			}
+//			case COMMUNITY_NO_ADVERTISE: {
+//				cout << "no-advertise";
+//				break;
+//			}
+//			case COMMUNITY_LOCAL_AS: {
+//				cout << "local-AS";
+//				break;
+//			}
+//			default: {
+//				cout << (*iter).ASnum << ":" << (*iter).info;
+//			}
+//		}
+//		isFirstLoop = false;
+//	}
+//}

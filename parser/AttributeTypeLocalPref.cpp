@@ -54,12 +54,12 @@ AttributeTypeLocalPref::AttributeTypeLocalPref( AttributeType &header, std::istr
 AttributeTypeLocalPref::~AttributeTypeLocalPref(void) {
 	/* nothing */
 }
-
-void AttributeTypeLocalPref::printMeCompact() {
-	cout << "LOCAL_PREF: " << localPref;
-}
-
-void AttributeTypeLocalPref::printMe() {
-	cout << "LOCAL_PREF: " << localPref;
-}
-
+//
+//void AttributeTypeLocalPref::printMeCompact() {
+//	cout << "LOCAL_PREF: " << localPref;
+//}
+//
+//void AttributeTypeLocalPref::printMe() {
+//	cout << "LOCAL_PREF: " << localPref;
+//}
+//

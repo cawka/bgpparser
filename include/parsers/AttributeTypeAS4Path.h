@@ -70,9 +70,6 @@ public:
 
 	const std::list<AttributeTypeASPathSegmentPtr>& getPathSegments(void) const { return pathSegments; }
 	
-	virtual void printMe();
-	virtual void printMeCompact();
-
 	uint32_t getCountOfASNs( ) const;
 	
 	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
