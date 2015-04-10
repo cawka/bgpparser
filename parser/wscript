@@ -1,0 +1,56 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+from waflib import Context, Utils
+
+top = '..'
+
+def build(bld):
+    bgpparser = bld(
+        features=['pch', 'cxx', 'cxxshlib'],
+        vnum=Context.g_module.VERSION_BASE,
+        target="bgpparser",
+        name="libbgpparser",
+        source=bld.path.ant_glob(['**/*.cpp']),
+        headers='../include/bgpparser.h',
+        use='version BOOST LOG4CXX PIC PTHREAD',
+        includes="../include ../include/parsers",
+        export_includes="../include ../include/parsers ../include/visitors",
+        install_path='${LIBDIR}',
+        )
+
+    # Prepare flags that should go to pkgconfig file
+    pkgconfig_libs = []
+    pkgconfig_ldflags = []
+    pkgconfig_linkflags = []
+    pkgconfig_includes = []
+    pkgconfig_cxxflags = []
+    for lib in Utils.to_list(bgpparser.use):
+        if bld.env['LIB_%s' % lib]:
+            pkgconfig_libs += Utils.to_list(bld.env['LIB_%s' % lib])
+        if bld.env['LIBPATH_%s' % lib]:
+            pkgconfig_ldflags += Utils.to_list(bld.env['LIBPATH_%s' % lib])
+        if bld.env['INCLUDES_%s' % lib]:
+            pkgconfig_includes += Utils.to_list(bld.env['INCLUDES_%s' % lib])
+        if bld.env['LINKFLAGS_%s' % lib]:
+            pkgconfig_linkflags += Utils.to_list(bld.env['LINKFLAGS_%s' % lib])
+        if bld.env['CXXFLAGS_%s' % lib]:
+            pkgconfig_cxxflags += Utils.to_list(bld.env['CXXFLAGS_%s' % lib])
+
+    def uniq(alist):
+        set = {}
+        return [set.setdefault(e,e) for e in alist if e not in set]
+
+    pkconfig = bld(features="subst",
+         source="../bgpparser.pc.in",
+         target="../bgpparser.pc",
+         install_path="${LIBDIR}/pkgconfig",
+         VERSION=Context.g_module.VERSION,
+
+         # This probably not the right thing to do, but to simplify life of apps
+         # that use the library
+         EXTRA_LIBS=" ".join([('-l%s' % i) for i in uniq(pkgconfig_libs)]),
+         EXTRA_LDFLAGS=" ".join([('-L%s' % i) for i in uniq(pkgconfig_ldflags)]),
+         EXTRA_LINKFLAGS=" ".join(uniq(pkgconfig_linkflags)),
+         EXTRA_INCLUDES=" ".join([('-I%s' % i) for i in uniq(pkgconfig_includes)]),
+         EXTRA_CXXFLAGS=" ".join(uniq(pkgconfig_cxxflags)),
+        )

@@ -31,7 +31,7 @@
 #include "AsciiVisitor.h"
 #include "IPTypeDiscoveryVisitor.h"
 
-#ifdef LOG4CXX
+#ifdef BGPPARSER_HAVE_LIBLOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/consoleappender.h>
@@ -69,19 +69,18 @@ using namespace std;
 using namespace boost;
 using namespace boost::iostreams;
 
-#ifdef LOG4CXX
+#ifdef BGPPARSER_HAVE_LIBLOG4CXX
 static LoggerPtr _log = Logger::getLogger("bgpparser");
 #endif
 
 int
 main(int argc, char** argv)
 {
-  uint32_t unFlags = 0;
   po::variables_map CONFIG;
 
   po::options_description opts("General options");
   opts.add_options()("help", "Print this help message")
-#ifdef LOG4CXX
+#ifdef BGPPARSER_HAVE_LIBLOG4CXX
     ("log", po::value<string>(), "log4cxx configuration file")
 #endif
       ("file", po::value<string>(), "MRT file or - to input from stdin")(
@@ -107,7 +106,7 @@ main(int argc, char** argv)
     exit(0);
   }
 
-#ifdef LOG4CXX
+#ifdef BGPPARSER_HAVE_LIBLOG4CXX
   // configure Logger
   if (CONFIG.count("log") > 0)
     PropertyConfigurator::configureAndWatch(CONFIG["log"].as<string>());

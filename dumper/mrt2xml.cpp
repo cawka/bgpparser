@@ -59,7 +59,7 @@
 /* Constants */
 //#define MRT_COMMON_HDR_LEN  12
 
-#ifdef LOG4CXX
+#ifdef BGPPARSER_HAVE_LIBLOG4CXX
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/consoleappender.h>
@@ -201,7 +201,7 @@ main(int argc, char** argv)
     }
   } while (next_options != -1);
 
-#ifdef LOG4CXX
+#ifdef BGPPARSER_HAVE_LIBLOG4CXX
   /* -------------------------- */
   /* Initialize Logger          */
   /* -------------------------- */

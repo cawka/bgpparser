@@ -1,38 +1,17 @@
-configure
-*.o
-*.lo
-autom4te.cache
-.deps
-.libs
-Makefile
-Makefile.in
-examples/bgpparser-simple
-aclocal.m4
-compile
-config.guess
-config.sub
-depcomp
-install-sh
-ltmain.sh
-missing
-config.log
-config.status
-dumper/bgpparser
-libtool
-parser/libbgpparser.la
-*.pc
-libtool.m4
-ltoptions.m4
-ltsugar.m4
-ltversion.m4
-lt~obsolete.m4
-pkg.m4
-include/config.h*
-stamp-h1
-.cproject
-.project
-.settings/
-*.h.gch
-AUTHORS
-ChangeLog
+# Emacs temp files
+*~
 
+# Mac OSX
+.DS_*
+
+# waf build system
+.waf-1*
+.waf3-*
+.lock*
+build/
+
+# Compiled python code
+*.pyc
+
+# Other
+VERSION

@@ -1,0 +1,11 @@
+# -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+top = '..'
+
+def build(bld):
+    bld(
+        features=['cxx', 'cxxprogram'],
+        target="../bgpparser2",
+        source=bld.path.ant_glob(['**/*.cpp']),
+        use='libbgpparser LIBXML',
+        install_path='${BINDIR}',
+        )

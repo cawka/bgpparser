@@ -5,8 +5,6 @@ includedir=@includedir@
 
 Name: bgpparser
 Description: BGP Praser is an extensible MRT BGP message parser implemented in C++
-Requires: @LIBLOG4CXX@
-Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lbgpparser
-Cflags: -I${includedir}/bgpparser
-
+Version: @VERSION@
+Libs: -L${libdir} @EXTRA_LINKFLAGS@ @EXTRA_LDFLAGS@ -lndn-cxx @EXTRA_LIBS@
+Cflags: -I${includedir} @EXTRA_CXXFLAGS@ @EXTRA_INCLUDES@
