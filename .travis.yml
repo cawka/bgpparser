@@ -1,0 +1,21 @@
+sudo: true
+language: cpp
+os:
+  - linux
+compiler:
+  - gcc
+addons:
+  apt:
+    packages:
+      - libboost-all-dev
+      - pkg-config
+      - libxml2-dev
+      - liblog4cxx10-dev
+before_install:
+  - sudo apt-get update -qq
+install:
+  - sudo sudo apt-get install -qq liblog4cxx10-dev
+script:
+  - ./waf -j1 configure
+  - ./waf -j1 build
+  - sudo ./waf -j1 install
