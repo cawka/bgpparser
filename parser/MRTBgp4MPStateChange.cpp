@@ -61,7 +61,7 @@ MRTBgp4MPStateChange::MRTBgp4MPStateChange(MRTCommonHeader& header, istream& inp
 void
 MRTBgp4MPStateChange::processIPs(istream& input)
 {
-  size_t len = 0;
+  std::streamsize len = 0;
   if (addressFamily == AFI_IPv4)
     len = sizeof(peerIP.ipv4);
   else if (addressFamily == AFI_IPv6)

@@ -99,11 +99,10 @@ BGPDumper::genXmlAsciiMsg()
 
   xmlNodePtr static_marker_node = xmlNewNodeOctets("MARKER", bgp_msg->getMarker(), 16);
 
-  xmlNodePtr marker_node, len_node, type_node, ascii_node;
-  marker_node = xmlAddChild(node, static_marker_node);
-  len_node = xmlAddChild(node, xmlNewNodeInt("LENGTH", bgp_msg->getLength()));
-  type_node = xmlAddChild(node, xmlNewNodeString("TYPE", bgp_msg->TypeStr().c_str()));
-  ascii_node = xmlAddChild(node, genXmlAsciiNode());
+  xmlAddChild(node, static_marker_node);
+  xmlAddChild(node, xmlNewNodeInt("LENGTH", bgp_msg->getLength()));
+  xmlAddChild(node, xmlNewNodeString("TYPE", bgp_msg->TypeStr().c_str()));
+  xmlAddChild(node, genXmlAsciiNode());
 
   // printNode(node);
   return node;
@@ -117,12 +116,11 @@ BGPDumper::genXmlOctetMsg()
   xmlNodePtr static_marker_node = xmlNewNodeOctets("MARKER", bgp_msg->getMarker(), 16);
   string type = bgp_msg->TypeStr();
 
-  xmlNodePtr marker_node, len_node, type_node, octets_node;
-  marker_node = xmlAddChild(node, static_marker_node);
-  len_node = xmlAddChild(node, xmlNewNodeInt("LENGTH", bgp_msg->getLength()));
-  type_node = xmlAddChild(node, xmlNewNodeString("TYPE", (char*)type.c_str()));
-  octets_node = xmlAddChild(node, xmlNewNodeOctets("OCTETS", (u_char*)bgp_msg->getData().get(),
-                                                   bgp_msg->getLength() - 19));
+  xmlAddChild(node, static_marker_node);
+  xmlAddChild(node, xmlNewNodeInt("LENGTH", bgp_msg->getLength()));
+  xmlAddChild(node, xmlNewNodeString("TYPE", (char*)type.c_str()));
+  xmlAddChild(node, xmlNewNodeOctets("OCTETS", (u_char*)bgp_msg->getData().get(),
+                                     bgp_msg->getLength() - 19));
 
   // printNode(node);
   return node;
@@ -132,10 +130,10 @@ xmlNodePtr
 BGPDumper::genXmlAsciiNode()
 {
   // Virtual function, should be overriwritten by derived classes.
-  xmlNodePtr node, octets_node;
+  xmlNodePtr node;
   node = xmlNewNode(NULL, BAD_CAST bgp_msg->TypeStr().c_str());
-  octets_node = xmlAddChild(node, xmlNewNodeOctets("OCTETS", (u_char*)bgp_msg->getData().get(),
-                                                   bgp_msg->getLength() - 19));
+  xmlAddChild(node, xmlNewNodeOctets("OCTETS", (u_char*)bgp_msg->getData().get(),
+                                     bgp_msg->getLength() - 19));
   return node;
 }
 

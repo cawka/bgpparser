@@ -75,7 +75,7 @@ BGPCommonHeader::BGPCommonHeader(istream& input)
 
   data = std::shared_ptr<char>(new char[msg_length]);
 
-  int read = io::read(input, data.get(), msg_length);
+  std::streamsize read = io::read(input, data.get(), msg_length);
   if (read == -1 || read != msg_length) {
     LOG4CXX_ERROR(Logger, msg_length << " bytes was requested, read only " << read << " bytes");
     throw BGPError(); // there is nothing else to do

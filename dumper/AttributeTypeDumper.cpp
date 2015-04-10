@@ -129,10 +129,9 @@ AttributeTypeDumper::newDumper(uint8_t attrType, string attrTypeStr, const Attri
 xmlNodePtr
 AttributeTypeDumper::genXml()
 {
-  xmlNodePtr node, octets_node;
-  node = xmlNewNode(NULL, BAD_CAST(char*)type_str.c_str());
-  octets_node = xmlAddChild(node, xmlNewNodeOctets("OCTETS", (u_char*)attr_type->getData().get(),
-                                                   attr_type->getLength()));
+  xmlNodePtr node = xmlNewNode(NULL, BAD_CAST(char*)type_str.c_str());
+  xmlAddChild(node, xmlNewNodeOctets("OCTETS", (u_char*)attr_type->getData().get(),
+                                     attr_type->getLength()));
   return node;
 }
 

@@ -61,7 +61,7 @@ MRTCommonHeader::MRTCommonHeader(void)
 
 MRTCommonHeader::MRTCommonHeader(istream& input)
 {
-  int len = io::read(input, reinterpret_cast<char*>(&pkt), sizeof(MRTCommonHeaderPacket));
+  std::streamsize len = io::read(input, reinterpret_cast<char*>(&pkt), sizeof(MRTCommonHeaderPacket));
   if (len < 0)
     throw EOFException();
   if (len != sizeof(MRTCommonHeaderPacket))

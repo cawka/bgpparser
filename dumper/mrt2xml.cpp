@@ -179,7 +179,7 @@ main(int argc, char** argv)
                                         {"bgpdump", 0, NULL, 'B'},
                                         {NULL, 0, NULL, 0}};
   int next_options;
-  int flag_compact = 0;
+  // int flag_compact = 0;
   int flag_format = 1;
   int flag_newline = 1;
   int flag_root = 0;
@@ -192,7 +192,7 @@ main(int argc, char** argv)
       print_usage();
       exit(0);
     case 'm':
-      flag_compact = 1;
+      // flag_compact = 1;
       flag_format = 0;
       flag_newline = 1;
       break;

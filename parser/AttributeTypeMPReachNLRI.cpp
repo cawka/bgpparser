@@ -196,4 +196,4 @@ AttributeTypeMPReachNLRI::addNLRI(NLRIReachablePtr& nlri)
   if (this->nlri.size() == 0) {
     this->nlri.push_back(nlri);
   }
-};
+}

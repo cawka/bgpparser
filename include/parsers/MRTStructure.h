@@ -63,7 +63,7 @@ enum {
   BGP4MP_ENTRY = 2,    /* not implemented */
   BGP4MP_SNAPSHOT = 3, /* not implemented */
   BGP4MP_MESSAGE_AS4 = 4,
-  BGP4MP_STATE_CHANGE_AS4 = 5,
+  BGP4MP_STATE_CHANGE_AS4 = 5
 };
 
 /* TABLE_DUMP_V2 Subtypes */
