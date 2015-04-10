@@ -60,6 +60,11 @@ MRTTblDumpV2RibHeader::MRTTblDumpV2RibHeader(MRTTblDumpV2PeerIndexTblPtr& peer_t
     throw BGPError();
   }
 
+  if (peer_tbl == nullptr) {
+    LOG4CXX_ERROR(Logger, "Parsing error (peer table is null)");
+    throw BGPError();
+  }
+
   // child class constructors must:
   // * set valid afi and safi
   // * call 'init' method
