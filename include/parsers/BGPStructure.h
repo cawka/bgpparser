@@ -115,7 +115,7 @@ protected:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<Route> RoutePtr;
+typedef std::shared_ptr<Route> RoutePtr;
 
 class NLRIReachable : public Route {
 public:
@@ -154,7 +154,7 @@ public:
   }
 };
 
-typedef boost::shared_ptr<NLRIReachable> NLRIReachablePtr;
+typedef std::shared_ptr<NLRIReachable> NLRIReachablePtr;
 
 class NLRIUnReachable : public Route {
 public:
@@ -193,7 +193,7 @@ public:
   }
 };
 
-typedef boost::shared_ptr<NLRIUnReachable> NLRIUnReachablePtr;
+typedef std::shared_ptr<NLRIUnReachable> NLRIUnReachablePtr;
 
 std::string
 Route::toString(uint16_t afi)

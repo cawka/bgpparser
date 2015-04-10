@@ -64,6 +64,6 @@ private:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<MRTTblDumpV2RibIPv4Unicast> MRTTblDumpV2RibIPv4UnicastPtr;
+typedef std::shared_ptr<MRTTblDumpV2RibIPv4Unicast> MRTTblDumpV2RibIPv4UnicastPtr;
 
 #endif /* _MRTTBLDUMPV2RIBIPV4UNICAST_H_ */

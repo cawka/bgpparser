@@ -75,7 +75,7 @@ MRTCommonHeader::MRTCommonHeader(istream& input)
   if (length == 0)
     return;
 
-  data = boost::shared_ptr<char>(new char[length]);
+  data = std::shared_ptr<char>(new char[length]);
   len = io::read(input, data.get(), length);
   if (len != length) {
     LOG4CXX_ERROR(Logger, "MRT length field = " << (int)length << ", but could read only "

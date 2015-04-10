@@ -26,45 +26,38 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// MRT TABLE_DUMP_V1 Dumper
-#ifndef __MRTTBLDUMPV1DUMPER_H_
-#define __MRTTBLDUMPV1DUMPER_H_
+// MRT TABLE_DUMP_V2 Dumper
+#ifndef __MRTBGP4MPSTATECHANGEDUMPER__
+#define __MRTBGP4MPSTATECHANGEDUMPER__
 
 #include "Dumper.h"
-#include "MRTTblDump.h"
-#include "BGPMessageDumper.h"
+#include "MRTBgp4MPStateChange.h"
 
-#define _XFB_VERSION "0.2"
+class MRTBgp4MPStateChangeDumper;
+typedef std::shared_ptr<MRTBgp4MPStateChangeDumper> MRTBgp4MPStateChangeDumperPtr;
 
 /* Common Dumper */
-class MRTTblDumpV1Dumper : public Dumper {
+class MRTBgp4MPStateChangeDumper : public Dumper {
 public:
-  MRTTblDumpV1Dumper();
-  virtual ~MRTTblDumpV1Dumper();
+  virtual ~MRTBgp4MPStateChangeDumper();
+
+  // Factory method for creating a dumper
+  static MRTBgp4MPStateChangeDumperPtr
+  newDumper(const MRTBgp4MPStateChangePtr& bgp4mp_sc);
 
   xmlNodePtr
   genXml();
   std::string
   genAscii();
 
-  void
-  setTblDumpMsg(MRTTblDumpPtr tblDumpMsg)
-  {
-    this->tblDumpMsg = tblDumpMsg;
-  }
+private:
+  MRTBgp4MPStateChangeDumper(const MRTBgp4MPStateChangePtr& bgp4mp_sc);
 
 protected:
-  /* TABLE_DUMPV1 */
-  MRTTblDumpPtr tblDumpMsg;
-  BGPMessageDumperPtr
-  genMsgDumper();
-
-private:
-  static log4cxx::LoggerPtr Logger;
+  /* Pointer to BGP4MP_STATECHANGE */
+  MRTBgp4MPStateChangePtr bgp4mp_state_change;
 };
 
-typedef boost::shared_ptr<MRTTblDumpV1Dumper> MRTTblDumpV1DumperPtr;
-
-#endif /* __MRTTBLDUMPV2DUMPER_H_ */
+#endif /* __MRTBGP4MPSTATECHANGEDUMPER__ */
 
 // vim: sw=4 ts=4 sts=4 expandtab

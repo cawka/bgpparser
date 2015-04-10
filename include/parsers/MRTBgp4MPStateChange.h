@@ -149,6 +149,6 @@ MRTBgp4MPStateChange::getNewState(void) const
   return newState;
 }
 
-typedef boost::shared_ptr<MRTBgp4MPStateChange> MRTBgp4MPStateChangePtr;
+typedef std::shared_ptr<MRTBgp4MPStateChange> MRTBgp4MPStateChangePtr;
 
 #endif /* _MRTBGP4MPSTATECHANGE_H_ */

@@ -66,7 +66,7 @@ AttributeType::AttributeType(uint16_t len, istream& input, bool isAS4)
   if (length == 0)
     return;
 
-  data = boost::shared_ptr<char>(new char[length]);
+  data = std::shared_ptr<char>(new char[length]);
 
   int read = io::read(input, data.get(), length);
 

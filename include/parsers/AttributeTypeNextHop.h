@@ -87,6 +87,6 @@ protected:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<AttributeTypeNextHop> AttributeTypeNextHopPtr;
+typedef std::shared_ptr<AttributeTypeNextHop> AttributeTypeNextHopPtr;
 
 #endif /* _ATTRIBUTETYPENEXTHOP_H_ */

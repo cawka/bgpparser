@@ -35,7 +35,7 @@
 #include "AttributeType.h"
 
 class AttributeTypeDumper;
-typedef boost::shared_ptr<AttributeTypeDumper> AttributeTypeDumperPtr;
+typedef std::shared_ptr<AttributeTypeDumper> AttributeTypeDumperPtr;
 
 class AttributeTypeDumper : public Dumper /* AKA BGPMessage */
                             {

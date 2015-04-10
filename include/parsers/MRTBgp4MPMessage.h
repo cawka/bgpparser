@@ -106,7 +106,7 @@ private:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<MRTBgp4MPMessage> MRTBgp4MPMessagePtr;
+typedef std::shared_ptr<MRTBgp4MPMessage> MRTBgp4MPMessagePtr;
 
 ///////////////////////////////////////////////////////////////////////////
 

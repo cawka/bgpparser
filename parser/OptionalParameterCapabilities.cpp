@@ -25,7 +25,7 @@ OptionalParameterCapabilities::OptionalParameterCapabilities(OptionalParameter& 
   error |= sizeof(uint8_t) != io::read(input, reinterpret_cast<char*>(&capLength), sizeof(uint8_t));
 
   if (capLength > 0) {
-    capValue = boost::shared_ptr<uint8_t>(new uint8_t[capLength]);
+    capValue = std::shared_ptr<uint8_t>(new uint8_t[capLength]);
     error |= capLength != io::read(input, reinterpret_cast<char*>(capValue.get()), capLength);
   }
 

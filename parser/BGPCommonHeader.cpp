@@ -73,7 +73,7 @@ BGPCommonHeader::BGPCommonHeader(istream& input)
   if (msg_length == 0)
     return; // there is no need to do anything
 
-  data = boost::shared_ptr<char>(new char[msg_length]);
+  data = std::shared_ptr<char>(new char[msg_length]);
 
   int read = io::read(input, data.get(), msg_length);
   if (read == -1 || read != msg_length) {

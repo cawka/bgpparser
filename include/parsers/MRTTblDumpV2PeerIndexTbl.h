@@ -93,7 +93,7 @@ private:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<MRTTblDumpV2PeerIndexTbl> MRTTblDumpV2PeerIndexTblPtr;
+typedef std::shared_ptr<MRTTblDumpV2PeerIndexTbl> MRTTblDumpV2PeerIndexTblPtr;
 
 const MRTTblDumpV2PeerIndexTblPeerEntryPtr
 MRTTblDumpV2PeerIndexTbl::getPeer(uint16_t peerIndex)

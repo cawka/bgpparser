@@ -36,7 +36,7 @@
 #include <list>
 
 class BGPDumper;
-typedef boost::shared_ptr<BGPDumper> BGPDumperPtr;
+typedef std::shared_ptr<BGPDumper> BGPDumperPtr;
 
 /* Common Dumper */
 class BGPDumper : public Dumper {

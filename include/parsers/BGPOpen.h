@@ -121,6 +121,6 @@ private:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<BGPOpen> BGPOpenPtr;
+typedef std::shared_ptr<BGPOpen> BGPOpenPtr;
 
 #endif /* __BGPOpen_H__ */

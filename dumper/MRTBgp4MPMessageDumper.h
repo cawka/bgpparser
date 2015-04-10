@@ -27,23 +27,23 @@
  */
 
 // MRT TABLE_DUMP_V2 Dumper
-#ifndef __MRTBGP4MPSTATECHANGEDUMPER__
-#define __MRTBGP4MPSTATECHANGEDUMPER__
+#ifndef __MRTBGP4MPMSGDUMPER__
+#define __MRTBGP4MPMSGDUMPER__
 
 #include "Dumper.h"
-#include "MRTBgp4MPStateChange.h"
+#include "MRTBgp4MPMessage.h"
 
-class MRTBgp4MPStateChangeDumper;
-typedef boost::shared_ptr<MRTBgp4MPStateChangeDumper> MRTBgp4MPStateChangeDumperPtr;
+class MRTBgp4MPMessageDumper;
+typedef std::shared_ptr<MRTBgp4MPMessageDumper> MRTBgp4MPMessageDumperPtr;
 
 /* Common Dumper */
-class MRTBgp4MPStateChangeDumper : public Dumper {
+class MRTBgp4MPMessageDumper : public Dumper {
 public:
-  virtual ~MRTBgp4MPStateChangeDumper();
+  virtual ~MRTBgp4MPMessageDumper();
 
   // Factory method for creating a dumper
-  static MRTBgp4MPStateChangeDumperPtr
-  newDumper(const MRTBgp4MPStateChangePtr& bgp4mp_sc);
+  static MRTBgp4MPMessageDumperPtr
+  newDumper(const MRTBgp4MPMessagePtr& bgp4mp_msg);
 
   xmlNodePtr
   genXml();
@@ -51,13 +51,13 @@ public:
   genAscii();
 
 private:
-  MRTBgp4MPStateChangeDumper(const MRTBgp4MPStateChangePtr& bgp4mp_sc);
+  MRTBgp4MPMessageDumper();
 
 protected:
-  /* Pointer to BGP4MP_STATECHANGE */
-  MRTBgp4MPStateChangePtr bgp4mp_state_change;
+  /* Pointer to BGP4MP_MESSAGE */
+  MRTBgp4MPMessagePtr bgp4mp_msg;
 };
 
-#endif /* __MRTBGP4MPSTATECHANGEDUMPER__ */
+#endif /* __MRTBGP4MPMSGDUMPER__ */
 
 // vim: sw=4 ts=4 sts=4 expandtab

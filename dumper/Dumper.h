@@ -74,6 +74,6 @@ public:
 protected:
 };
 
-typedef boost::shared_ptr<Dumper> DumperPtr;
+typedef std::shared_ptr<Dumper> DumperPtr;
 
 #endif /* __DUMPER_H_ */

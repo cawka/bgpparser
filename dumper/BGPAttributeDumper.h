@@ -26,79 +26,36 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// BGP Message Dumper
-#ifndef __BGPSTATECHANGEDUMPER_H_
-#define __BGPSTATECHANGEDUMPER_H_
+// Attribute Dumper
+#ifndef __BGPATTDUMPER_H_
+#define __BGPATTDUMPER_H_
 
 #include "Dumper.h"
-#include "MRTBgp4MPStateChange.h"
+#include "BGPAttribute.h"
 
-#define _XFB_VERSION "0.2"
+class BGPAttributeDumper;
+typedef std::shared_ptr<BGPAttributeDumper> BGPAttributeDumperPtr;
 
-/* Common Dumper */
-class BGPStateChangeDumper : public Dumper {
+class BGPAttributeDumper : public Dumper {
 public:
-  BGPStateChangeDumper();
-  virtual ~BGPStateChangeDumper();
+  BGPAttributeDumper(const BGPAttributePtr& bgp_attr);
+  virtual ~BGPAttributeDumper();
+
+  // Factory method for creating a BGP attribute dumper instance.
+  static BGPAttributeDumperPtr
+  newDumper(const BGPAttributePtr& attr);
 
   xmlNodePtr
   genXml();
   std::string
   genAscii();
 
-  void
-  setPeering(IPAddress peer_addr, IPAddress local_addr, uint32_t peer_as, uint32_t local_as,
-             uint16_t if_idx, uint16_t afi)
-  {
-    this->peer_addr = peer_addr;
-    this->local_addr = local_addr;
-    this->peer_as = peer_as;
-    this->local_as = local_as;
-    this->if_idx = if_idx;
-    this->afi = afi;
-  };
-
-  void
-  setTimestamp(time_t timestamp)
-  {
-    this->timestamp = timestamp;
-  };
-
-  void
-  setState(uint16_t oldState, uint16_t newState)
-  {
-    this->oldState = oldState;
-    this->newState = newState;
-  };
-
-  void
-  setAFI(uint16_t afi)
-  {
-    this->afi = afi;
-  };
-
 protected:
-  /* Time */
-  time_t timestamp;
+  BGPAttributePtr bgp_attr;
 
-  /* Peering */
-  IPAddress peer_addr;
-  IPAddress local_addr;
-  uint32_t peer_as;
-  uint32_t local_as;
-  uint16_t if_idx;
-  uint16_t afi;
-
-  /* State */
-  uint16_t oldState;
-  uint16_t newState;
-
-private:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<BGPStateChangeDumper> BGPStateChangeDumperPtr;
-
-#endif /* __BGPSTATECHANGEDUMPER_H_ */
+#endif /* __BGPATTDUMPER_H_ */
 
 // vim: sw=4 ts=4 sts=4 expandtab

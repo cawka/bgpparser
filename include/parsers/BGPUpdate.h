@@ -120,6 +120,6 @@ protected:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<BGPUpdate> BGPUpdatePtr;
+typedef std::shared_ptr<BGPUpdate> BGPUpdatePtr;
 
 #endif /* __BGPUPDATE_H_ */

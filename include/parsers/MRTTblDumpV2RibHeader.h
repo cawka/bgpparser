@@ -103,7 +103,7 @@ protected:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<MRTTblDumpV2RibHeader> MRTTblDumpV2RibHeaderPtr;
+typedef std::shared_ptr<MRTTblDumpV2RibHeader> MRTTblDumpV2RibHeaderPtr;
 
 uint32_t
 MRTTblDumpV2RibHeader::getSequenceNumber(void) const

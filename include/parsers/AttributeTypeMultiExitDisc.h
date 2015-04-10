@@ -76,6 +76,6 @@ protected:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<AttributeTypeMultiExitDisc> AttributeTypeMultiExitDiscPtr;
+typedef std::shared_ptr<AttributeTypeMultiExitDisc> AttributeTypeMultiExitDiscPtr;
 
 #endif /* _ATTRIBUTETYPEMULTIEXITDISC_H_ */

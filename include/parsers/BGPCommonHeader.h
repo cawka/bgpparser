@@ -157,7 +157,7 @@
 
 class BGPCommonHeader;
 typedef BGPCommonHeader BGPMessage;
-typedef boost::shared_ptr<BGPMessage> BGPMessagePtr;
+typedef std::shared_ptr<BGPMessage> BGPMessagePtr;
 
 class BGPCommonHeader /* AKA BGPMessage */ : public Node {
 public:
@@ -201,7 +201,7 @@ public:
     return type;
   }
 
-  const boost::shared_ptr<char>&
+  const std::shared_ptr<char>&
   getData() const
   {
     return data;
@@ -243,7 +243,7 @@ protected:
   uint8_t marker[16];
   uint16_t length;
   uint8_t type;
-  boost::shared_ptr<char> data;
+  std::shared_ptr<char> data;
 
 private:
   static log4cxx::LoggerPtr Logger;

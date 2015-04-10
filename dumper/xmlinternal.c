@@ -203,7 +203,7 @@ xmlNewPropFloat(xmlNodePtr node, const char *name, float value)
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
 xmlNodePtr
-xmlNewPropString( xmlNodePtr node, const const char *name, const char *value )
+xmlNewPropString( xmlNodePtr node, const char *name, const char *value )
 {
     xmlNewProp(node, BAD_CAST name, BAD_CAST value);
     return node;

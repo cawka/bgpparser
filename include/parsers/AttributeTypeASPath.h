@@ -118,7 +118,7 @@ protected:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<AttributeTypeASPathSegment> AttributeTypeASPathSegmentPtr;
+typedef std::shared_ptr<AttributeTypeASPathSegment> AttributeTypeASPathSegmentPtr;
 
 class AttributeTypeASPath : public AttributeType {
 public:
@@ -175,6 +175,6 @@ private:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<AttributeTypeASPath> AttributeTypeASPathPtr;
+typedef std::shared_ptr<AttributeTypeASPath> AttributeTypeASPathPtr;
 
 #endif /* _ATTRIBUTETYPEASPATH_H_ */

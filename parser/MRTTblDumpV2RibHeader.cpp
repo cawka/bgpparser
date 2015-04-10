@@ -116,8 +116,8 @@ MRTTblDumpV2RibHeader::processAttributes(list<BGPAttributePtr>& attributes, istr
      * Next Hop Address Length and Next Hop Address fields.
      *
 */
-    boost::shared_ptr<BGPAttribute> attrib =
-      boost::shared_ptr<BGPAttribute>(new BGPAttribute(input, isAS4));
+    std::shared_ptr<BGPAttribute> attrib =
+      std::shared_ptr<BGPAttribute>(new BGPAttribute(input, isAS4));
     attributes.push_back(attrib);
     left -= attrib->totalSize();
   }
@@ -131,14 +131,14 @@ MRTTblDumpV2RibHeader::processAttributes(list<BGPAttributePtr>& attributes, istr
 
   if (as_path != attributes.end() && as4_path != attributes.end()) {
     AttributeTypeASPathPtr as =
-      boost::dynamic_pointer_cast<AttributeTypeASPath>((*as_path)->getAttributeValueMutable());
+      std::dynamic_pointer_cast<AttributeTypeASPath>((*as_path)->getAttributeValueMutable());
     AttributeTypeAS4PathPtr as4 =
-      boost::dynamic_pointer_cast<AttributeTypeAS4Path>((*as4_path)->getAttributeValue());
+      std::dynamic_pointer_cast<AttributeTypeAS4Path>((*as4_path)->getAttributeValue());
 
     as->genPathSegmentsComplete(*as4);
   }
   else if (as_path != attributes.end())
-    boost::dynamic_pointer_cast<AttributeTypeASPath>((*as_path)->getAttributeValueMutable())
+    std::dynamic_pointer_cast<AttributeTypeASPath>((*as_path)->getAttributeValueMutable())
       ->genPathSegmentsComplete();
 
   // 2. Merge AGGREGATOR and AS4_AGGREGATOR
@@ -150,15 +150,15 @@ MRTTblDumpV2RibHeader::processAttributes(list<BGPAttributePtr>& attributes, istr
 
   if (agg2 != attributes.end() && agg4 != attributes.end()) {
     AttributeTypeAggregatorPtr agg_attr =
-      boost::dynamic_pointer_cast<AttributeTypeAggregator>((*agg2)->getAttributeValueMutable());
+      std::dynamic_pointer_cast<AttributeTypeAggregator>((*agg2)->getAttributeValueMutable());
 
     AttributeTypeAS4AggregatorPtr as4_agg_attr =
-      boost::dynamic_pointer_cast<AttributeTypeAS4Aggregator>((*agg4)->getAttributeValueMutable());
+      std::dynamic_pointer_cast<AttributeTypeAS4Aggregator>((*agg4)->getAttributeValueMutable());
 
     agg_attr->setAggregatorLastASComplete(as4_agg_attr->getAggregatorLastAS());
   }
   else if (agg2 != attributes.end()) {
-    boost::dynamic_pointer_cast<AttributeTypeAggregator>((*agg2)->getAttributeValueMutable())
+    std::dynamic_pointer_cast<AttributeTypeAggregator>((*agg2)->getAttributeValueMutable())
       ->setAggregatorLastASComplete();
   }
 

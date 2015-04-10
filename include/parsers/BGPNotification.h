@@ -57,7 +57,7 @@ public:
   {
     return subErrorCode;
   };
-  const boost::shared_ptr<uint8_t>
+  const std::shared_ptr<uint8_t>
   getData() const
   {
     return data;
@@ -87,7 +87,7 @@ public:
 protected:
   uint8_t errorCode;
   uint8_t subErrorCode;
-  boost::shared_ptr<uint8_t> data;
+  std::shared_ptr<uint8_t> data;
 
 private:
   // BGPNotification(void);		/* default constructor BGPCommonHeader() not defined */
@@ -95,6 +95,6 @@ private:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<BGPNotification> BGPNotificationPtr;
+typedef std::shared_ptr<BGPNotification> BGPNotificationPtr;
 
 #endif /* _BGPNOTIFICATION_H_ */

@@ -104,7 +104,7 @@ private:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<MRTTblDump> MRTTblDumpPtr;
+typedef std::shared_ptr<MRTTblDump> MRTTblDumpPtr;
 
 uint16_t
 MRTTblDump::getViewNumber(void) const

@@ -93,6 +93,6 @@ private:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<TblDumpV2RibEntry> TblDumpV2RibEntryPtr;
+typedef std::shared_ptr<TblDumpV2RibEntry> TblDumpV2RibEntryPtr;
 
 #endif /* _TBLDUMPV2RIBENTRY_H_ */

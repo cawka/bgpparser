@@ -3,7 +3,7 @@
 #define _OPTIONALPARAMETER_H_
 
 class OptionalParameter;
-typedef boost::shared_ptr<OptionalParameter> OptionalParameterPtr;
+typedef std::shared_ptr<OptionalParameter> OptionalParameterPtr;
 
 class OptionalParameter : public Node {
 public:

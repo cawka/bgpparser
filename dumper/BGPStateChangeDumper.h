@@ -26,36 +26,79 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// Attribute Dumper
-#ifndef __BGPATTDUMPER_H_
-#define __BGPATTDUMPER_H_
+// BGP Message Dumper
+#ifndef __BGPSTATECHANGEDUMPER_H_
+#define __BGPSTATECHANGEDUMPER_H_
 
 #include "Dumper.h"
-#include "BGPAttribute.h"
+#include "MRTBgp4MPStateChange.h"
 
-class BGPAttributeDumper;
-typedef boost::shared_ptr<BGPAttributeDumper> BGPAttributeDumperPtr;
+#define _XFB_VERSION "0.2"
 
-class BGPAttributeDumper : public Dumper {
+/* Common Dumper */
+class BGPStateChangeDumper : public Dumper {
 public:
-  BGPAttributeDumper(const BGPAttributePtr& bgp_attr);
-  virtual ~BGPAttributeDumper();
-
-  // Factory method for creating a BGP attribute dumper instance.
-  static BGPAttributeDumperPtr
-  newDumper(const BGPAttributePtr& attr);
+  BGPStateChangeDumper();
+  virtual ~BGPStateChangeDumper();
 
   xmlNodePtr
   genXml();
   std::string
   genAscii();
 
-protected:
-  BGPAttributePtr bgp_attr;
+  void
+  setPeering(IPAddress peer_addr, IPAddress local_addr, uint32_t peer_as, uint32_t local_as,
+             uint16_t if_idx, uint16_t afi)
+  {
+    this->peer_addr = peer_addr;
+    this->local_addr = local_addr;
+    this->peer_as = peer_as;
+    this->local_as = local_as;
+    this->if_idx = if_idx;
+    this->afi = afi;
+  };
 
+  void
+  setTimestamp(time_t timestamp)
+  {
+    this->timestamp = timestamp;
+  };
+
+  void
+  setState(uint16_t oldState, uint16_t newState)
+  {
+    this->oldState = oldState;
+    this->newState = newState;
+  };
+
+  void
+  setAFI(uint16_t afi)
+  {
+    this->afi = afi;
+  };
+
+protected:
+  /* Time */
+  time_t timestamp;
+
+  /* Peering */
+  IPAddress peer_addr;
+  IPAddress local_addr;
+  uint32_t peer_as;
+  uint32_t local_as;
+  uint16_t if_idx;
+  uint16_t afi;
+
+  /* State */
+  uint16_t oldState;
+  uint16_t newState;
+
+private:
   static log4cxx::LoggerPtr Logger;
 };
 
-#endif /* __BGPATTDUMPER_H_ */
+typedef std::shared_ptr<BGPStateChangeDumper> BGPStateChangeDumperPtr;
+
+#endif /* __BGPSTATECHANGEDUMPER_H_ */
 
 // vim: sw=4 ts=4 sts=4 expandtab

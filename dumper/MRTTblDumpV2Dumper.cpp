@@ -27,8 +27,6 @@
  */
 
 #include <bgpparser.h>
-using namespace std;
-using namespace boost;
 
 #include "MRTTblDumpV2Dumper.h"
 #include "MRTTblDumpV2RibIPv4Unicast.h"
@@ -48,6 +46,12 @@ using namespace boost;
 #include <libxml/tree.h>
 #include <list>
 #include <boost/foreach.hpp>
+
+using std::ostringstream;
+using std::string;
+using std::shared_ptr;
+using std::dynamic_pointer_cast;
+using std::static_pointer_cast;
 
 extern "C" {
 #include "xmlinternal.h"

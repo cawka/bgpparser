@@ -34,7 +34,7 @@
 #include "BGPStructure.h"
 
 class AttributeType;
-typedef boost::shared_ptr<AttributeType> AttributeTypePtr;
+typedef std::shared_ptr<AttributeType> AttributeTypePtr;
 
 class AttributeType : public Node {
 public:
@@ -51,7 +51,7 @@ public:
   {
     return length;
   }
-  const boost::shared_ptr<char>&
+  const std::shared_ptr<char>&
   getData() const
   {
     return data;
@@ -124,7 +124,7 @@ protected:
   uint16_t length;
   bool isAS4;
 
-  boost::shared_ptr<char> data;
+  std::shared_ptr<char> data;
 
   static log4cxx::LoggerPtr Logger;
 };

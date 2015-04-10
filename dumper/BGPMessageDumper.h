@@ -103,7 +103,7 @@ protected:
   BGPMessagePtr bgp_msg;
 };
 
-typedef boost::shared_ptr<BGPMessageDumper> BGPMessageDumperPtr;
+typedef std::shared_ptr<BGPMessageDumper> BGPMessageDumperPtr;
 
 #endif /* __BGPMSGDUMPER_H_ */
 

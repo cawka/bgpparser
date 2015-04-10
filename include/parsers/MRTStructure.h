@@ -193,7 +193,7 @@ struct MRTTblDumpV2PeerIndexTblPeerEntry {
   uint32_t peerAS;
 };
 
-typedef boost::shared_ptr<MRTTblDumpV2PeerIndexTblPeerEntry> MRTTblDumpV2PeerIndexTblPeerEntryPtr;
+typedef std::shared_ptr<MRTTblDumpV2PeerIndexTblPeerEntry> MRTTblDumpV2PeerIndexTblPeerEntryPtr;
 
 /* RIB entry for a TABLE_DUMP_V2 RIB_IPV4_UNICAST subtype */
 /*

@@ -70,7 +70,7 @@ BGPOpen::BGPOpen(BGPCommonHeader& header, std::istream& input)
     OptionalParameterPtr param = OptionalParameter::newOptionalParameter(input);
     if (param->getType() == OptionalParameter::CAPABILITIES) {
       OptionalParameterCapabilitiesPtr caps =
-        boost::dynamic_pointer_cast<OptionalParameterCapabilities>(param);
+        std::dynamic_pointer_cast<OptionalParameterCapabilities>(param);
       if (caps->getType() == OptionalParameterCapabilities::CAPABILITY_AS4) {
         isAS4 = true;
       }

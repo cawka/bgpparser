@@ -79,6 +79,6 @@ private:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<AttributeTypeOrigin> AttributeTypeOriginPtr;
+typedef std::shared_ptr<AttributeTypeOrigin> AttributeTypeOriginPtr;
 
 #endif /* _ATTRIBUTETYPEORIGIN_H_ */

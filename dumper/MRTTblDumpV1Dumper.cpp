@@ -27,8 +27,6 @@
  */
 
 #include <bgpparser.h>
-using namespace std;
-using namespace boost;
 
 #include "MRTTblDumpV1Dumper.h"
 #include "BGPMessageDumper.h"
@@ -44,6 +42,10 @@ using namespace boost;
 #include <libxml/tree.h>
 #include <list>
 #include <boost/foreach.hpp>
+
+using std::string;
+using std::static_pointer_cast;
+using std::dynamic_pointer_cast;
 
 extern "C" {
 #include "xmlinternal.h"
@@ -94,7 +96,7 @@ MRTTblDumpV1Dumper::genMsgDumper()
   //	NLRIUnReachablePtr unroute( new NLRIUnReachable(tblDumpMsg->getPrefixLength(),
   //tblDumpMsg->getPrefix()) );
 
-  shared_ptr<FakeBGPUpdate> update(new FakeBGPUpdate());
+  std::shared_ptr<FakeBGPUpdate> update(new FakeBGPUpdate());
 
   /* Fill in the update members */
   std::list<BGPAttributePtr>::const_iterator mp_attr =

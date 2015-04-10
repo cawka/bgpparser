@@ -28,8 +28,8 @@ struct Info {
     , timestamp(_timestamp)
     , dump_type(_dump_type)
     , peer_addr(_peer_addr)
-    , peer_as(_peer_as)
     , peer_afi(_peer_afi)
+    , peer_as(_peer_as)
     , med(0)
     , lpref(0)
     , atomic_agg("NAG")
@@ -38,6 +38,6 @@ struct Info {
   }
 };
 
-typedef boost::shared_ptr<Info> InfoPtr;
+typedef std::shared_ptr<Info> InfoPtr;
 
 #endif

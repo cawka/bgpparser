@@ -89,9 +89,19 @@ namespace fs = boost::filesystem;
 
 #include <boost/iostreams/categories.hpp>
 
-using namespace std;
-using namespace boost;
 using namespace boost::iostreams;
+using std::endl;
+using std::cout;
+using std::cerr;
+using std::cin;
+using std::ios_base;
+using std::ifstream;
+using std::string;
+using std::shared_ptr;
+using std::dynamic_pointer_cast;
+using std::static_pointer_cast;
+using boost::smatch;
+using boost::regex;
 
 // int dump_type = 0;   // 1: TABLE_DUMP1
 //                     // 2: TABLE_DUMP2
@@ -221,7 +231,7 @@ main(int argc, char** argv)
   /* -------------------------- */
   /* File                       */
   /* -------------------------- */
-  char* fileName;
+  std::string fileName = "";
   if (optind < argc) {
     fileName = argv[optind];
   }
@@ -232,7 +242,7 @@ main(int argc, char** argv)
 
   string format = "";
   smatch m;
-  if (regex_match(string(fileName), m, regex("^.*\\.(gz|bz2)$")))
+  if (regex_match(fileName, m, regex("^.*\\.(gz|bz2)$")))
     format = m[1];
   ////////////////////////////////////////////////////////////////////////////
 
@@ -247,14 +257,14 @@ main(int argc, char** argv)
     in.push(bzip2_decompressor());
   }
 
-  ifstream input_file(fileName, ios_base::in | ios_base::binary);
+  ifstream input_file(fileName.c_str(), ios_base::in | ios_base::binary);
   if (!input_file.is_open()) {
     cerr << "ERROR: "
          << "cannot open file [" << fileName << "] for reading" << endl << endl;
     exit(3);
   }
 
-  if (string(fileName) == "-")
+  if (fileName == "-")
     in.push(cin);
   else
     in.push(input_file);
@@ -267,7 +277,6 @@ main(int argc, char** argv)
   if (flag_root)
     cout << "<BGP_MESSAGES>" << endl;
 
-  unsigned int unTotalBytesRead = 0;
   MRTTblDumpV2PeerIndexTblPtr tbldumpv2_indextbl;
 
   shared_ptr<MRTTblDumpV2Dumper> mrt_tblv2_dumper(new MRTTblDumpV2Dumper());

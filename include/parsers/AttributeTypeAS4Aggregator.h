@@ -90,6 +90,6 @@ private:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<AttributeTypeAS4Aggregator> AttributeTypeAS4AggregatorPtr;
+typedef std::shared_ptr<AttributeTypeAS4Aggregator> AttributeTypeAS4AggregatorPtr;
 
 #endif /* _ATTRIBUTETYPEAS4AGGREGATOR_H_ */

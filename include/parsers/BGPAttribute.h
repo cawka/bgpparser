@@ -184,7 +184,7 @@ protected:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<BGPAttribute> BGPAttributePtr;
+typedef std::shared_ptr<BGPAttribute> BGPAttributePtr;
 
 struct findByType : public std::unary_function<uint8_t, bool> {
   uint8_t _type;

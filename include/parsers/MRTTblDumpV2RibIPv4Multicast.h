@@ -62,6 +62,6 @@ public:
 private:
 };
 
-typedef boost::shared_ptr<MRTTblDumpV2RibIPv4Multicast> MRTTblDumpV2RibIPv4MulticastPtr;
+typedef std::shared_ptr<MRTTblDumpV2RibIPv4Multicast> MRTTblDumpV2RibIPv4MulticastPtr;
 
 #endif /* _MRTTBLDUMPV2RIBIPV4MULTICAST_H_ */

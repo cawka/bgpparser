@@ -69,7 +69,7 @@ BGPNotification::BGPNotification(BGPCommonHeader& header, istream& input)
 
   if (dataLength > 0) {
     /* dynamically allocated memory for the data */
-    data = boost::shared_ptr<uint8_t>(new uint8_t[dataLength]);
+    data = std::shared_ptr<uint8_t>(new uint8_t[dataLength]);
 
     /* copy the data from the notification to the */
     /* dynamically allocated memory */

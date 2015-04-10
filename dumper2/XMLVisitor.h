@@ -2,7 +2,7 @@
 #ifndef _XMLVISITOR_H_
 #define _XMLVISITOR_H_
 
-#include <Visitor.h>
+#include "Visitor.h"
 
 // class XMLVisitor : public Visitor
 //{

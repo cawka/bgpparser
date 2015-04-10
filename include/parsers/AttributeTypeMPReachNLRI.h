@@ -156,6 +156,6 @@ protected:
   static log4cxx::LoggerPtr Logger;
 };
 
-typedef boost::shared_ptr<AttributeTypeMPReachNLRI> AttributeTypeMPReachNLRIPtr;
+typedef std::shared_ptr<AttributeTypeMPReachNLRI> AttributeTypeMPReachNLRIPtr;
 
 #endif /* _ATTRIBUTETYPEMPREACHNLRI_H_ */

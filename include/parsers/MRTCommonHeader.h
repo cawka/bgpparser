@@ -32,11 +32,11 @@
 #include "MRTStructure.h"
 
 class MRTTblDumpV2PeerIndexTbl;
-typedef boost::shared_ptr<MRTTblDumpV2PeerIndexTbl> MRTTblDumpV2PeerIndexTblPtr;
+typedef std::shared_ptr<MRTTblDumpV2PeerIndexTbl> MRTTblDumpV2PeerIndexTblPtr;
 
 /* the MRTCommonHeader is a MRTMessage */
 typedef class MRTCommonHeader MRTMessage;
-typedef class boost::shared_ptr<MRTCommonHeader> MRTMessagePtr;
+typedef class std::shared_ptr<MRTCommonHeader> MRTMessagePtr;
 
 /* Common header defined by all MRT packets */
 class MRTCommonHeader : public Node {
@@ -57,7 +57,7 @@ public:
   {
     return pkt;
   }
-  const boost::shared_ptr<char>&
+  const std::shared_ptr<char>&
   getData() const
   {
     return data;
@@ -102,7 +102,7 @@ protected:
   uint32_t length;  /* length of payload in MRT */
 
   MRTCommonHeaderPacket pkt;    /* original MRT packet header */
-  boost::shared_ptr<char> data; /* raw data of MRT packet */
+  std::shared_ptr<char> data; /* raw data of MRT packet */
 
 private:
   static log4cxx::LoggerPtr Logger;
