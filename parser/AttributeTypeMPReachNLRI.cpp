@@ -150,8 +150,7 @@ AttributeTypeMPReachNLRI::AttributeTypeMPReachNLRI(AttributeType& header, istrea
   for (int ic = 0; ic < unSNPACnt; ic++) {
     error |=
       sizeof(uint8_t) != io::read(input, reinterpret_cast<char*>(&unSNPALen), sizeof(uint8_t));
-    char tmpbuf[unSNPALen];
-    error |= unSNPALen != io::read(input, tmpbuf, unSNPALen);
+    error |= unSNPALen != io::seek(input, unSNPALen, std::ios_base::cur);
 
     left -= 1 + unSNPALen;
     if (error) {
@@ -198,28 +197,3 @@ AttributeTypeMPReachNLRI::addNLRI(NLRIReachablePtr& nlri)
     this->nlri.push_back(nlri);
   }
 };
-//
-// void AttributeTypeMPReachNLRI::printMe() {
-//	cout << "ANNOUNCE:";
-//
-//	BOOST_FOREACH( NLRIReachablePtr entry, nlri )
-//	{
-//		cout << endl;
-//		entry->printMe(afi);
-//	}
-//}
-//
-// void AttributeTypeMPReachNLRI::printMeCompact() {
-//	cout << "MBGP-NEXTHOP: ";
-//	if( afi == AFI_IPv4 ) {
-//		PRINT_IP_ADDR(nextHopAddress.ipv4);
-//	} else {
-//		PRINT_IPv6_ADDR(nextHopAddress.ipv6);
-//	}
-//	cout << "^MBGP-ANNOUNCE:";
-//	BOOST_FOREACH( NLRIReachablePtr entry, nlri )
-//	{
-//		cout << " ";
-//		entry->printMeCompact(afi);
-//	}
-//}
