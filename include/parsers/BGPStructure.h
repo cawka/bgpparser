@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -35,86 +35,173 @@
 #include "MRTStructure.h"
 #include "MRTCommonHeader.h"
 
-class Route : public Node
-{
+class Route : public Node {
 public:
-	Route( uint8_t aLength, std::istream &input );
-	virtual ~Route() { }
+  Route(uint8_t aLength, std::istream& input);
+  virtual ~Route()
+  {
+  }
 
-	inline uint8_t getLength() { return length; }
-	inline uint8_t setLength(uint8_t aLength) { length = aLength; return length; }
-	inline IPAddress getPrefix() const { return prefix; }
-	inline IPAddress setPrefix(IPAddress in_prefix) { memcpy(&prefix, &in_prefix, sizeof(IPAddress)); return prefix; }
-	inline int getNumOctets() { return numOctets; }
+  inline uint8_t
+  getLength()
+  {
+    return length;
+  }
+  inline uint8_t
+  setLength(uint8_t aLength)
+  {
+    length = aLength;
+    return length;
+  }
+  inline IPAddress
+  getPrefix() const
+  {
+    return prefix;
+  }
+  inline IPAddress
+  setPrefix(IPAddress in_prefix)
+  {
+    memcpy(&prefix, &in_prefix, sizeof(IPAddress));
+    return prefix;
+  }
+  inline int
+  getNumOctets()
+  {
+    return numOctets;
+  }
 
-	inline std::string toString(uint16_t afi=AFI_IPv4);
-	
-	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
-	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
-	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }
-	virtual boost::any accept( GJVisitor &v, boost::any param ) { return v.visit( *this, param ); }
+  inline std::string
+  toString(uint16_t afi = AFI_IPv4);
+
+  virtual void
+  accept(Visitor& v)
+  {
+    v.visit(*this);
+  }
+  virtual void
+  accept(GJVoidVisitor& v, boost::any param)
+  {
+    v.visit(*this, param);
+  }
+  virtual boost::any
+  accept(GJNoArguVisitor& v)
+  {
+    return v.visit(*this);
+  }
+  virtual boost::any
+  accept(GJVisitor& v, boost::any param)
+  {
+    return v.visit(*this, param);
+  }
 
 private:
-	Route( ) {}
+  Route()
+  {
+  }
 
 protected:
-	Route( uint8_t aLength, IPAddress aPrefix )
-	{
-		length = aLength;
-		numOctets = aLength / 8 + ((aLength % 8) ? 1 : 0);
-		memcpy( &prefix, &aPrefix, sizeof(IPAddress) );
-	}
+  Route(uint8_t aLength, IPAddress aPrefix)
+  {
+    length = aLength;
+    numOctets = aLength / 8 + ((aLength % 8) ? 1 : 0);
+    memcpy(&prefix, &aPrefix, sizeof(IPAddress));
+  }
 
 protected:
-	uint8_t length; // number of bits in the IP prefix.
-	IPAddress prefix; // Variable length prefix - padded to equal ceil(length / 8) octets. 
-	int numOctets;
+  uint8_t length;   // number of bits in the IP prefix.
+  IPAddress prefix; // Variable length prefix - padded to equal ceil(length / 8) octets.
+  int numOctets;
 
-	static log4cxx::LoggerPtr Logger;
+  static log4cxx::LoggerPtr Logger;
 };
 
 typedef boost::shared_ptr<Route> RoutePtr;
 
-class NLRIReachable : public Route
-{
+class NLRIReachable : public Route {
 public:
-	NLRIReachable(uint8_t aLength, std::istream &input)  : Route(aLength, input) {}
-	NLRIReachable(uint8_t aLength, IPAddress aPrefix) : Route(aLength, aPrefix) {}
+  NLRIReachable(uint8_t aLength, std::istream& input)
+    : Route(aLength, input)
+  {
+  }
+  NLRIReachable(uint8_t aLength, IPAddress aPrefix)
+    : Route(aLength, aPrefix)
+  {
+  }
 
-	~NLRIReachable() {}
+  ~NLRIReachable()
+  {
+  }
 
-	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
-	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
-	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }
-	virtual boost::any accept( GJVisitor &v, boost::any param ) { return v.visit( *this, param ); }
+  virtual void
+  accept(Visitor& v)
+  {
+    v.visit(*this);
+  }
+  virtual void
+  accept(GJVoidVisitor& v, boost::any param)
+  {
+    v.visit(*this, param);
+  }
+  virtual boost::any
+  accept(GJNoArguVisitor& v)
+  {
+    return v.visit(*this);
+  }
+  virtual boost::any
+  accept(GJVisitor& v, boost::any param)
+  {
+    return v.visit(*this, param);
+  }
 };
 
 typedef boost::shared_ptr<NLRIReachable> NLRIReachablePtr;
 
-
-class NLRIUnReachable : public Route
-{
+class NLRIUnReachable : public Route {
 public:
-	NLRIUnReachable(uint8_t aLength, std::istream &input)  : Route(aLength, input) {}
-	NLRIUnReachable(uint8_t aLength, IPAddress aPrefix): Route(aLength, aPrefix) {}
+  NLRIUnReachable(uint8_t aLength, std::istream& input)
+    : Route(aLength, input)
+  {
+  }
+  NLRIUnReachable(uint8_t aLength, IPAddress aPrefix)
+    : Route(aLength, aPrefix)
+  {
+  }
 
-	~NLRIUnReachable() {}
+  ~NLRIUnReachable()
+  {
+  }
 
-	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
-	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
-	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }
-	virtual boost::any accept( GJVisitor &v, boost::any param ) { return v.visit( *this, param ); }
+  virtual void
+  accept(Visitor& v)
+  {
+    v.visit(*this);
+  }
+  virtual void
+  accept(GJVoidVisitor& v, boost::any param)
+  {
+    v.visit(*this, param);
+  }
+  virtual boost::any
+  accept(GJNoArguVisitor& v)
+  {
+    return v.visit(*this);
+  }
+  virtual boost::any
+  accept(GJVisitor& v, boost::any param)
+  {
+    return v.visit(*this, param);
+  }
 };
 
 typedef boost::shared_ptr<NLRIUnReachable> NLRIUnReachablePtr;
 
-std::string Route::toString( uint16_t afi )
+std::string
+Route::toString(uint16_t afi)
 {
-	std::ostringstream os;
-	os << FORMAT_IP_ADDRESS( prefix, afi ) << "/" << (int)length;
+  std::ostringstream os;
+  os << FORMAT_IP_ADDRESS(prefix, afi) << "/" << (int)length;
 
-	return os.str( );
+  return os.str();
 }
 
 #endif /* __BGPSTRUCTURE_H_ */
-

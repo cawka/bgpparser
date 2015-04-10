@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -33,61 +33,92 @@
 #include "MRTStructure.h"
 
 /* MRT type TABLE_DUMP_V2 and subtype PEER_INDEX_TABLE */
-class MRTTblDumpV2PeerIndexTbl :
-	public MRTCommonHeader
-{
-//friend class MRTTblDumpV2RibIPv4Unicast;
+class MRTTblDumpV2PeerIndexTbl : public MRTCommonHeader {
+  // friend class MRTTblDumpV2RibIPv4Unicast;
 
 public:
-	MRTTblDumpV2PeerIndexTbl( MRTCommonHeader &header, std::istream &input );
-	virtual ~MRTTblDumpV2PeerIndexTbl(void);
+  MRTTblDumpV2PeerIndexTbl(MRTCommonHeader& header, std::istream& input);
+  virtual ~MRTTblDumpV2PeerIndexTbl(void);
 
-	inline uint32_t getCollectorBGPId( ) const;
-	inline uint16_t getViewNameLength( ) const;
-	inline uint16_t getPeerCount( ) const;
+  inline uint32_t
+  getCollectorBGPId() const;
+  inline uint16_t
+  getViewNameLength() const;
+  inline uint16_t
+  getPeerCount() const;
 
-	const std::string &getViewName( ) const { return viewName; }
+  const std::string&
+  getViewName() const
+  {
+    return viewName;
+  }
 
-	const std::vector<MRTTblDumpV2PeerIndexTblPeerEntryPtr> &getPeerEntries(void) { return peerEntries; }
-	inline const MRTTblDumpV2PeerIndexTblPeerEntryPtr getPeer( uint16_t peerIndex );
+  const std::vector<MRTTblDumpV2PeerIndexTblPeerEntryPtr>&
+  getPeerEntries(void)
+  {
+    return peerEntries;
+  }
+  inline const MRTTblDumpV2PeerIndexTblPeerEntryPtr
+  getPeer(uint16_t peerIndex);
 
-	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
-	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
-	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }
-	virtual boost::any accept( GJVisitor &v, boost::any param ) { return v.visit( *this, param ); }
+  virtual void
+  accept(Visitor& v)
+  {
+    v.visit(*this);
+  }
+  virtual void
+  accept(GJVoidVisitor& v, boost::any param)
+  {
+    v.visit(*this, param);
+  }
+  virtual boost::any
+  accept(GJNoArguVisitor& v)
+  {
+    return v.visit(*this);
+  }
+  virtual boost::any
+  accept(GJVisitor& v, boost::any param)
+  {
+    return v.visit(*this, param);
+  }
 
 protected:
-	uint32_t collectorBGPId;
-	uint16_t viewNameLength;
-	std::string viewName;
-	uint16_t peerCount;
-	std::vector<MRTTblDumpV2PeerIndexTblPeerEntryPtr> peerEntries;
+  uint32_t collectorBGPId;
+  uint16_t viewNameLength;
+  std::string viewName;
+  uint16_t peerCount;
+  std::vector<MRTTblDumpV2PeerIndexTblPeerEntryPtr> peerEntries;
 
 private:
-	static log4cxx::LoggerPtr Logger;
+  static log4cxx::LoggerPtr Logger;
 };
 
 typedef boost::shared_ptr<MRTTblDumpV2PeerIndexTbl> MRTTblDumpV2PeerIndexTblPtr;
 
-const MRTTblDumpV2PeerIndexTblPeerEntryPtr MRTTblDumpV2PeerIndexTbl::getPeer( uint16_t peerIndex )
+const MRTTblDumpV2PeerIndexTblPeerEntryPtr
+MRTTblDumpV2PeerIndexTbl::getPeer(uint16_t peerIndex)
 {
-	if( peerIndex>peerEntries.size() ) throw BGPTextError( "Corrupted PeerIndexTbl" );
-	return peerEntries[peerIndex];
+  if (peerIndex > peerEntries.size())
+    throw BGPTextError("Corrupted PeerIndexTbl");
+  return peerEntries[peerIndex];
 }
 
-
-uint32_t MRTTblDumpV2PeerIndexTbl::getCollectorBGPId(void) const {
-	return collectorBGPId;
+uint32_t
+MRTTblDumpV2PeerIndexTbl::getCollectorBGPId(void) const
+{
+  return collectorBGPId;
 }
 
-uint16_t MRTTblDumpV2PeerIndexTbl::getViewNameLength(void) const {
-	return viewNameLength;
+uint16_t
+MRTTblDumpV2PeerIndexTbl::getViewNameLength(void) const
+{
+  return viewNameLength;
 }
 
-uint16_t MRTTblDumpV2PeerIndexTbl::getPeerCount(void) const {
-	return peerCount;
+uint16_t
+MRTTblDumpV2PeerIndexTbl::getPeerCount(void) const
+{
+  return peerCount;
 }
 
-
-#endif	/* _MRTTBLDUMPV2PEERINDEXTBL_H_ */
-
+#endif /* _MRTTBLDUMPV2PEERINDEXTBL_H_ */

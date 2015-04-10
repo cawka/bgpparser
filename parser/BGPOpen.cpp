@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -34,59 +34,54 @@
 
 namespace io = boost::iostreams;
 
-log4cxx::LoggerPtr BGPOpen::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPOpen" );
+log4cxx::LoggerPtr BGPOpen::Logger = log4cxx::Logger::getLogger("bgpparser.BGPOpen");
 
-BGPOpen::BGPOpen( BGPCommonHeader &header, std::istream &input )
-		: BGPCommonHeader( header )
+BGPOpen::BGPOpen(BGPCommonHeader& header, std::istream& input)
+  : BGPCommonHeader(header)
 {
-	LOG4CXX_TRACE(Logger,"");
+  LOG4CXX_TRACE(Logger, "");
 
-	bool error=false;
+  bool error = false;
 
-	error|= sizeof(uint8_t)!=
-			io::read( input, reinterpret_cast<char*>(&version), sizeof(uint8_t) );
+  error |= sizeof(uint8_t) != io::read(input, reinterpret_cast<char*>(&version), sizeof(uint8_t));
 
-	error|= sizeof(uint16_t)!=
-			io::read( input, reinterpret_cast<char*>(&myAS), sizeof(uint16_t) );
-	myAS = ntohs(myAS);
+  error |= sizeof(uint16_t) != io::read(input, reinterpret_cast<char*>(&myAS), sizeof(uint16_t));
+  myAS = ntohs(myAS);
 
-	error|= sizeof(uint16_t)!=
-			io::read( input, reinterpret_cast<char*>(&holdTime), sizeof(uint16_t) );
-	holdTime = ntohs(holdTime);
+  error |=
+    sizeof(uint16_t) != io::read(input, reinterpret_cast<char*>(&holdTime), sizeof(uint16_t));
+  holdTime = ntohs(holdTime);
 
-	error|= sizeof(uint32_t)!=
-			io::read( input, reinterpret_cast<char*>(&bgpId), sizeof(uint32_t) );
-	bgpId = ntohl(bgpId);
+  error |= sizeof(uint32_t) != io::read(input, reinterpret_cast<char*>(&bgpId), sizeof(uint32_t));
+  bgpId = ntohl(bgpId);
 
-	error|= sizeof(uint8_t)!=
-			io::read( input, reinterpret_cast<char*>(&optParmLen), sizeof(uint8_t) );
+  error |=
+    sizeof(uint8_t) != io::read(input, reinterpret_cast<char*>(&optParmLen), sizeof(uint8_t));
 
-	if( error )
-	{
-		LOG4CXX_ERROR( Logger, "Parsing error" );
-		throw BGPError( );
-	}
+  if (error) {
+    LOG4CXX_ERROR(Logger, "Parsing error");
+    throw BGPError();
+  }
 
-	// @TODO  Should read optional parameters
-	//		  and if exists propagate Capabilities to BGP_UPDATE
-	int left=optParmLen;
-	while( left>0 )
-	{
-		OptionalParameterPtr param = OptionalParameter::newOptionalParameter( input );
-		if( param->getType()==OptionalParameter::CAPABILITIES )
-		{
-			OptionalParameterCapabilitiesPtr caps=boost::dynamic_pointer_cast<OptionalParameterCapabilities>( param );
-			if( caps->getType()==OptionalParameterCapabilities::CAPABILITY_AS4 )
-			{
-				isAS4=true;
-			}
-		}
+  // @TODO  Should read optional parameters
+  //		  and if exists propagate Capabilities to BGP_UPDATE
+  int left = optParmLen;
+  while (left > 0) {
+    OptionalParameterPtr param = OptionalParameter::newOptionalParameter(input);
+    if (param->getType() == OptionalParameter::CAPABILITIES) {
+      OptionalParameterCapabilitiesPtr caps =
+        boost::dynamic_pointer_cast<OptionalParameterCapabilities>(param);
+      if (caps->getType() == OptionalParameterCapabilities::CAPABILITY_AS4) {
+        isAS4 = true;
+      }
+    }
 
-		optParams.push_back( param );
-		left-=param->getLength( );
-	}
+    optParams.push_back(param);
+    left -= param->getLength();
+  }
 }
 
-BGPOpen::~BGPOpen() { 
-	/* nothing */
+BGPOpen::~BGPOpen()
+{
+  /* nothing */
 }

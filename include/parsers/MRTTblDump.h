@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -29,7 +29,6 @@
 #ifndef _MRTTBLDUMP_H_
 #define _MRTTBLDUMP_H_
 
-
 #include "MRTCommonHeader.h"
 
 #include "MRTStructure.h"
@@ -37,84 +36,128 @@
 #include "MRTTblDumpV2RibHeader.h"
 
 /* MRT type TABLE_DUMP */
-class MRTTblDump :
-	public MRTCommonHeader
-{
+class MRTTblDump : public MRTCommonHeader {
 public:
-	MRTTblDump( MRTCommonHeader &header, std::istream &input );
-	virtual ~MRTTblDump(void);
+  MRTTblDump(MRTCommonHeader& header, std::istream& input);
+  virtual ~MRTTblDump(void);
 
-	inline uint16_t  getViewNumber( ) const;
-	inline uint16_t  getSequenceNumber( ) const;
-	inline IPAddress getPrefix( ) const;
-	inline uint8_t   getPrefixLength( ) const;
-	inline uint8_t   getStatus( ) const;
-	inline time_t    getOriginatedTime( ) const;
-	inline IPAddress getPeerIP( ) const;
-	inline uint16_t  getPeerAS( ) const;
-	inline uint16_t  getAttributeLength( ) const;
-	
-	const std::list<BGPAttributePtr> &getAttributes(void) const { return attributes; };
+  inline uint16_t
+  getViewNumber() const;
+  inline uint16_t
+  getSequenceNumber() const;
+  inline IPAddress
+  getPrefix() const;
+  inline uint8_t
+  getPrefixLength() const;
+  inline uint8_t
+  getStatus() const;
+  inline time_t
+  getOriginatedTime() const;
+  inline IPAddress
+  getPeerIP() const;
+  inline uint16_t
+  getPeerAS() const;
+  inline uint16_t
+  getAttributeLength() const;
 
-	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
-	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
-	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }
-	virtual boost::any accept( GJVisitor &v, boost::any param ) { return v.visit( *this, param ); }
+  const std::list<BGPAttributePtr>&
+  getAttributes(void) const
+  {
+    return attributes;
+  };
+
+  virtual void
+  accept(Visitor& v)
+  {
+    v.visit(*this);
+  }
+  virtual void
+  accept(GJVoidVisitor& v, boost::any param)
+  {
+    v.visit(*this, param);
+  }
+  virtual boost::any
+  accept(GJNoArguVisitor& v)
+  {
+    return v.visit(*this);
+  }
+  virtual boost::any
+  accept(GJVisitor& v, boost::any param)
+  {
+    return v.visit(*this, param);
+  }
 
 protected:
-	uint16_t viewNumber;
-	uint16_t sequenceNumber;
-	IPAddress prefix;
-	uint8_t prefixLength;
-	uint8_t status;
-	time_t	originatedTime;
-	IPAddress peerIP;
-	uint16_t peerAS;
-	uint16_t attributeLength;
+  uint16_t viewNumber;
+  uint16_t sequenceNumber;
+  IPAddress prefix;
+  uint8_t prefixLength;
+  uint8_t status;
+  time_t originatedTime;
+  IPAddress peerIP;
+  uint16_t peerAS;
+  uint16_t attributeLength;
 
-	std::list<BGPAttributePtr> attributes;
+  std::list<BGPAttributePtr> attributes;
 
 private:
-	static log4cxx::LoggerPtr Logger;
+  static log4cxx::LoggerPtr Logger;
 };
 
 typedef boost::shared_ptr<MRTTblDump> MRTTblDumpPtr;
 
-uint16_t MRTTblDump::getViewNumber(void) const {
-	return viewNumber;
+uint16_t
+MRTTblDump::getViewNumber(void) const
+{
+  return viewNumber;
 }
 
-uint16_t MRTTblDump::getSequenceNumber(void) const {
-	return sequenceNumber;
+uint16_t
+MRTTblDump::getSequenceNumber(void) const
+{
+  return sequenceNumber;
 }
 
-IPAddress MRTTblDump::getPrefix(void) const {
-	return prefix;
+IPAddress
+MRTTblDump::getPrefix(void) const
+{
+  return prefix;
 }
 
-uint8_t MRTTblDump::getPrefixLength(void) const {
-	return prefixLength;
+uint8_t
+MRTTblDump::getPrefixLength(void) const
+{
+  return prefixLength;
 }
 
-uint8_t MRTTblDump::getStatus(void) const {
-	return status;
+uint8_t
+MRTTblDump::getStatus(void) const
+{
+  return status;
 }
 
-time_t MRTTblDump::getOriginatedTime(void) const {
-	return originatedTime;
+time_t
+MRTTblDump::getOriginatedTime(void) const
+{
+  return originatedTime;
 }
 
-IPAddress MRTTblDump::getPeerIP(void) const {
-	return peerIP;
+IPAddress
+MRTTblDump::getPeerIP(void) const
+{
+  return peerIP;
 }
 
-uint16_t MRTTblDump::getPeerAS(void) const {
-	return peerAS;
+uint16_t
+MRTTblDump::getPeerAS(void) const
+{
+  return peerAS;
 }
 
-uint16_t MRTTblDump::getAttributeLength(void) const {
-	return attributeLength;
+uint16_t
+MRTTblDump::getAttributeLength(void) const
+{
+  return attributeLength;
 }
 
-#endif	/* _MRTTBLDUMP_H_ */
-
+#endif /* _MRTTBLDUMP_H_ */

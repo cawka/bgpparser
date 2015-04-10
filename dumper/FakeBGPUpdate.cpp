@@ -33,24 +33,26 @@
 using namespace std;
 using namespace boost;
 
-FakeBGPUpdate::FakeBGPUpdate( )
+FakeBGPUpdate::FakeBGPUpdate()
 {
-	// ?
+  // ?
 }
 
-FakeBGPUpdate::~FakeBGPUpdate( )
+FakeBGPUpdate::~FakeBGPUpdate()
 {
 }
 
-void FakeBGPUpdate::addPathAttribute( const BGPAttributePtr &attr )
+void
+FakeBGPUpdate::addPathAttribute(const BGPAttributePtr& attr)
 {
-	pathAttributes.push_back( attr );
-	pathAttributesLength+=attr->totalSize( );
+  pathAttributes.push_back(attr);
+  pathAttributesLength += attr->totalSize();
 }
 
-void FakeBGPUpdate::addAnnouncedRoute( const RoutePtr &route )
+void
+FakeBGPUpdate::addAnnouncedRoute(const RoutePtr& route)
 {
-	announcedRoutes.push_back( route );
-	length    +=1+route->getNumOctets( );
-	nlriLength+=1+route->getNumOctets( );
+  announcedRoutes.push_back(route);
+  length += 1 + route->getNumOctets();
+  nlriLength += 1 + route->getNumOctets();
 }

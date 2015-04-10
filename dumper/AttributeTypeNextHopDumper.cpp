@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -38,54 +38,55 @@ using namespace boost;
 #include <libxml/tree.h>
 
 extern "C" {
-    #include "xmlinternal.h"
+#include "xmlinternal.h"
 }
 
-AttributeTypeNextHopDumper::AttributeTypeNextHopDumper( const AttributeTypePtr &attr )
-: AttributeTypeDumper(attr)
-{}
+AttributeTypeNextHopDumper::AttributeTypeNextHopDumper(const AttributeTypePtr& attr)
+  : AttributeTypeDumper(attr)
+{
+}
 
 AttributeTypeNextHopDumper::~AttributeTypeNextHopDumper()
-{}
-
-xmlNodePtr AttributeTypeNextHopDumper::genXml()
 {
-    AttributeTypeNextHopPtr attr = dynamic_pointer_cast<AttributeTypeNextHop>( attr_type );
-
-    /* Next hop */
-    string nh_str = "";
-	switch(attr->getNextHopAFI())
-	{
-		case AFI_IPv4:
-			nh_str=FORMAT_IPv4_ADDRESS( attr->getNextHopIPAddress().ipv4 );
-			break;
-		case AFI_IPv6:
-			nh_str=FORMAT_IPv6_ADDRESS( attr->getNextHopIPAddress().ipv6 );
-			break;
-	}
-	xmlNodePtr node = xmlNewNodeString( "NEXT_HOP", nh_str.c_str() );
-
-    return node;
 }
 
-string AttributeTypeNextHopDumper::genAscii()
+xmlNodePtr
+AttributeTypeNextHopDumper::genXml()
 {
-    AttributeTypeNextHopPtr attr = dynamic_pointer_cast<AttributeTypeNextHop>( attr_type );
+  AttributeTypeNextHopPtr attr = dynamic_pointer_cast<AttributeTypeNextHop>(attr_type);
 
-    /* Next hop */
-    string nh_str = "";
-	switch(attr->getNextHopAFI())
-	{
-		case AFI_IPv4:
-			nh_str=FORMAT_IPv4_ADDRESS( attr->getNextHopIPAddress().ipv4 );
-			break;
-		case AFI_IPv6:
-			nh_str=FORMAT_IPv6_ADDRESS( attr->getNextHopIPAddress().ipv6 );
-			break;
-	}
+  /* Next hop */
+  string nh_str = "";
+  switch (attr->getNextHopAFI()) {
+  case AFI_IPv4:
+    nh_str = FORMAT_IPv4_ADDRESS(attr->getNextHopIPAddress().ipv4);
+    break;
+  case AFI_IPv6:
+    nh_str = FORMAT_IPv6_ADDRESS(attr->getNextHopIPAddress().ipv6);
+    break;
+  }
+  xmlNodePtr node = xmlNewNodeString("NEXT_HOP", nh_str.c_str());
 
-	return nh_str;
+  return node;
 }
 
+string
+AttributeTypeNextHopDumper::genAscii()
+{
+  AttributeTypeNextHopPtr attr = dynamic_pointer_cast<AttributeTypeNextHop>(attr_type);
+
+  /* Next hop */
+  string nh_str = "";
+  switch (attr->getNextHopAFI()) {
+  case AFI_IPv4:
+    nh_str = FORMAT_IPv4_ADDRESS(attr->getNextHopIPAddress().ipv4);
+    break;
+  case AFI_IPv6:
+    nh_str = FORMAT_IPv6_ADDRESS(attr->getNextHopIPAddress().ipv6);
+    break;
+  }
+
+  return nh_str;
+}
 
 // vim: sw=4 ts=4 sts=4 expandtab

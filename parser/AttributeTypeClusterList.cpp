@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -34,31 +34,32 @@
 using namespace std;
 namespace io = boost::iostreams;
 
-log4cxx::LoggerPtr AttributeTypeClusterList::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeClusterList" );
+log4cxx::LoggerPtr AttributeTypeClusterList::Logger =
+  log4cxx::Logger::getLogger("bgpparser.AttributeTypeClusterList");
 
-AttributeTypeClusterList::AttributeTypeClusterList( AttributeType &header, std::istream &input )
-					: AttributeType(header) {
-	LOG4CXX_DEBUG(Logger,"");
+AttributeTypeClusterList::AttributeTypeClusterList(AttributeType& header, std::istream& input)
+  : AttributeType(header)
+{
+  LOG4CXX_DEBUG(Logger, "");
 
-	uint32_t left=length;
-	while( left > 0 )
-	{
-		uint32_t cluster_id;
-		int len=io::read( input, reinterpret_cast<char*>(&cluster_id), sizeof(cluster_id) );
-		if( len!=sizeof(cluster_id) )
-		{
-			LOG4CXX_ERROR( Logger, "Parsing error" );
-			throw BGPError( );
-		}
-		left -= sizeof(cluster_id);
-		cluster_list.push_back(cluster_id);
-	}
+  uint32_t left = length;
+  while (left > 0) {
+    uint32_t cluster_id;
+    int len = io::read(input, reinterpret_cast<char*>(&cluster_id), sizeof(cluster_id));
+    if (len != sizeof(cluster_id)) {
+      LOG4CXX_ERROR(Logger, "Parsing error");
+      throw BGPError();
+    }
+    left -= sizeof(cluster_id);
+    cluster_list.push_back(cluster_id);
+  }
 }
 
-AttributeTypeClusterList::~AttributeTypeClusterList(void) {
+AttributeTypeClusterList::~AttributeTypeClusterList(void)
+{
 }
 //
-//void AttributeTypeClusterList::printMe() {
+// void AttributeTypeClusterList::printMe() {
 //	IPAddress addr;
 //	list<uint32_t>::iterator it;
 //	cout << "CLUSTER-LIST:";
@@ -69,7 +70,7 @@ AttributeTypeClusterList::~AttributeTypeClusterList(void) {
 //	}
 //}
 //
-//void AttributeTypeClusterList::printMeCompact() {
+// void AttributeTypeClusterList::printMeCompact() {
 //	IPAddress addr;
 //	list<uint32_t>::iterator it;
 //	cout << "CLUSTER-LIST:";

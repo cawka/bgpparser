@@ -1,6 +1,6 @@
-/* 
+/*
  *  Copyright (c) 2008 Colorado State University
- * 
+ *
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without
@@ -21,12 +21,12 @@
  *  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
- * 
- * 
+ *
+ *
  *  File:    xml.h
  *  Authors: He Yan
  *           Pei-chun (Payne) Cheng
- *  Date:    Jun 22, 2008 
+ *  Date:    Jun 22, 2008
  */
 
 #ifndef XML_H_
@@ -38,7 +38,8 @@
  * Output:  none
  * He Yan @ July 22, 2008
  * -------------------------------------------------------------------------------------*/
-void launchXMLThread();
+void
+launchXMLThread();
 
 /*----------------------------------------------------------------------------------------
  * Purpose: get the length of a XML message (from the attribute "length")
@@ -47,7 +48,8 @@ void launchXMLThread();
  * He Yan @ Jun 22, 2008
  * Pei-chun Cheng @ Dec 20, 2008
  * -------------------------------------------------------------------------------------*/
-int getXMLMessageLen(char *xmlMsg);
+int
+getXMLMessageLen(char* xmlMsg);
 
 #endif /*XML_H_*/
 

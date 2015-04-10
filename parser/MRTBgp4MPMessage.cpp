@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -40,57 +40,54 @@
 using namespace std;
 namespace io = boost::iostreams;
 
-log4cxx::LoggerPtr MRTBgp4MPMessage::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTBgp4MPMessage" );
+log4cxx::LoggerPtr MRTBgp4MPMessage::Logger =
+  log4cxx::Logger::getLogger("bgpparser.MRTBgp4MPMessage");
 
-MRTBgp4MPMessage::MRTBgp4MPMessage( MRTCommonHeader &header, istream &input )
-: MRTCommonHeader( header )
+MRTBgp4MPMessage::MRTBgp4MPMessage(MRTCommonHeader& header, istream& input)
+  : MRTCommonHeader(header)
 {
-	LOG4CXX_TRACE( Logger, "" );
+  LOG4CXX_TRACE(Logger, "");
 
-	MRTBgp4MPMessagePacket pkt;
-	bool error= sizeof(MRTBgp4MPMessagePacket)!=
-				io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPMessagePacket) );
+  MRTBgp4MPMessagePacket pkt;
+  bool error = sizeof(MRTBgp4MPMessagePacket)
+               != io::read(input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPMessagePacket));
 
-	if( error )
-	{
-		LOG4CXX_ERROR( Logger, "Parsing error" );
-		throw BGPError( );
-	}
+  if (error) {
+    LOG4CXX_ERROR(Logger, "Parsing error");
+    throw BGPError();
+  }
 
-	peerAS = ntohs(pkt.peerAS);
-	localAS = ntohs(pkt.localAS);
-	interfaceIndex = ntohs(pkt.interfaceIndex);
-	addressFamily = ntohs(pkt.addressFamily);
+  peerAS = ntohs(pkt.peerAS);
+  localAS = ntohs(pkt.localAS);
+  interfaceIndex = ntohs(pkt.interfaceIndex);
+  addressFamily = ntohs(pkt.addressFamily);
 
-	processIPs( input );
-	payload = BGPCommonHeader::newMessage( input, false );
+  processIPs(input);
+  payload = BGPCommonHeader::newMessage(input, false);
 }
 
-void MRTBgp4MPMessage::processIPs( istream &input )
+void
+MRTBgp4MPMessage::processIPs(istream& input)
 {
-	size_t len=0;
-	if( addressFamily == AFI_IPv4 )
-		len=sizeof(peerIP.ipv4);
-	else if( addressFamily == AFI_IPv6 )
-		len=sizeof(peerIP.ipv6);
-	else
-		LOG4CXX_ERROR(Logger,"unsupported address family ["<< (int)addressFamily <<"]" );
+  size_t len = 0;
+  if (addressFamily == AFI_IPv4)
+    len = sizeof(peerIP.ipv4);
+  else if (addressFamily == AFI_IPv6)
+    len = sizeof(peerIP.ipv6);
+  else
+    LOG4CXX_ERROR(Logger, "unsupported address family [" << (int)addressFamily << "]");
 
-	bool error=false;
+  bool error = false;
 
-	error|= len!=
-			io::read( input, reinterpret_cast<char*>(&peerIP),  len );
-	error|= len!=
-			io::read( input, reinterpret_cast<char*>(&localIP), len );
+  error |= len != io::read(input, reinterpret_cast<char*>(&peerIP), len);
+  error |= len != io::read(input, reinterpret_cast<char*>(&localIP), len);
 
-	if( error )
-	{
-		LOG4CXX_ERROR( Logger, "Parsing error" );
-		throw BGPError( );
-	}
+  if (error) {
+    LOG4CXX_ERROR(Logger, "Parsing error");
+    throw BGPError();
+  }
 }
 
 MRTBgp4MPMessage::~MRTBgp4MPMessage(void)
 {
 }
-

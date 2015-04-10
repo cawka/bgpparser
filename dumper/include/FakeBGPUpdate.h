@@ -31,15 +31,15 @@
 
 #include "BGPUpdate.h"
 
-class FakeBGPUpdate : public BGPUpdate
-{
+class FakeBGPUpdate : public BGPUpdate {
 public:
-	FakeBGPUpdate( );
-	virtual ~FakeBGPUpdate( );
+  FakeBGPUpdate();
+  virtual ~FakeBGPUpdate();
 
-	void addPathAttribute( const BGPAttributePtr &attr );
-	void addAnnouncedRoute( const RoutePtr &route );
+  void
+  addPathAttribute(const BGPAttributePtr& attr);
+  void
+  addAnnouncedRoute(const RoutePtr& route);
 };
 
 #endif
-

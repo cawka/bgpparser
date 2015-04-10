@@ -31,18 +31,33 @@
 
 #include "MRTBgp4MPStateChange.h"
 
-class MRTBgp4MPStateChangeAS4 : public MRTBgp4MPStateChange
-{
+class MRTBgp4MPStateChangeAS4 : public MRTBgp4MPStateChange {
 public:
-	MRTBgp4MPStateChangeAS4( MRTCommonHeader &header, std::istream &input );
+  MRTBgp4MPStateChangeAS4(MRTCommonHeader& header, std::istream& input);
 
-	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
-	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
-	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }
-	virtual boost::any accept( GJVisitor &v, boost::any param ) { return v.visit( *this, param ); }
+  virtual void
+  accept(Visitor& v)
+  {
+    v.visit(*this);
+  }
+  virtual void
+  accept(GJVoidVisitor& v, boost::any param)
+  {
+    v.visit(*this, param);
+  }
+  virtual boost::any
+  accept(GJNoArguVisitor& v)
+  {
+    return v.visit(*this);
+  }
+  virtual boost::any
+  accept(GJVisitor& v, boost::any param)
+  {
+    return v.visit(*this, param);
+  }
 
 private:
-	static log4cxx::LoggerPtr Logger;
+  static log4cxx::LoggerPtr Logger;
 };
 
 #endif

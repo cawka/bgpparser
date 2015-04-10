@@ -4,9 +4,9 @@
 
 #include <visitors/GJDepthFirst.h>
 
-class ASSegmentVisitor : public GJDepthFirst
-{
-	virtual boost::any visit( AttributeTypeASPathSegment &n, boost::any param );
+class ASSegmentVisitor : public GJDepthFirst {
+  virtual boost::any
+  visit(AttributeTypeASPathSegment& n, boost::any param);
 };
 
 #endif

@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -35,77 +35,146 @@
 #include "AttributeType.h"
 class AttributeTypeAS4Path;
 
-const int AS_TRANS=23456;
+const int AS_TRANS = 23456;
 
-class AttributeTypeASPathSegment : public Node
-{
+class AttributeTypeASPathSegment : public Node {
 public:
-	AttributeTypeASPathSegment( std::istream &input, bool is4byte );
-	AttributeTypeASPathSegment( uint8_t type ) : pathSegmentType(type), pathSegmentLength(0) {;}
-	virtual ~AttributeTypeASPathSegment(void);
-	
-	enum PathSegment
-	{
-		AS_SET = 1,
-		AS_SEQUENCE,
-		AS_CONFED_SEQUENCE, 
-		AS_CONFED_SET
-	};
-	
-	uint8_t getPathSegmentType(void) const                   { return pathSegmentType; };
-	void    setPathSegmentType(uint32_t pathSegmentType)     { this->pathSegmentType = pathSegmentType; };
-	uint8_t getPathSegmentLength(void) const                 { return pathSegmentLength; };
-	void    setPathSegmentLength(uint32_t pathSegmentLength) { this->pathSegmentLength = pathSegmentLength; };
+  AttributeTypeASPathSegment(std::istream& input, bool is4byte);
+  AttributeTypeASPathSegment(uint8_t type)
+    : pathSegmentType(type)
+    , pathSegmentLength(0)
+  {
+    ;
+  }
+  virtual ~AttributeTypeASPathSegment(void);
 
-	const std::list<uint32_t> &getPathSegmentValue(void) const { return pathSegmentValue; };
-		  std::list<uint32_t> &getPathSegmentValue(void)  	 { return pathSegmentValue; };
-//	void setPathSegmentValue(uint32_t value) { pathSegmentValue->push_back(value); };
+  enum PathSegment { AS_SET = 1, AS_SEQUENCE, AS_CONFED_SEQUENCE, AS_CONFED_SET };
 
-	void add( uint32_t asn )								 { pathSegmentValue.push_back(asn); }
+  uint8_t
+  getPathSegmentType(void) const
+  {
+    return pathSegmentType;
+  };
+  void
+  setPathSegmentType(uint32_t pathSegmentType)
+  {
+    this->pathSegmentType = pathSegmentType;
+  };
+  uint8_t
+  getPathSegmentLength(void) const
+  {
+    return pathSegmentLength;
+  };
+  void
+  setPathSegmentLength(uint32_t pathSegmentLength)
+  {
+    this->pathSegmentLength = pathSegmentLength;
+  };
 
-	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
-	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
-	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }
-	virtual boost::any accept( GJVisitor &v, boost::any param ) { return v.visit( *this, param ); }
+  const std::list<uint32_t>&
+  getPathSegmentValue(void) const
+  {
+    return pathSegmentValue;
+  };
+  std::list<uint32_t>&
+  getPathSegmentValue(void)
+  {
+    return pathSegmentValue;
+  };
+  //	void setPathSegmentValue(uint32_t value) { pathSegmentValue->push_back(value); };
+
+  void
+  add(uint32_t asn)
+  {
+    pathSegmentValue.push_back(asn);
+  }
+
+  virtual void
+  accept(Visitor& v)
+  {
+    v.visit(*this);
+  }
+  virtual void
+  accept(GJVoidVisitor& v, boost::any param)
+  {
+    v.visit(*this, param);
+  }
+  virtual boost::any
+  accept(GJNoArguVisitor& v)
+  {
+    return v.visit(*this);
+  }
+  virtual boost::any
+  accept(GJVisitor& v, boost::any param)
+  {
+    return v.visit(*this, param);
+  }
 
 protected:
-	uint8_t pathSegmentType;
-	uint8_t pathSegmentLength; // Number of path segments (not octets!)
-	std::list<uint32_t> pathSegmentValue;
+  uint8_t pathSegmentType;
+  uint8_t pathSegmentLength; // Number of path segments (not octets!)
+  std::list<uint32_t> pathSegmentValue;
 
-	static log4cxx::LoggerPtr Logger;
+  static log4cxx::LoggerPtr Logger;
 };
 
 typedef boost::shared_ptr<AttributeTypeASPathSegment> AttributeTypeASPathSegmentPtr;
 
-class AttributeTypeASPath :
-	public AttributeType
-{	
+class AttributeTypeASPath : public AttributeType {
 public:
-	AttributeTypeASPath( AttributeType &header, std::istream &input );
-	virtual ~AttributeTypeASPath(void);
+  AttributeTypeASPath(AttributeType& header, std::istream& input);
+  virtual ~AttributeTypeASPath(void);
 
-	void genPathSegmentsComplete( const AttributeTypeAS4Path &as4_path );
-	void genPathSegmentsComplete( ) { pathSegmentsComplete=pathSegments; }
+  void
+  genPathSegmentsComplete(const AttributeTypeAS4Path& as4_path);
+  void
+  genPathSegmentsComplete()
+  {
+    pathSegmentsComplete = pathSegments;
+  }
 
-	const std::list<AttributeTypeASPathSegmentPtr> &getPathSegments(void)         const { return pathSegments;         }
-	const std::list<AttributeTypeASPathSegmentPtr> &getPathSegmentsComplete(void) const { return pathSegmentsComplete; }
-	
-	uint32_t getCountOfASNs( ) const;
+  const std::list<AttributeTypeASPathSegmentPtr>&
+  getPathSegments(void) const
+  {
+    return pathSegments;
+  }
+  const std::list<AttributeTypeASPathSegmentPtr>&
+  getPathSegmentsComplete(void) const
+  {
+    return pathSegmentsComplete;
+  }
 
-	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
-	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
-	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }
-	virtual boost::any accept( GJVisitor &v, boost::any param ) { return v.visit( *this, param ); }
+  uint32_t
+  getCountOfASNs() const;
+
+  virtual void
+  accept(Visitor& v)
+  {
+    v.visit(*this);
+  }
+  virtual void
+  accept(GJVoidVisitor& v, boost::any param)
+  {
+    v.visit(*this, param);
+  }
+  virtual boost::any
+  accept(GJNoArguVisitor& v)
+  {
+    return v.visit(*this);
+  }
+  virtual boost::any
+  accept(GJVisitor& v, boost::any param)
+  {
+    return v.visit(*this, param);
+  }
 
 private:
-	std::list<AttributeTypeASPathSegmentPtr> pathSegments;
-	std::list<AttributeTypeASPathSegmentPtr> pathSegmentsComplete;
+  std::list<AttributeTypeASPathSegmentPtr> pathSegments;
+  std::list<AttributeTypeASPathSegmentPtr> pathSegmentsComplete;
 
-	static log4cxx::LoggerPtr Logger;
+  static log4cxx::LoggerPtr Logger;
 };
 
 typedef boost::shared_ptr<AttributeTypeASPath> AttributeTypeASPathPtr;
 
-#endif	/* _ATTRIBUTETYPEASPATH_H_ */
-
+#endif /* _ATTRIBUTETYPEASPATH_H_ */

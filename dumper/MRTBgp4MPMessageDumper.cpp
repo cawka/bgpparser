@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -35,58 +35,53 @@ using namespace std;
 #include "BGPMessageDumper.h"
 
 MRTBgp4MPMessageDumper::MRTBgp4MPMessageDumper()
-{}
+{
+}
 
 MRTBgp4MPMessageDumper::~MRTBgp4MPMessageDumper()
-{}
-
-MRTBgp4MPMessageDumperPtr MRTBgp4MPMessageDumper::newDumper( const MRTBgp4MPMessagePtr &bgp4mp_msg )
 {
-    MRTBgp4MPMessageDumperPtr dumper = MRTBgp4MPMessageDumperPtr( new MRTBgp4MPMessageDumper() );
-    dumper->bgp4mp_msg=bgp4mp_msg;
-
-    return dumper;
 }
 
-xmlNodePtr MRTBgp4MPMessageDumper::genXml( )
+MRTBgp4MPMessageDumperPtr
+MRTBgp4MPMessageDumper::newDumper(const MRTBgp4MPMessagePtr& bgp4mp_msg)
 {
-    xmlNodePtr node = NULL;
+  MRTBgp4MPMessageDumperPtr dumper = MRTBgp4MPMessageDumperPtr(new MRTBgp4MPMessageDumper());
+  dumper->bgp4mp_msg = bgp4mp_msg;
 
-    BGPMessageDumperPtr bgpmsg_dumper( new BGPMessageDumper(bgp4mp_msg->getPayload()) );
-    /* Collect infomation */
-    bgpmsg_dumper->setTimestamp( bgp4mp_msg->getTimestamp() );
-
-    bgpmsg_dumper->setPeering(
-                                bgp4mp_msg->getPeerIP(),
-                                bgp4mp_msg->getLocalIP(),
-                                bgp4mp_msg->getPeerAS(),
-                                bgp4mp_msg->getLocalAS(),
-                                bgp4mp_msg->getInterfaceIndex(),
-                                bgp4mp_msg->getAddressFamily()
-                             );
-    node = bgpmsg_dumper->genXml();
-
-    return node;
+  return dumper;
 }
 
-string MRTBgp4MPMessageDumper::genAscii()
+xmlNodePtr
+MRTBgp4MPMessageDumper::genXml()
 {
-    string node = "";
+  xmlNodePtr node = NULL;
 
-    BGPMessageDumperPtr bgpmsg_dumper( new BGPMessageDumper(bgp4mp_msg->getPayload( )) );
-    /* Collect infomation */
-    bgpmsg_dumper->setTimestamp(bgp4mp_msg->getTimestamp());
-    bgpmsg_dumper->setPeering(
-                                bgp4mp_msg->getPeerIP(),
-                                bgp4mp_msg->getLocalIP(),
-                                bgp4mp_msg->getPeerAS(),
-                                bgp4mp_msg->getLocalAS(),
-                                bgp4mp_msg->getInterfaceIndex(),
-                                bgp4mp_msg->getAddressFamily()
-                             );
-    node = bgpmsg_dumper->genAscii();
+  BGPMessageDumperPtr bgpmsg_dumper(new BGPMessageDumper(bgp4mp_msg->getPayload()));
+  /* Collect infomation */
+  bgpmsg_dumper->setTimestamp(bgp4mp_msg->getTimestamp());
 
-    return node;
+  bgpmsg_dumper->setPeering(bgp4mp_msg->getPeerIP(), bgp4mp_msg->getLocalIP(),
+                            bgp4mp_msg->getPeerAS(), bgp4mp_msg->getLocalAS(),
+                            bgp4mp_msg->getInterfaceIndex(), bgp4mp_msg->getAddressFamily());
+  node = bgpmsg_dumper->genXml();
+
+  return node;
+}
+
+string
+MRTBgp4MPMessageDumper::genAscii()
+{
+  string node = "";
+
+  BGPMessageDumperPtr bgpmsg_dumper(new BGPMessageDumper(bgp4mp_msg->getPayload()));
+  /* Collect infomation */
+  bgpmsg_dumper->setTimestamp(bgp4mp_msg->getTimestamp());
+  bgpmsg_dumper->setPeering(bgp4mp_msg->getPeerIP(), bgp4mp_msg->getLocalIP(),
+                            bgp4mp_msg->getPeerAS(), bgp4mp_msg->getLocalAS(),
+                            bgp4mp_msg->getInterfaceIndex(), bgp4mp_msg->getAddressFamily());
+  node = bgpmsg_dumper->genAscii();
+
+  return node;
 }
 
 // vim: sw=4 ts=4 sts=4 expandtab

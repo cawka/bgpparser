@@ -1,6 +1,6 @@
-/* 
+/*
  *  Copyright (c) 2008 Colorado State University
- * 
+ *
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without
@@ -21,18 +21,18 @@
  *  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
- * 
- * 
+ *
+ *
  *  File:    xmldata.h
  *  Authors: Pei-chun (Payne) Cheng
  *  Date:    Dec 20, 2008
  */
 
-#ifndef XMLDATA_H_ 
+#ifndef XMLDATA_H_
 
 /* Constants */
-#define XFB_VERSION             "0.2"                                  /* Current XFB version    */
-#define XFB_NS                  "urn:ietf:params:xml:ns:xfb-0.2"       /* Current XFB name space */
+#define XFB_VERSION "0.2"                       /* Current XFB version    */
+#define XFB_NS "urn:ietf:params:xml:ns:xfb-0.2" /* Current XFB name space */
 
 /*----------------------------------------------------------------------------------------
  * Purpose: entry fucntion which converts all types of BMF messages to XML text representations
@@ -41,8 +41,9 @@
  *          maxlen - max length of the buffer
  * output:  the length of generated xml string
  * Pei-chun Cheng @ Dec 20, 2008
- * -------------------------------------------------------------------------------------*/ 
-int BMF2XMLDATA(BMF bmf, const char *xml, int maxlen);
+ * -------------------------------------------------------------------------------------*/
+int
+BMF2XMLDATA(BMF bmf, const char* xml, int maxlen);
 
 #endif /*XMLDATA_H_*/
 

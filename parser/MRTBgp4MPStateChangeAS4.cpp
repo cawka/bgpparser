@@ -34,26 +34,27 @@
 using namespace std;
 namespace io = boost::iostreams;
 
-log4cxx::LoggerPtr MRTBgp4MPStateChangeAS4::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTBgp4MPStateChangeAS4" );
+log4cxx::LoggerPtr MRTBgp4MPStateChangeAS4::Logger =
+  log4cxx::Logger::getLogger("bgpparser.MRTBgp4MPStateChangeAS4");
 
-MRTBgp4MPStateChangeAS4::MRTBgp4MPStateChangeAS4( MRTCommonHeader &header, istream &input )
-: MRTBgp4MPStateChange( header )
+MRTBgp4MPStateChangeAS4::MRTBgp4MPStateChangeAS4(MRTCommonHeader& header, istream& input)
+  : MRTBgp4MPStateChange(header)
 {
-	MRTBgp4MPStateChangeAS4Packet pkt;
-	bool error= sizeof(MRTBgp4MPStateChangeAS4Packet)!=
-				io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPStateChangeAS4Packet) );
+  MRTBgp4MPStateChangeAS4Packet pkt;
+  bool error =
+    sizeof(MRTBgp4MPStateChangeAS4Packet)
+    != io::read(input, reinterpret_cast<char*>(&pkt), sizeof(MRTBgp4MPStateChangeAS4Packet));
 
-	if( error )
-	{
-		LOG4CXX_ERROR( Logger, "Parsing error" );
-		throw BGPError( );
-	}
+  if (error) {
+    LOG4CXX_ERROR(Logger, "Parsing error");
+    throw BGPError();
+  }
 
-	peerAS = ntohl(pkt.peerAS);
-	localAS = ntohl(pkt.localAS);
-	interfaceIndex = ntohs(pkt.interfaceIndex);
-	addressFamily = ntohs(pkt.addressFamily);
+  peerAS = ntohl(pkt.peerAS);
+  localAS = ntohl(pkt.localAS);
+  interfaceIndex = ntohs(pkt.interfaceIndex);
+  addressFamily = ntohs(pkt.addressFamily);
 
-	processIPs( input );
-	processStates( input );
+  processIPs(input);
+  processStates(input);
 }

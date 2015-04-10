@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -36,107 +36,115 @@ using namespace boost;
 #include <libxml/tree.h>
 
 extern "C" {
-    #include "xmlinternal.h"
+#include "xmlinternal.h"
 }
 
-log4cxx::LoggerPtr BGPDumper::Logger = log4cxx::Logger::getLogger( "bgpdump.BGPDumper" );
+log4cxx::LoggerPtr BGPDumper::Logger = log4cxx::Logger::getLogger("bgpdump.BGPDumper");
 
-BGPDumper::BGPDumper( const BGPMessagePtr &msg )
+BGPDumper::BGPDumper(const BGPMessagePtr& msg)
 {
-    bgp_msg = msg;
+  bgp_msg = msg;
 }
 
 BGPDumper::~BGPDumper()
-{}
-
-BGPDumperPtr BGPDumper::newDumper( const BGPMessagePtr &msg )
 {
-	BGPDumperPtr bgp_dumper;
-
-	switch(msg->getType())
-	{
-        case BGPCommonHeader::OPEN:
-            bgp_dumper = BGPDumperPtr( new BGPOpenDumper(msg) );
-            break;
-
-        case BGPCommonHeader::UPDATE:
-            bgp_dumper = BGPDumperPtr( new BGPUpdateDumper(msg) );
-            break;
-            
-        case BGPCommonHeader::NOTIFICATION:
-            bgp_dumper = BGPDumperPtr( new BGPNotificationDumper(msg) );
-            break;
-
-        case BGPCommonHeader::KEEPALIVE:
-            bgp_dumper = BGPDumperPtr( new BGPKeepAliveDumper(msg) );
-            break;
-
-        case BGPCommonHeader::ROUTE_REFRESH:
-            bgp_dumper = BGPDumperPtr( new BGPRouteRefreshDumper(msg) );
-            break;
-
-        default:
-            LOG4CXX_INFO( Logger,"Unsupported BGP message typ ["<<(int)msg->getType()<<"]" );
-            bgp_dumper = BGPDumperPtr( new BGPDumper(msg) );
-            break;
-	}
-	
-	return bgp_dumper;
 }
 
-xmlNodePtr BGPDumper::genXml()
+BGPDumperPtr
+BGPDumper::newDumper(const BGPMessagePtr& msg)
 {
-    return genXmlAsciiMsg();  // Default: XML ascii message
-    //return genXmlOctetMsg();
+  BGPDumperPtr bgp_dumper;
+
+  switch (msg->getType()) {
+  case BGPCommonHeader::OPEN:
+    bgp_dumper = BGPDumperPtr(new BGPOpenDumper(msg));
+    break;
+
+  case BGPCommonHeader::UPDATE:
+    bgp_dumper = BGPDumperPtr(new BGPUpdateDumper(msg));
+    break;
+
+  case BGPCommonHeader::NOTIFICATION:
+    bgp_dumper = BGPDumperPtr(new BGPNotificationDumper(msg));
+    break;
+
+  case BGPCommonHeader::KEEPALIVE:
+    bgp_dumper = BGPDumperPtr(new BGPKeepAliveDumper(msg));
+    break;
+
+  case BGPCommonHeader::ROUTE_REFRESH:
+    bgp_dumper = BGPDumperPtr(new BGPRouteRefreshDumper(msg));
+    break;
+
+  default:
+    LOG4CXX_INFO(Logger, "Unsupported BGP message typ [" << (int)msg->getType() << "]");
+    bgp_dumper = BGPDumperPtr(new BGPDumper(msg));
+    break;
+  }
+
+  return bgp_dumper;
 }
 
-xmlNodePtr BGPDumper::genXmlAsciiMsg()
+xmlNodePtr
+BGPDumper::genXml()
 {
-    xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "ASCII_MSG");
-
-    xmlNodePtr static_marker_node = xmlNewNodeOctets("MARKER", bgp_msg->getMarker(), 16);
-
-    xmlNodePtr marker_node, len_node, type_node, ascii_node;
-    marker_node = xmlAddChild(node, static_marker_node);
-    len_node    = xmlAddChild(node, xmlNewNodeInt("LENGTH" , bgp_msg->getLength()));
-    type_node   = xmlAddChild(node, xmlNewNodeString("TYPE", bgp_msg->TypeStr().c_str()));
-    ascii_node  = xmlAddChild(node, genXmlAsciiNode());
-
-    //printNode(node);
-    return node;
+  return genXmlAsciiMsg(); // Default: XML ascii message
+  // return genXmlOctetMsg();
 }
 
-xmlNodePtr BGPDumper::genXmlOctetMsg()
+xmlNodePtr
+BGPDumper::genXmlAsciiMsg()
 {
-    xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "OCTET_MSG");
+  xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "ASCII_MSG");
 
-    xmlNodePtr static_marker_node = xmlNewNodeOctets("MARKER", bgp_msg->getMarker(), 16);
-    string type = bgp_msg->TypeStr();
-    
-    xmlNodePtr marker_node, len_node, type_node, octets_node;
-    marker_node = xmlAddChild(node, static_marker_node);
-    len_node    = xmlAddChild(node, xmlNewNodeInt("LENGTH" , bgp_msg->getLength()));
-    type_node   = xmlAddChild(node, xmlNewNodeString("TYPE", (char *)type.c_str()));
-    octets_node = xmlAddChild(node, xmlNewNodeOctets("OCTETS", (u_char*)bgp_msg->getData().get(), bgp_msg->getLength()-19));
+  xmlNodePtr static_marker_node = xmlNewNodeOctets("MARKER", bgp_msg->getMarker(), 16);
 
-    //printNode(node);
-    return node;
+  xmlNodePtr marker_node, len_node, type_node, ascii_node;
+  marker_node = xmlAddChild(node, static_marker_node);
+  len_node = xmlAddChild(node, xmlNewNodeInt("LENGTH", bgp_msg->getLength()));
+  type_node = xmlAddChild(node, xmlNewNodeString("TYPE", bgp_msg->TypeStr().c_str()));
+  ascii_node = xmlAddChild(node, genXmlAsciiNode());
+
+  // printNode(node);
+  return node;
 }
 
-xmlNodePtr BGPDumper::genXmlAsciiNode()
+xmlNodePtr
+BGPDumper::genXmlOctetMsg()
 {
-    // Virtual function, should be overriwritten by derived classes.
-    xmlNodePtr node, octets_node;
-    node        = xmlNewNode(NULL, BAD_CAST bgp_msg->TypeStr().c_str());
-    octets_node = xmlAddChild(node, xmlNewNodeOctets("OCTETS", (u_char*)bgp_msg->getData().get(), bgp_msg->getLength()-19));
-    return node;
+  xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "OCTET_MSG");
+
+  xmlNodePtr static_marker_node = xmlNewNodeOctets("MARKER", bgp_msg->getMarker(), 16);
+  string type = bgp_msg->TypeStr();
+
+  xmlNodePtr marker_node, len_node, type_node, octets_node;
+  marker_node = xmlAddChild(node, static_marker_node);
+  len_node = xmlAddChild(node, xmlNewNodeInt("LENGTH", bgp_msg->getLength()));
+  type_node = xmlAddChild(node, xmlNewNodeString("TYPE", (char*)type.c_str()));
+  octets_node = xmlAddChild(node, xmlNewNodeOctets("OCTETS", (u_char*)bgp_msg->getData().get(),
+                                                   bgp_msg->getLength() - 19));
+
+  // printNode(node);
+  return node;
 }
 
-string BGPDumper::genAscii()
+xmlNodePtr
+BGPDumper::genXmlAsciiNode()
 {
-    // Virtual function, should be overriwritten by derived classes.
-    string ascii_msg = "";
-    return ascii_msg;
+  // Virtual function, should be overriwritten by derived classes.
+  xmlNodePtr node, octets_node;
+  node = xmlNewNode(NULL, BAD_CAST bgp_msg->TypeStr().c_str());
+  octets_node = xmlAddChild(node, xmlNewNodeOctets("OCTETS", (u_char*)bgp_msg->getData().get(),
+                                                   bgp_msg->getLength() - 19));
+  return node;
+}
+
+string
+BGPDumper::genAscii()
+{
+  // Virtual function, should be overriwritten by derived classes.
+  string ascii_msg = "";
+  return ascii_msg;
 }
 
 /*
@@ -148,12 +156,12 @@ list<string> BGPDumper::genAsciiMsg()
 }
 */
 
-list<string> BGPDumper::genAsciiMsg(string peer_addr, string peer_as, bool is_tabledump=false)
+list<string>
+BGPDumper::genAsciiMsg(string peer_addr, string peer_as, bool is_tabledump = false)
 {
-    // Virtual function, should be overriwritten by derived classes.
-    list<string> bgp_msg_list;
-    return bgp_msg_list;
+  // Virtual function, should be overriwritten by derived classes.
+  list<string> bgp_msg_list;
+  return bgp_msg_list;
 }
-
 
 // vim: sw=4 ts=4 sts=4 expandtab

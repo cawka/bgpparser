@@ -30,7 +30,7 @@
 
 #include "FakeAttributeTypeMPReachNLRI.h"
 
-FakeAttributeTypeMPReachNLRI::FakeAttributeTypeMPReachNLRI( uint16_t afi, uint8_t safi )
-: AttributeTypeMPReachNLRI( afi, safi )
+FakeAttributeTypeMPReachNLRI::FakeAttributeTypeMPReachNLRI(uint16_t afi, uint8_t safi)
+  : AttributeTypeMPReachNLRI(afi, safi)
 {
 }

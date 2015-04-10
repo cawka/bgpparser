@@ -31,18 +31,33 @@
 
 #include "MRTBgp4MPMessage.h"
 
-class MRTBgp4MPMessageAS4 : public MRTBgp4MPMessage
-{
+class MRTBgp4MPMessageAS4 : public MRTBgp4MPMessage {
 public:
-	MRTBgp4MPMessageAS4( MRTCommonHeader &header, std::istream &is );
+  MRTBgp4MPMessageAS4(MRTCommonHeader& header, std::istream& is);
 
-	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
-	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
-	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }
-	virtual boost::any accept( GJVisitor &v, boost::any param ) { return v.visit( *this, param ); }
+  virtual void
+  accept(Visitor& v)
+  {
+    v.visit(*this);
+  }
+  virtual void
+  accept(GJVoidVisitor& v, boost::any param)
+  {
+    v.visit(*this, param);
+  }
+  virtual boost::any
+  accept(GJNoArguVisitor& v)
+  {
+    return v.visit(*this);
+  }
+  virtual boost::any
+  accept(GJVisitor& v, boost::any param)
+  {
+    return v.visit(*this, param);
+  }
 
 private:
-	static log4cxx::LoggerPtr Logger;
+  static log4cxx::LoggerPtr Logger;
 };
 
 #endif

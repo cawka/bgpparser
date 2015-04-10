@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -40,90 +40,89 @@
 using namespace std;
 namespace io = boost::iostreams;
 
-log4cxx::LoggerPtr BGPCommonHeader::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPCommonHeader" );
+log4cxx::LoggerPtr BGPCommonHeader::Logger =
+  log4cxx::Logger::getLogger("bgpparser.BGPCommonHeader");
 
-/*protected*/BGPCommonHeader::BGPCommonHeader( uint8_t _type )
+/*protected*/ BGPCommonHeader::BGPCommonHeader(uint8_t _type)
 {
-	memset( reinterpret_cast<char*>(&marker), 255, sizeof(marker) );
-	length=19; //only headers
-	type=_type;
+  memset(reinterpret_cast<char*>(&marker), 255, sizeof(marker));
+  length = 19; // only headers
+  type = _type;
 }
 
-BGPCommonHeader::BGPCommonHeader( istream &input )
+BGPCommonHeader::BGPCommonHeader(istream& input)
 {
-	bool error=false;
+  bool error = false;
 
-	LOG4CXX_TRACE(Logger,"");
-	error|= sizeof(marker)!=
-			io::read( input, reinterpret_cast<char*>(&marker), sizeof(marker)/*16*/ );
+  LOG4CXX_TRACE(Logger, "");
+  error |=
+    sizeof(marker) != io::read(input, reinterpret_cast<char*>(&marker), sizeof(marker) /*16*/);
 
-	error|= sizeof(length)!=
-			io::read( input, reinterpret_cast<char*>(&length), sizeof(length)/*2*/ );
-	length = ntohs(length);
+  error |=
+    sizeof(length) != io::read(input, reinterpret_cast<char*>(&length), sizeof(length) /*2*/);
+  length = ntohs(length);
 
-	error|= sizeof(uint8_t)!=
-			io::read( input, reinterpret_cast<char*>(&type), sizeof(uint8_t) );
+  error |= sizeof(uint8_t) != io::read(input, reinterpret_cast<char*>(&type), sizeof(uint8_t));
 
-	if( error )
-	{
-		LOG4CXX_ERROR( Logger, "Parsing error" );
-		throw BGPError( );
-	}
+  if (error) {
+    LOG4CXX_ERROR(Logger, "Parsing error");
+    throw BGPError();
+  }
 
-	uint32_t msg_length=length-/*marker*/16-/*length*/2-/*type*/1;
-	if( msg_length==0 ) return; //there is no need to do anything
+  uint32_t msg_length = length - /*marker*/ 16 - /*length*/ 2 - /*type*/ 1;
+  if (msg_length == 0)
+    return; // there is no need to do anything
 
-	data=boost::shared_ptr<char>( new char[msg_length] );
+  data = boost::shared_ptr<char>(new char[msg_length]);
 
-	int read=io::read( input, data.get(), msg_length );
-	if( read==-1 || read!=msg_length ) 
-	{
-		LOG4CXX_ERROR(Logger,msg_length << " bytes was requested, read only " << read << " bytes");
-		throw BGPError( ); //there is nothing else to do
-	}
+  int read = io::read(input, data.get(), msg_length);
+  if (read == -1 || read != msg_length) {
+    LOG4CXX_ERROR(Logger, msg_length << " bytes was requested, read only " << read << " bytes");
+    throw BGPError(); // there is nothing else to do
+  }
 }
 
 BGPCommonHeader::~BGPCommonHeader()
 {
 }
 
-BGPMessagePtr BGPCommonHeader::newMessage( istream &input, bool isAS4 )
+BGPMessagePtr
+BGPCommonHeader::newMessage(istream& input, bool isAS4)
 {
-	BGPMessagePtr bgpMsg;
-	BGPMessagePtr header( new BGPCommonHeader(input) );
+  BGPMessagePtr bgpMsg;
+  BGPMessagePtr header(new BGPCommonHeader(input));
 
-	io::stream<io::array_source> in( header->data.get(), header->length );
+  io::stream<io::array_source> in(header->data.get(), header->length);
 
-	switch( header->getType() )
-	{
-	case BGPCommonHeader::OPEN:
-		LOG4CXX_TRACE(Logger,"BGP_OPEN");
-		bgpMsg = BGPMessagePtr( new BGPOpen(*header,in) );
-		break;
+  switch (header->getType()) {
+  case BGPCommonHeader::OPEN:
+    LOG4CXX_TRACE(Logger, "BGP_OPEN");
+    bgpMsg = BGPMessagePtr(new BGPOpen(*header, in));
+    break;
 
-	case BGPCommonHeader::UPDATE:
-		LOG4CXX_TRACE(Logger,"BGP_UPDATE");
-		bgpMsg = BGPMessagePtr( new BGPUpdate(*header,in,isAS4) );
-		break;
+  case BGPCommonHeader::UPDATE:
+    LOG4CXX_TRACE(Logger, "BGP_UPDATE");
+    bgpMsg = BGPMessagePtr(new BGPUpdate(*header, in, isAS4));
+    break;
 
-	case BGPCommonHeader::NOTIFICATION:
-		LOG4CXX_TRACE(Logger,"BGP_NOTIFICAION");
-		bgpMsg = BGPMessagePtr( new BGPNotification(*header,in) );
-		break;
+  case BGPCommonHeader::NOTIFICATION:
+    LOG4CXX_TRACE(Logger, "BGP_NOTIFICAION");
+    bgpMsg = BGPMessagePtr(new BGPNotification(*header, in));
+    break;
 
-	case BGPCommonHeader::KEEPALIVE:
-		LOG4CXX_TRACE(Logger,"BGP_KEEPALIVE");
-		bgpMsg = BGPMessagePtr( new BGPKeepAlive(*header,in) );
-		break;
+  case BGPCommonHeader::KEEPALIVE:
+    LOG4CXX_TRACE(Logger, "BGP_KEEPALIVE");
+    bgpMsg = BGPMessagePtr(new BGPKeepAlive(*header, in));
+    break;
 
-	case BGPCommonHeader::ROUTE_REFRESH:
-		LOG4CXX_TRACE(Logger,"BGP_ROUTE_REFRESH");
-		bgpMsg = BGPMessagePtr( new BGPRouteRefresh(*header,in) );
-		break;
-	default:
-		LOG4CXX_ERROR(Logger,"Unsupported BGP message type");
-		bgpMsg = header;
-		break;
-	}
-	return bgpMsg;
+  case BGPCommonHeader::ROUTE_REFRESH:
+    LOG4CXX_TRACE(Logger, "BGP_ROUTE_REFRESH");
+    bgpMsg = BGPMessagePtr(new BGPRouteRefresh(*header, in));
+    break;
+  default:
+    LOG4CXX_ERROR(Logger, "Unsupported BGP message type");
+    bgpMsg = header;
+    break;
+  }
+  return bgpMsg;
 }

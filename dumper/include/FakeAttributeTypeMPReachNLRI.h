@@ -27,14 +27,13 @@
  */
 
 #ifndef _FAKEATTRIBUTETYPEMPREADHNLRI_H_
-#define	_FAKEATTRIBUTETYPEMPREADHNLRI_H_
+#define _FAKEATTRIBUTETYPEMPREADHNLRI_H_
 
 #include "AttributeTypeMPReachNLRI.h"
 
-class FakeAttributeTypeMPReachNLRI : public AttributeTypeMPReachNLRI
-{
+class FakeAttributeTypeMPReachNLRI : public AttributeTypeMPReachNLRI {
 public:
-	FakeAttributeTypeMPReachNLRI( uint16_t afi, uint8_t safi );
+  FakeAttributeTypeMPReachNLRI(uint16_t afi, uint8_t safi);
 };
 
 #endif

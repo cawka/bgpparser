@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -36,22 +36,24 @@
 class BGPAttributeDumper;
 typedef boost::shared_ptr<BGPAttributeDumper> BGPAttributeDumperPtr;
 
-class BGPAttributeDumper : public Dumper 
-{
+class BGPAttributeDumper : public Dumper {
 public:
-	BGPAttributeDumper( const BGPAttributePtr &bgp_attr );
-	virtual ~BGPAttributeDumper();
-	
-	// Factory method for creating a BGP attribute dumper instance.
-	static BGPAttributeDumperPtr newDumper( const BGPAttributePtr &attr );
+  BGPAttributeDumper(const BGPAttributePtr& bgp_attr);
+  virtual ~BGPAttributeDumper();
 
-	xmlNodePtr genXml();
-	std::string     genAscii();
+  // Factory method for creating a BGP attribute dumper instance.
+  static BGPAttributeDumperPtr
+  newDumper(const BGPAttributePtr& attr);
+
+  xmlNodePtr
+  genXml();
+  std::string
+  genAscii();
 
 protected:
-    BGPAttributePtr bgp_attr;
+  BGPAttributePtr bgp_attr;
 
-	static log4cxx::LoggerPtr Logger;
+  static log4cxx::LoggerPtr Logger;
 };
 
 #endif /* __BGPATTDUMPER_H_ */

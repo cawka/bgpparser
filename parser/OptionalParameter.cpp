@@ -6,46 +6,43 @@
 
 namespace io = boost::iostreams;
 
-log4cxx::LoggerPtr OptionalParameter::Logger = log4cxx::Logger::getLogger( "bgpparser.OptionalParameter" );
+log4cxx::LoggerPtr OptionalParameter::Logger =
+  log4cxx::Logger::getLogger("bgpparser.OptionalParameter");
 
-OptionalParameter::OptionalParameter( std::istream &input )
+OptionalParameter::OptionalParameter(std::istream& input)
 {
-	LOG4CXX_TRACE( Logger, "" );
+  LOG4CXX_TRACE(Logger, "");
 
-	bool error=false;
+  bool error = false;
 
-	error|= sizeof(uint8_t)!=
-		io::read( input, reinterpret_cast<char*>(&type), sizeof(uint8_t) );
-	error|= sizeof(uint8_t)!=
-		io::read( input, reinterpret_cast<char*>(&length), sizeof(uint8_t) );
+  error |= sizeof(uint8_t) != io::read(input, reinterpret_cast<char*>(&type), sizeof(uint8_t));
+  error |= sizeof(uint8_t) != io::read(input, reinterpret_cast<char*>(&length), sizeof(uint8_t));
 
-	if( error )
-	{
-		LOG4CXX_ERROR( Logger, "Parsing error" );
-		throw BGPError( );
-	}
+  if (error) {
+    LOG4CXX_ERROR(Logger, "Parsing error");
+    throw BGPError();
+  }
 }
 
-OptionalParameter::~OptionalParameter( )
+OptionalParameter::~OptionalParameter()
 {
 }
 
-OptionalParameterPtr OptionalParameter::newOptionalParameter( std::istream &input )
+OptionalParameterPtr
+OptionalParameter::newOptionalParameter(std::istream& input)
 {
-	OptionalParameterPtr header( new OptionalParameter(input) );
-	OptionalParameterPtr param;
+  OptionalParameterPtr header(new OptionalParameter(input));
+  OptionalParameterPtr param;
 
-	switch( header->type )
-	{
-	case OptionalParameter::CAPABILITIES:
-		param = OptionalParameterPtr( new OptionalParameterCapabilities(*header,input) );
-		break;
-	default:
-		io::detail::skip( input, header->getLength(), boost::mpl::false_() );
-		param = header;
-		break;
-	}
+  switch (header->type) {
+  case OptionalParameter::CAPABILITIES:
+    param = OptionalParameterPtr(new OptionalParameterCapabilities(*header, input));
+    break;
+  default:
+    io::detail::skip(input, header->getLength(), boost::mpl::false_());
+    param = header;
+    break;
+  }
 
-	return param;
+  return param;
 }
-

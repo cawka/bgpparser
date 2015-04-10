@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -37,30 +37,34 @@ using namespace boost;
 #include "AttributeTypeMultiExitDisc.h"
 
 extern "C" {
-    #include "xmlinternal.h"
+#include "xmlinternal.h"
 }
 
-AttributeTypeMultiExitDiscDumper::AttributeTypeMultiExitDiscDumper( const AttributeTypePtr &attr )
-: AttributeTypeDumper(attr)
-{}
+AttributeTypeMultiExitDiscDumper::AttributeTypeMultiExitDiscDumper(const AttributeTypePtr& attr)
+  : AttributeTypeDumper(attr)
+{
+}
 
 AttributeTypeMultiExitDiscDumper::~AttributeTypeMultiExitDiscDumper()
-{}
-
-xmlNodePtr AttributeTypeMultiExitDiscDumper::genXml()
 {
-    AttributeTypeMultiExitDiscPtr attr = dynamic_pointer_cast<AttributeTypeMultiExitDisc>( attr_type );
-    xmlNodePtr node = xmlNewNodeInt("MULTI_EXIT_DISC", attr->getMultiExitDiscValue());
-    return node;
 }
 
-string AttributeTypeMultiExitDiscDumper::genAscii()
+xmlNodePtr
+AttributeTypeMultiExitDiscDumper::genXml()
 {
-    AttributeTypeMultiExitDiscPtr attr = dynamic_pointer_cast<AttributeTypeMultiExitDisc>( attr_type );
+  AttributeTypeMultiExitDiscPtr attr = dynamic_pointer_cast<AttributeTypeMultiExitDisc>(attr_type);
+  xmlNodePtr node = xmlNewNodeInt("MULTI_EXIT_DISC", attr->getMultiExitDiscValue());
+  return node;
+}
 
-    ostringstream node;
-    node << attr->getMultiExitDiscValue();
-    return node.str( );
+string
+AttributeTypeMultiExitDiscDumper::genAscii()
+{
+  AttributeTypeMultiExitDiscPtr attr = dynamic_pointer_cast<AttributeTypeMultiExitDisc>(attr_type);
+
+  ostringstream node;
+  node << attr->getMultiExitDiscValue();
+  return node.str();
 }
 
 // vim: sw=4 ts=4 sts=4 expandtab

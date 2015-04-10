@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -38,49 +38,52 @@ using namespace boost;
 #include <boost/foreach.hpp>
 
 extern "C" {
-    #include "xmlinternal.h"
+#include "xmlinternal.h"
 }
 
-AttributeTypeMPUnreachNLRIDumper::AttributeTypeMPUnreachNLRIDumper( const AttributeTypePtr &attr )
-: AttributeTypeDumper(attr)
-{}
+AttributeTypeMPUnreachNLRIDumper::AttributeTypeMPUnreachNLRIDumper(const AttributeTypePtr& attr)
+  : AttributeTypeDumper(attr)
+{
+}
 
 AttributeTypeMPUnreachNLRIDumper::~AttributeTypeMPUnreachNLRIDumper()
-{}
-
-xmlNodePtr AttributeTypeMPUnreachNLRIDumper::genPrefixNode(const NLRIUnReachablePtr &rt, int afi, int safi)
 {
-    xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "PREFIX");
-
-    //[TODO] afi / safi
-
-    /* generate prefix node */
-    node = xmlNewNodeString((char *)"PREFIX", rt->toString(afi).c_str());
-
-    return node;
 }
 
-xmlNodePtr AttributeTypeMPUnreachNLRIDumper::genXml()
+xmlNodePtr
+AttributeTypeMPUnreachNLRIDumper::genPrefixNode(const NLRIUnReachablePtr& rt, int afi, int safi)
 {
-	AttributeTypeMPUnreachNLRIPtr attr = dynamic_pointer_cast<AttributeTypeMPUnreachNLRI>( attr_type );
+  xmlNodePtr node = xmlNewNode(NULL, BAD_CAST "PREFIX");
 
-	xmlNodePtr node = xmlNewNode(NULL, BAD_CAST (char *)type_str.c_str()); /* AS_PATH or AS4_PATH */
+  //[TODO] afi / safi
 
-    /* afi / safi */
-    xmlAddChild(node, xmlNewNodeAFI((char *)"AFI",   attr->getAFI()));
-    xmlAddChild(node, xmlNewNodeSAFI((char *)"SAFI", attr->getSAFI()));
+  /* generate prefix node */
+  node = xmlNewNodeString((char*)"PREFIX", rt->toString(afi).c_str());
 
-    /* withdrawn */
-    xmlNodePtr with_node = xmlNewNode(NULL, BAD_CAST "WITHDRAWN");
-    xmlNewPropInt(with_node, "count", attr->getNLRI().size());
-    xmlAddChild(node, with_node);
+  return node;
+}
 
-	list<NLRIUnReachable>::iterator routeIter;
-    BOOST_FOREACH(const NLRIUnReachablePtr &rt, attr->getNLRI() )
-    {
-        xmlAddChild(with_node, genPrefixNode(rt, attr->getAFI(), attr->getSAFI()));
-    }
-    return node;
+xmlNodePtr
+AttributeTypeMPUnreachNLRIDumper::genXml()
+{
+  AttributeTypeMPUnreachNLRIPtr attr = dynamic_pointer_cast<AttributeTypeMPUnreachNLRI>(attr_type);
+
+  xmlNodePtr node = xmlNewNode(NULL, BAD_CAST(char*)type_str.c_str()); /* AS_PATH or AS4_PATH */
+
+  /* afi / safi */
+  xmlAddChild(node, xmlNewNodeAFI((char*)"AFI", attr->getAFI()));
+  xmlAddChild(node, xmlNewNodeSAFI((char*)"SAFI", attr->getSAFI()));
+
+  /* withdrawn */
+  xmlNodePtr with_node = xmlNewNode(NULL, BAD_CAST "WITHDRAWN");
+  xmlNewPropInt(with_node, "count", attr->getNLRI().size());
+  xmlAddChild(node, with_node);
+
+  list<NLRIUnReachable>::iterator routeIter;
+  BOOST_FOREACH (const NLRIUnReachablePtr& rt, attr->getNLRI()) {
+    xmlAddChild(with_node, genPrefixNode(rt, attr->getAFI(), attr->getSAFI()));
+  }
+  return node;
 }
 
 // vim: sw=4 ts=4 sts=4 expandtab

@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -35,74 +35,77 @@
 using namespace std;
 namespace io = boost::iostreams;
 
-log4cxx::LoggerPtr AttributeTypeAS4Path::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeAS4Path" );
-log4cxx::LoggerPtr AttributeTypeAS4PathSegment::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeAS4PathSegment" );
+log4cxx::LoggerPtr AttributeTypeAS4Path::Logger =
+  log4cxx::Logger::getLogger("bgpparser.AttributeTypeAS4Path");
+log4cxx::LoggerPtr AttributeTypeAS4PathSegment::Logger =
+  log4cxx::Logger::getLogger("bgpparser.AttributeTypeAS4PathSegment");
 
-void AttributeTypeAS4PathSegment::printMeCompact()
+void
+AttributeTypeAS4PathSegment::printMeCompact()
 {
-	uint16_t top, bottom;
-	list<uint32_t>::iterator it;
-	if( pathSegmentType == AS_SEQUENCE ) {
-		cout << "AS4_SEQUENCE: ";
-	}
-	switch (pathSegmentType) {
-		case AS_SEQUENCE: {
-			cout << " ";
-			bool isFirst = true;
-			for (it = pathSegmentValue.begin(); it != pathSegmentValue.end(); it++) {
-				cout << (isFirst ? "" : " ");
-				top = (uint16_t)(((*it)>>16)&0xFFFF);
-				bottom = (uint16_t)((*it)&0xFFFF);
-				if( top == 0 ) {
-					printf("%u", bottom);
-				} else {
-					printf("%u.%u", top, bottom);
-				}
-				isFirst = false;
-			}
-			break;
-		}
-		case AS_SET: {
-			cout << " {";
-			bool isFirst = true;
-			for (it = pathSegmentValue.begin(); it != pathSegmentValue.end(); it++) {
-				cout << (isFirst ? "" : ",");
-				top = (uint16_t)(((*it)>>16)&0xFFFF);
-				bottom = (uint16_t)((*it)&0xFFFF);
-				if( top == 0 ) {
-					printf("%u", bottom);
-				} else {
-					printf("%u.%u", top, bottom);
-				}
-				isFirst = false;
-			}
-			cout << "}";
-			break;
-		}
-	}
+  uint16_t top, bottom;
+  list<uint32_t>::iterator it;
+  if (pathSegmentType == AS_SEQUENCE) {
+    cout << "AS4_SEQUENCE: ";
+  }
+  switch (pathSegmentType) {
+  case AS_SEQUENCE: {
+    cout << " ";
+    bool isFirst = true;
+    for (it = pathSegmentValue.begin(); it != pathSegmentValue.end(); it++) {
+      cout << (isFirst ? "" : " ");
+      top = (uint16_t)(((*it) >> 16) & 0xFFFF);
+      bottom = (uint16_t)((*it) & 0xFFFF);
+      if (top == 0) {
+        printf("%u", bottom);
+      }
+      else {
+        printf("%u.%u", top, bottom);
+      }
+      isFirst = false;
+    }
+    break;
+  }
+  case AS_SET: {
+    cout << " {";
+    bool isFirst = true;
+    for (it = pathSegmentValue.begin(); it != pathSegmentValue.end(); it++) {
+      cout << (isFirst ? "" : ",");
+      top = (uint16_t)(((*it) >> 16) & 0xFFFF);
+      bottom = (uint16_t)((*it) & 0xFFFF);
+      if (top == 0) {
+        printf("%u", bottom);
+      }
+      else {
+        printf("%u.%u", top, bottom);
+      }
+      isFirst = false;
+    }
+    cout << "}";
+    break;
+  }
+  }
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // AttributeTypeAS4Path
 //
-AttributeTypeAS4Path::AttributeTypeAS4Path( AttributeType &header, std::istream &input )
-: AttributeType( header )
+AttributeTypeAS4Path::AttributeTypeAS4Path(AttributeType& header, std::istream& input)
+  : AttributeType(header)
 {
-	LOG4CXX_TRACE(Logger,"");
-	
-	while( input.peek()!=-1 )
-	{
-		pathSegments.push_back( AttributeTypeAS4PathSegmentPtr(new AttributeTypeAS4PathSegment( input )) );
-	}
-	LOG4CXX_TRACE(Logger,"segments = " << pathSegments.size() );
+  LOG4CXX_TRACE(Logger, "");
+
+  while (input.peek() != -1) {
+    pathSegments.push_back(AttributeTypeAS4PathSegmentPtr(new AttributeTypeAS4PathSegment(input)));
+  }
+  LOG4CXX_TRACE(Logger, "segments = " << pathSegments.size());
 }
 
 AttributeTypeAS4Path::~AttributeTypeAS4Path(void)
 {
 }
 
-//void AttributeTypeAS4Path::printMe()
+// void AttributeTypeAS4Path::printMe()
 //{
 //	cout << "AS4_PATH:";
 //	list<AttributeTypeASPathSegmentPtr>::iterator it;
@@ -114,7 +117,7 @@ AttributeTypeAS4Path::~AttributeTypeAS4Path(void)
 //	}
 //}
 //
-//void AttributeTypeAS4Path::printMeCompact()
+// void AttributeTypeAS4Path::printMeCompact()
 //{
 //	list<AttributeTypeASPathSegmentPtr>::iterator it;
 //
@@ -125,19 +128,18 @@ AttributeTypeAS4Path::~AttributeTypeAS4Path(void)
 //	}
 //}
 
-uint32_t AttributeTypeAS4Path::getCountOfASNs( ) const
+uint32_t
+AttributeTypeAS4Path::getCountOfASNs() const
 {
-	uint32_t count=0;
-	BOOST_FOREACH( const AttributeTypeASPathSegmentPtr &segment, pathSegments )
-	{
-		if( segment->getPathSegmentType()==AttributeTypeASPathSegment::AS_SET ||
-			segment->getPathSegmentType()==AttributeTypeASPathSegment::AS_CONFED_SET )
-		{
-			count++;
-		}
-		else
-			count+=segment->getPathSegmentValue().size();
-	}
+  uint32_t count = 0;
+  BOOST_FOREACH (const AttributeTypeASPathSegmentPtr& segment, pathSegments) {
+    if (segment->getPathSegmentType() == AttributeTypeASPathSegment::AS_SET
+        || segment->getPathSegmentType() == AttributeTypeASPathSegment::AS_CONFED_SET) {
+      count++;
+    }
+    else
+      count += segment->getPathSegmentValue().size();
+  }
 
-	return count;
+  return count;
 }

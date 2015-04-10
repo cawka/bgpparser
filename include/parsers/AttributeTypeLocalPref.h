@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -29,31 +29,53 @@
 // Author: Jason Ryder
 // Author: Paul Wang
 #ifndef _ATTRIBUTETYPELOCALPREF_H_
-#define	_ATTRIBUTETYPELOCALPREF_H_
+#define _ATTRIBUTETYPELOCALPREF_H_
 
 #include "AttributeType.h"
 
-class AttributeTypeLocalPref :
-	public AttributeType
-{
+class AttributeTypeLocalPref : public AttributeType {
 public:
-	AttributeTypeLocalPref( AttributeType &header, std::istream &input );
-	virtual ~AttributeTypeLocalPref(void);
+  AttributeTypeLocalPref(AttributeType& header, std::istream& input);
+  virtual ~AttributeTypeLocalPref(void);
 
-	uint32_t getLocalPrefValue(void) const { return localPref; };
-	void setLocalPrefValue(uint32_t val) { localPref = val; };
+  uint32_t
+  getLocalPrefValue(void) const
+  {
+    return localPref;
+  };
+  void
+  setLocalPrefValue(uint32_t val)
+  {
+    localPref = val;
+  };
 
-	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
-	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
-	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }
-	virtual boost::any accept( GJVisitor &v, boost::any param ) { return v.visit( *this, param ); }
+  virtual void
+  accept(Visitor& v)
+  {
+    v.visit(*this);
+  }
+  virtual void
+  accept(GJVoidVisitor& v, boost::any param)
+  {
+    v.visit(*this, param);
+  }
+  virtual boost::any
+  accept(GJNoArguVisitor& v)
+  {
+    return v.visit(*this);
+  }
+  virtual boost::any
+  accept(GJVisitor& v, boost::any param)
+  {
+    return v.visit(*this, param);
+  }
 
 protected:
-	uint32_t localPref;
+  uint32_t localPref;
 
-	static log4cxx::LoggerPtr Logger;
+  static log4cxx::LoggerPtr Logger;
 };
 
 typedef boost::shared_ptr<AttributeTypeLocalPref> AttributeTypeLocalPrefPtr;
 
-#endif	/* _ATTRIBUTETYPELOCALPREF_H_ */
+#endif /* _ATTRIBUTETYPELOCALPREF_H_ */

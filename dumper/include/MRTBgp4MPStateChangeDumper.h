@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -27,8 +27,8 @@
  */
 
 // MRT TABLE_DUMP_V2 Dumper
-#ifndef __MRTBGP4MPSTATECHANGEDUMPER__    
-#define __MRTBGP4MPSTATECHANGEDUMPER__    
+#ifndef __MRTBGP4MPSTATECHANGEDUMPER__
+#define __MRTBGP4MPSTATECHANGEDUMPER__
 
 #include "Dumper.h"
 #include "MRTBgp4MPStateChange.h"
@@ -37,23 +37,25 @@ class MRTBgp4MPStateChangeDumper;
 typedef boost::shared_ptr<MRTBgp4MPStateChangeDumper> MRTBgp4MPStateChangeDumperPtr;
 
 /* Common Dumper */
-class MRTBgp4MPStateChangeDumper : public Dumper
-{
+class MRTBgp4MPStateChangeDumper : public Dumper {
 public:
-	virtual ~MRTBgp4MPStateChangeDumper( );
-	
-	// Factory method for creating a dumper
-	static MRTBgp4MPStateChangeDumperPtr newDumper( const MRTBgp4MPStateChangePtr &bgp4mp_sc );
+  virtual ~MRTBgp4MPStateChangeDumper();
 
-	xmlNodePtr  genXml();
-	std::string genAscii();
+  // Factory method for creating a dumper
+  static MRTBgp4MPStateChangeDumperPtr
+  newDumper(const MRTBgp4MPStateChangePtr& bgp4mp_sc);
+
+  xmlNodePtr
+  genXml();
+  std::string
+  genAscii();
 
 private:
-	MRTBgp4MPStateChangeDumper( const MRTBgp4MPStateChangePtr &bgp4mp_sc);
+  MRTBgp4MPStateChangeDumper(const MRTBgp4MPStateChangePtr& bgp4mp_sc);
 
 protected:
-    /* Pointer to BGP4MP_STATECHANGE */
-    MRTBgp4MPStateChangePtr bgp4mp_state_change;
+  /* Pointer to BGP4MP_STATECHANGE */
+  MRTBgp4MPStateChangePtr bgp4mp_state_change;
 };
 
 #endif /* __MRTBGP4MPSTATECHANGEDUMPER__ */

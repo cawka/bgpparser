@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -36,59 +36,55 @@
 using namespace std;
 namespace io = boost::iostreams;
 
-log4cxx::LoggerPtr AttributeTypeASPath::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeASPath" );
-log4cxx::LoggerPtr AttributeTypeASPathSegment::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeASPathSegment" );
+log4cxx::LoggerPtr AttributeTypeASPath::Logger =
+  log4cxx::Logger::getLogger("bgpparser.AttributeTypeASPath");
+log4cxx::LoggerPtr AttributeTypeASPathSegment::Logger =
+  log4cxx::Logger::getLogger("bgpparser.AttributeTypeASPathSegment");
 
 ////////////////////////////////////////////////////////////////////
 // AttributeTypeASPathSegment
 //
 
-AttributeTypeASPathSegment::AttributeTypeASPathSegment( istream &input, bool is4byte )
+AttributeTypeASPathSegment::AttributeTypeASPathSegment(istream& input, bool is4byte)
 {
-    bool error=false;
-    error|= sizeof(uint8_t)!=
-			io::read( input, reinterpret_cast<char*>(&pathSegmentType),   sizeof(uint8_t) );
-    error|= sizeof(uint8_t)!=
-			io::read( input, reinterpret_cast<char*>(&pathSegmentLength), sizeof(uint8_t) );
+  bool error = false;
+  error |=
+    sizeof(uint8_t) != io::read(input, reinterpret_cast<char*>(&pathSegmentType), sizeof(uint8_t));
+  error |= sizeof(uint8_t)
+           != io::read(input, reinterpret_cast<char*>(&pathSegmentLength), sizeof(uint8_t));
 
-    if( error )
-    {
-        LOG4CXX_ERROR(Logger, "Parsing error");
-        throw BGPError( );
+  if (error) {
+    LOG4CXX_ERROR(Logger, "Parsing error");
+    throw BGPError();
+  }
+
+  for (int i = 0; i < pathSegmentLength; i++) {
+    uint32_t segVal;
+    if (is4byte) {
+      int len = io::read(input, reinterpret_cast<char*>(&segVal), sizeof(uint32_t));
+      if (len != sizeof(uint32_t)) {
+        LOG4CXX_ERROR(Logger, "4-byte AS sement requested, read " << len << "bytes");
+        throw BGPError();
+      }
+    }
+    else {
+      int len = io::read(input, reinterpret_cast<char*>(&segVal), sizeof(uint16_t));
+      if (len != sizeof(uint16_t)) {
+        LOG4CXX_ERROR(Logger, "2-byte AS sement requested, read " << len << "bytes");
+        throw BGPError();
+      }
     }
 
-	for( int i = 0; i < pathSegmentLength; i++ )
-	{
-		uint32_t segVal;
-		if( is4byte )
-		{
-			int len=io::read( input, reinterpret_cast<char*>(&segVal), sizeof(uint32_t) );
-			if( len!=sizeof(uint32_t) ) 
-            {
-                LOG4CXX_ERROR(Logger, "4-byte AS sement requested, read " << len << "bytes");
-                throw BGPError( );
-            }
-		}
-		else
-		{
-			int len=io::read( input, reinterpret_cast<char*>(&segVal), sizeof(uint16_t) );
-			if( len!=sizeof(uint16_t) ) 
-            {
-                LOG4CXX_ERROR(Logger, "2-byte AS sement requested, read " << len << "bytes");
-                throw BGPError( );
-            }
-		}
-
-		segVal = is4byte ? ntohl(segVal) : ntohs(segVal);
-		pathSegmentValue.push_back( segVal );
-	}
+    segVal = is4byte ? ntohl(segVal) : ntohs(segVal);
+    pathSegmentValue.push_back(segVal);
+  }
 }
 
 AttributeTypeASPathSegment::~AttributeTypeASPathSegment(void)
 {
 }
 
-//void AttributeTypeASPathSegment::printMe() {
+// void AttributeTypeASPathSegment::printMe() {
 //	switch (pathSegmentType) {
 //		case AS_SEQUENCE: break;
 //		case AS_SET: cout << " {";
@@ -105,7 +101,7 @@ AttributeTypeASPathSegment::~AttributeTypeASPathSegment(void)
 //	}
 //}
 //
-//void AttributeTypeASPathSegment::printMeCompact()
+// void AttributeTypeASPathSegment::printMeCompact()
 //{
 //	uint16_t top, bottom;
 //	list<uint32_t>::iterator it;
@@ -150,34 +146,34 @@ AttributeTypeASPathSegment::~AttributeTypeASPathSegment(void)
 // AttributeTypeASPath
 //
 
-AttributeTypeASPath::AttributeTypeASPath( AttributeType &header, istream &input )
-: AttributeType(header)
+AttributeTypeASPath::AttributeTypeASPath(AttributeType& header, istream& input)
+  : AttributeType(header)
 {
-	LOG4CXX_TRACE(Logger,"" );
-//	// TODO: Add a routine to check is4byte in more reliable way
-//	// check is4byte here
-//	bool is4byte = false;
-//	if (len != 0) {
-//		uint16_t firstTwoBytes = 0;
-//		firstTwoBytes = *((uint16_t*)(msg+2)) & BITMASK_16;
-//		is4byte = firstTwoBytes == 0;
-//	}
+  LOG4CXX_TRACE(Logger, "");
+  //	// TODO: Add a routine to check is4byte in more reliable way
+  //	// check is4byte here
+  //	bool is4byte = false;
+  //	if (len != 0) {
+  //		uint16_t firstTwoBytes = 0;
+  //		firstTwoBytes = *((uint16_t*)(msg+2)) & BITMASK_16;
+  //		is4byte = firstTwoBytes == 0;
+  //	}
 
-	// @TODO: test if without "autodetection" this may cause troubles
+  // @TODO: test if without "autodetection" this may cause troubles
 
-	while( input.peek()!=-1 )
-	{
-		pathSegments.push_back( AttributeTypeASPathSegmentPtr(new AttributeTypeASPathSegment( input,isAS4 )) );
-	}
+  while (input.peek() != -1) {
+    pathSegments.push_back(
+      AttributeTypeASPathSegmentPtr(new AttributeTypeASPathSegment(input, isAS4)));
+  }
 
-	LOG4CXX_TRACE(Logger,"segments = " << pathSegments.size() );
+  LOG4CXX_TRACE(Logger, "segments = " << pathSegments.size());
 }
 
-AttributeTypeASPath::~AttributeTypeASPath(void) {
+AttributeTypeASPath::~AttributeTypeASPath(void)
+{
 }
 
-
-//void AttributeTypeASPath::printMe()
+// void AttributeTypeASPath::printMe()
 //{
 //	cout << "ASPATH :";
 //	for (list<AttributeTypeASPathSegmentPtr>::iterator it = pathSegments.begin();
@@ -194,7 +190,7 @@ AttributeTypeASPath::~AttributeTypeASPath(void) {
 //	}
 //}
 //
-//void AttributeTypeASPath::printMeCompact()
+// void AttributeTypeASPath::printMeCompact()
 //{
 //	cout << "AS_SEQUENCE: ";
 //	list<AttributeTypeASPathSegmentPtr>::iterator it;
@@ -204,71 +200,65 @@ AttributeTypeASPath::~AttributeTypeASPath(void) {
 //	}
 //}
 
-void AttributeTypeASPath::genPathSegmentsComplete( const AttributeTypeAS4Path &as4_path )
+void
+AttributeTypeASPath::genPathSegmentsComplete(const AttributeTypeAS4Path& as4_path)
 {
-	LOG4CXX_TRACE(Logger,"genPathSegmentsComplete");
-	if( as4_path.getPathSegments().size()==0 )
-	{
-		LOG4CXX_TRACE(Logger,"pathSegmentsComplete = pathSegments");
-		pathSegmentsComplete = pathSegments;
-		return;
-	}
+  LOG4CXX_TRACE(Logger, "genPathSegmentsComplete");
+  if (as4_path.getPathSegments().size() == 0) {
+    LOG4CXX_TRACE(Logger, "pathSegmentsComplete = pathSegments");
+    pathSegmentsComplete = pathSegments;
+    return;
+  }
 
-	if( getCountOfASNs()<as4_path.getCountOfASNs() )
-	{
-		LOG4CXX_WARN(Logger,"Count of ASNs in AS_PATH (" << getCountOfASNs()
-				<<") --- less than in AS4_PATH ("<<as4_path.getCountOfASNs()<<")");
-	}
+  if (getCountOfASNs() < as4_path.getCountOfASNs()) {
+    LOG4CXX_WARN(Logger, "Count of ASNs in AS_PATH (" << getCountOfASNs()
+                                                      << ") --- less than in AS4_PATH ("
+                                                      << as4_path.getCountOfASNs() << ")");
+  }
 
+  const list<AttributeTypeASPathSegmentPtr>& as_path_segs = getPathSegments();
+  const list<AttributeTypeASPathSegmentPtr>& as4_path_segs = as4_path.getPathSegments();
 
-	const list<AttributeTypeASPathSegmentPtr> &as_path_segs  = getPathSegments( );
-	const list<AttributeTypeASPathSegmentPtr> &as4_path_segs = as4_path.getPathSegments( );
+  list<AttributeTypeASPathSegmentPtr>::const_reverse_iterator it = as_path_segs.rbegin();
+  list<AttributeTypeASPathSegmentPtr>::const_reverse_iterator it4 = as4_path_segs.rbegin();
 
-	list<AttributeTypeASPathSegmentPtr>::const_reverse_iterator  it  = as_path_segs.rbegin();
-	list<AttributeTypeASPathSegmentPtr>::const_reverse_iterator  it4 = as4_path_segs.rbegin();
+  while (it != as_path_segs.rend() && it4 != as4_path_segs.rend()) {
+    LOG4CXX_TRACE(Logger, "next segment");
 
-	while( it != as_path_segs.rend() && it4 != as4_path_segs.rend() )
-	{
-		LOG4CXX_TRACE(Logger,"next segment");
+    // Merge as_path and as4_path
+    AttributeTypeASPathSegmentPtr pathSegment(
+      new AttributeTypeASPathSegment((*it)->getPathSegmentType()));
 
-		// Merge as_path and as4_path
-		AttributeTypeASPathSegmentPtr pathSegment( 
-			new AttributeTypeASPathSegment((*it)->getPathSegmentType( )) );
+    const list<uint32_t>& as_seg_value = (*it)->getPathSegmentValue();
+    const list<uint32_t>& as4_seg_value = (*it4)->getPathSegmentValue();
 
-		const list<uint32_t> &as_seg_value  = (*it)->getPathSegmentValue();
-		const list<uint32_t> &as4_seg_value = (*it4)->getPathSegmentValue();
+    list<uint32_t>::const_iterator it_seg = as_seg_value.begin();
+    list<uint32_t>::const_iterator it_seg4 = as4_seg_value.begin();
 
-		list<uint32_t>::const_iterator it_seg  = as_seg_value.begin();
-		list<uint32_t>::const_iterator it_seg4 = as4_seg_value.begin();
+    int size_as_seg = as_seg_value.size();
+    int size_as4_seg = as4_seg_value.size();
+    int from_as_seg = size_as_seg - size_as4_seg;
 
-		int size_as_seg  = as_seg_value.size();
-		int size_as4_seg = as4_seg_value.size();
-		int from_as_seg  = size_as_seg  - size_as4_seg;
+    for (int idx = 1; idx <= size_as_seg; idx++) {
+      if (idx <= from_as_seg) {
+        pathSegment->add(*it_seg);
+        it_seg++;
+      }
+      else {
+        pathSegment->add(*it_seg4);
+        it_seg4++;
+      }
+    }
+    pathSegmentsComplete.push_front(pathSegment);
+    it++;
+    it4++;
+  }
 
-		for( int idx=1; idx<=size_as_seg; idx++ )
-		{
-			if (idx <= from_as_seg)
-			{
-				pathSegment->add( *it_seg );
-				it_seg++;
-			}
-			else
-			{
-				pathSegment->add( *it_seg4 );
-				it_seg4++;
-			}
-		}
-		pathSegmentsComplete.push_front( pathSegment );
-		it++;
-		it4++;
-	}
-
-	while( it != as_path_segs.rend() )
-	{
-		// Copy remainings of the as_path
-		pathSegmentsComplete.push_front( *it );
-		it++;
-	}
+  while (it != as_path_segs.rend()) {
+    // Copy remainings of the as_path
+    pathSegmentsComplete.push_front(*it);
+    it++;
+  }
 
 #if 0
 	// [TODO] AS4_PATH is longer than AS_PATH
@@ -292,30 +282,28 @@ void AttributeTypeASPath::genPathSegmentsComplete( const AttributeTypeAS4Path &a
 		it4++;
 	}
 #else
-	/* if there is an inconsistency, we do not process this update */
-	if( it4 != as4_path_segs.rend() )
-	{
-		/* currently we do not have an indicator for errors.  Using NULL value to indicate error... */
-		//error = 1;
-	}
+  /* if there is an inconsistency, we do not process this update */
+  if (it4 != as4_path_segs.rend()) {
+    /* currently we do not have an indicator for errors.  Using NULL value to indicate error... */
+    // error = 1;
+  }
 #endif
 }
 
-uint32_t AttributeTypeASPath::getCountOfASNs( ) const
+uint32_t
+AttributeTypeASPath::getCountOfASNs() const
 {
-	uint32_t count=0;
-	BOOST_FOREACH( const AttributeTypeASPathSegmentPtr &segment, pathSegments )
-	{
-		if( segment->getPathSegmentType()==AttributeTypeASPathSegment::AS_SET ||
-			segment->getPathSegmentType()==AttributeTypeASPathSegment::AS_CONFED_SET )
-		{
-			count++;
-		}
-		else
-			count+=segment->getPathSegmentValue().size();
-	}
-	
-	return count;
+  uint32_t count = 0;
+  BOOST_FOREACH (const AttributeTypeASPathSegmentPtr& segment, pathSegments) {
+    if (segment->getPathSegmentType() == AttributeTypeASPathSegment::AS_SET
+        || segment->getPathSegmentType() == AttributeTypeASPathSegment::AS_CONFED_SET) {
+      count++;
+    }
+    else
+      count += segment->getPathSegmentValue().size();
+  }
+
+  return count;
 }
 
 // vim: sw=4 ts=4 sts=4 expandtab

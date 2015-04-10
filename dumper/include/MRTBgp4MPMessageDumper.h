@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -27,8 +27,8 @@
  */
 
 // MRT TABLE_DUMP_V2 Dumper
-#ifndef __MRTBGP4MPMSGDUMPER__    
-#define __MRTBGP4MPMSGDUMPER__    
+#ifndef __MRTBGP4MPMSGDUMPER__
+#define __MRTBGP4MPMSGDUMPER__
 
 #include "Dumper.h"
 #include "MRTBgp4MPMessage.h"
@@ -37,23 +37,25 @@ class MRTBgp4MPMessageDumper;
 typedef boost::shared_ptr<MRTBgp4MPMessageDumper> MRTBgp4MPMessageDumperPtr;
 
 /* Common Dumper */
-class MRTBgp4MPMessageDumper : public Dumper
-{
+class MRTBgp4MPMessageDumper : public Dumper {
 public:
-	virtual ~MRTBgp4MPMessageDumper();
-	
-	// Factory method for creating a dumper
-	static MRTBgp4MPMessageDumperPtr newDumper( const MRTBgp4MPMessagePtr &bgp4mp_msg );
+  virtual ~MRTBgp4MPMessageDumper();
 
-	xmlNodePtr genXml();
-	std::string     genAscii();
+  // Factory method for creating a dumper
+  static MRTBgp4MPMessageDumperPtr
+  newDumper(const MRTBgp4MPMessagePtr& bgp4mp_msg);
+
+  xmlNodePtr
+  genXml();
+  std::string
+  genAscii();
 
 private:
-	MRTBgp4MPMessageDumper();
+  MRTBgp4MPMessageDumper();
 
 protected:
-    /* Pointer to BGP4MP_MESSAGE */
-    MRTBgp4MPMessagePtr bgp4mp_msg;
+  /* Pointer to BGP4MP_MESSAGE */
+  MRTBgp4MPMessagePtr bgp4mp_msg;
 };
 
 #endif /* __MRTBGP4MPMSGDUMPER__ */

@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -33,78 +33,118 @@
 #include "MRTTblDumpV2PeerIndexTbl.h"
 #include "TblDumpV2RibEntry.h"
 
-
-class MRTTblDumpV2RibHeader :
-	public MRTCommonHeader
-{
+class MRTTblDumpV2RibHeader : public MRTCommonHeader {
 public:
-	virtual ~MRTTblDumpV2RibHeader(void);
+  virtual ~MRTTblDumpV2RibHeader(void);
 
-	inline uint32_t  getSequenceNumber( ) const;
-	inline uint8_t   getPrefixLength( ) const;
-	inline IPAddress getPrefix( ) const;
-	inline uint16_t  getEntryCount( ) const;
-	inline uint16_t  getAFI( ) const;
-	inline uint16_t  getSAFI( ) const;
+  inline uint32_t
+  getSequenceNumber() const;
+  inline uint8_t
+  getPrefixLength() const;
+  inline IPAddress
+  getPrefix() const;
+  inline uint16_t
+  getEntryCount() const;
+  inline uint16_t
+  getAFI() const;
+  inline uint16_t
+  getSAFI() const;
 
-	const std::list<TblDumpV2RibEntryPtr> &getRibEntries(void) const { return ribs; };
+  const std::list<TblDumpV2RibEntryPtr>&
+  getRibEntries(void) const
+  {
+    return ribs;
+  };
 
-	static void processAttributes( std::list<BGPAttributePtr> &, std::istream &input, int len, bool isAS4 );
+  static void
+  processAttributes(std::list<BGPAttributePtr>&, std::istream& input, int len, bool isAS4);
 
-	inline const MRTTblDumpV2PeerIndexTblPeerEntryPtr getPeer( const TblDumpV2RibEntry &entry );
+  inline const MRTTblDumpV2PeerIndexTblPeerEntryPtr
+  getPeer(const TblDumpV2RibEntry& entry);
 
-	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
-	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
-	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }
-	virtual boost::any accept( GJVisitor &v, boost::any param ) { return v.visit( *this, param ); }
+  virtual void
+  accept(Visitor& v)
+  {
+    v.visit(*this);
+  }
+  virtual void
+  accept(GJVoidVisitor& v, boost::any param)
+  {
+    v.visit(*this, param);
+  }
+  virtual boost::any
+  accept(GJNoArguVisitor& v)
+  {
+    return v.visit(*this);
+  }
+  virtual boost::any
+  accept(GJVisitor& v, boost::any param)
+  {
+    return v.visit(*this, param);
+  }
 
 protected:
-	MRTTblDumpV2RibHeader( MRTTblDumpV2PeerIndexTblPtr &peertbl, MRTCommonHeader &header, std::istream &input );
-	void init( std::istream &input );
+  MRTTblDumpV2RibHeader(MRTTblDumpV2PeerIndexTblPtr& peertbl, MRTCommonHeader& header,
+                        std::istream& input);
+  void
+  init(std::istream& input);
 
 protected:
-	uint32_t sequenceNumber;
-	uint8_t prefixLength;
-	IPAddress prefix;
-	uint16_t entryCount;
-	uint16_t afi;
-	uint16_t safi;
+  uint32_t sequenceNumber;
+  uint8_t prefixLength;
+  IPAddress prefix;
+  uint16_t entryCount;
+  uint16_t afi;
+  uint16_t safi;
 
-	std::list<TblDumpV2RibEntryPtr> ribs;
-	MRTTblDumpV2PeerIndexTblPtr _peerIndexTbl;
+  std::list<TblDumpV2RibEntryPtr> ribs;
+  MRTTblDumpV2PeerIndexTblPtr _peerIndexTbl;
 
-	static log4cxx::LoggerPtr Logger;
+  static log4cxx::LoggerPtr Logger;
 };
 
 typedef boost::shared_ptr<MRTTblDumpV2RibHeader> MRTTblDumpV2RibHeaderPtr;
 
-uint32_t MRTTblDumpV2RibHeader::getSequenceNumber(void) const {
-	return sequenceNumber;
+uint32_t
+MRTTblDumpV2RibHeader::getSequenceNumber(void) const
+{
+  return sequenceNumber;
 }
 
-uint8_t MRTTblDumpV2RibHeader::getPrefixLength(void) const {
-	return prefixLength;
+uint8_t
+MRTTblDumpV2RibHeader::getPrefixLength(void) const
+{
+  return prefixLength;
 }
 
-IPAddress MRTTblDumpV2RibHeader::getPrefix(void) const {
-	return prefix;
+IPAddress
+MRTTblDumpV2RibHeader::getPrefix(void) const
+{
+  return prefix;
 }
 
-uint16_t MRTTblDumpV2RibHeader::getEntryCount(void) const {
-	return entryCount;
+uint16_t
+MRTTblDumpV2RibHeader::getEntryCount(void) const
+{
+  return entryCount;
 }
 
-uint16_t MRTTblDumpV2RibHeader::getAFI(void) const {
-	return afi;
+uint16_t
+MRTTblDumpV2RibHeader::getAFI(void) const
+{
+  return afi;
 }
 
-uint16_t MRTTblDumpV2RibHeader::getSAFI(void) const {
-	return safi;
+uint16_t
+MRTTblDumpV2RibHeader::getSAFI(void) const
+{
+  return safi;
 }
 
-const MRTTblDumpV2PeerIndexTblPeerEntryPtr MRTTblDumpV2RibHeader::getPeer( const TblDumpV2RibEntry &entry )
-{ 
-	return _peerIndexTbl->getPeer( entry.getPeerIndex() );
+const MRTTblDumpV2PeerIndexTblPeerEntryPtr
+MRTTblDumpV2RibHeader::getPeer(const TblDumpV2RibEntry& entry)
+{
+  return _peerIndexTbl->getPeer(entry.getPeerIndex());
 }
 
-#endif	/* _MRTTBLDUMPV2RIBHEADER_H_ */
+#endif /* _MRTTBLDUMPV2RIBHEADER_H_ */

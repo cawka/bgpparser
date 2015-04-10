@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -32,40 +32,85 @@
 #include "AttributeType.h"
 #include "BGPStructure.h"
 
-class AttributeTypeMPUnreachNLRI :
-	public AttributeType
-{
+class AttributeTypeMPUnreachNLRI : public AttributeType {
 public:
-	AttributeTypeMPUnreachNLRI( AttributeType &header, std::istream &input );
-	virtual ~AttributeTypeMPUnreachNLRI(void);
+  AttributeTypeMPUnreachNLRI(AttributeType& header, std::istream& input);
+  virtual ~AttributeTypeMPUnreachNLRI(void);
 
-	void setAFI(uint16_t afi) { this->afi = afi; };
-	uint16_t getAFI(void) const { return afi; };
-	void setSAFI(uint8_t safi) { this->safi = safi; };
-	uint8_t getSAFI(void) const { return safi; };
+  void
+  setAFI(uint16_t afi)
+  {
+    this->afi = afi;
+  };
+  uint16_t
+  getAFI(void) const
+  {
+    return afi;
+  };
+  void
+  setSAFI(uint8_t safi)
+  {
+    this->safi = safi;
+  };
+  uint8_t
+  getSAFI(void) const
+  {
+    return safi;
+  };
 
-	void addNLRI(NLRIUnReachablePtr nlri) { this->nlri.push_back(nlri); };
-	const std::list<NLRIUnReachablePtr> &getNLRI(void) const { return nlri; };
+  void
+  addNLRI(NLRIUnReachablePtr nlri)
+  {
+    this->nlri.push_back(nlri);
+  };
+  const std::list<NLRIUnReachablePtr>&
+  getNLRI(void) const
+  {
+    return nlri;
+  };
 
-	bool getCorrupt(void) { return corrupt; };
-	void setCorrupt(bool c) { corrupt = c; };
-	
-	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
-	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
-	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }
-	virtual boost::any accept( GJVisitor &v, boost::any param ) { return v.visit( *this, param ); }
+  bool
+  getCorrupt(void)
+  {
+    return corrupt;
+  };
+  void
+  setCorrupt(bool c)
+  {
+    corrupt = c;
+  };
+
+  virtual void
+  accept(Visitor& v)
+  {
+    v.visit(*this);
+  }
+  virtual void
+  accept(GJVoidVisitor& v, boost::any param)
+  {
+    v.visit(*this, param);
+  }
+  virtual boost::any
+  accept(GJNoArguVisitor& v)
+  {
+    return v.visit(*this);
+  }
+  virtual boost::any
+  accept(GJVisitor& v, boost::any param)
+  {
+    return v.visit(*this, param);
+  }
 
 protected:
-	uint16_t afi;
-	uint8_t safi;
-	std::list<NLRIUnReachablePtr> nlri;
-	
-	bool corrupt;
+  uint16_t afi;
+  uint8_t safi;
+  std::list<NLRIUnReachablePtr> nlri;
 
-	static log4cxx::LoggerPtr Logger;
+  bool corrupt;
+
+  static log4cxx::LoggerPtr Logger;
 };
 
 typedef boost::shared_ptr<AttributeTypeMPUnreachNLRI> AttributeTypeMPUnreachNLRIPtr;
 
-#endif	/* _ATTRIBUTETYPEMPUNREACHNLRI_H_ */
-
+#endif /* _ATTRIBUTETYPEMPUNREACHNLRI_H_ */

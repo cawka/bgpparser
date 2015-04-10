@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -35,7 +35,8 @@
 using namespace std;
 namespace io = boost::iostreams;
 
-log4cxx::LoggerPtr BGPNotification::Logger = log4cxx::Logger::getLogger( "bgpparser.BGPNotification" );
+log4cxx::LoggerPtr BGPNotification::Logger =
+  log4cxx::Logger::getLogger("bgpparser.BGPNotification");
 
 /*
       0                   1                   2                   3
@@ -47,153 +48,148 @@ log4cxx::LoggerPtr BGPNotification::Logger = log4cxx::Logger::getLogger( "bgppar
  Note that the length of the Data field can be determined from
  the message Length field by the formula:
 
-		  Message Length = 21 + Data Length
+                  Message Length = 21 + Data Length
 
  */
 
-BGPNotification::BGPNotification( BGPCommonHeader &header, istream &input )
-: BGPCommonHeader( header )
+BGPNotification::BGPNotification(BGPCommonHeader& header, istream& input)
+  : BGPCommonHeader(header)
 {
-	LOG4CXX_TRACE( Logger, "" );
+  LOG4CXX_TRACE(Logger, "");
 
-	bool error=false;
+  bool error = false;
 
-	error|= sizeof(uint8_t)!=
-		io::read( input, reinterpret_cast<char*>(&errorCode),    sizeof(uint8_t) );
+  error |= sizeof(uint8_t) != io::read(input, reinterpret_cast<char*>(&errorCode), sizeof(uint8_t));
 
-	error|= sizeof(uint8_t)!=
-		io::read( input, reinterpret_cast<char*>(&subErrorCode), sizeof(uint8_t) );
+  error |=
+    sizeof(uint8_t) != io::read(input, reinterpret_cast<char*>(&subErrorCode), sizeof(uint8_t));
 
-	/* calculate the data length */
-	uint32_t dataLength = getLength() - 21;
+  /* calculate the data length */
+  uint32_t dataLength = getLength() - 21;
 
-	if (dataLength > 0)
-	{
-		/* dynamically allocated memory for the data */
-		data = boost::shared_ptr<uint8_t>( new uint8_t[dataLength] );
+  if (dataLength > 0) {
+    /* dynamically allocated memory for the data */
+    data = boost::shared_ptr<uint8_t>(new uint8_t[dataLength]);
 
-		/* copy the data from the notification to the */
-		/* dynamically allocated memory */
-		error|= dataLength!=
-				io::read( input, reinterpret_cast<char*>(data.get()), dataLength );
-	}
+    /* copy the data from the notification to the */
+    /* dynamically allocated memory */
+    error |= dataLength != io::read(input, reinterpret_cast<char*>(data.get()), dataLength);
+  }
 
-	if( error )
-	{
-		LOG4CXX_ERROR( Logger, "Parsing error" );
-		throw BGPError( );
-	}
+  if (error) {
+    LOG4CXX_ERROR(Logger, "Parsing error");
+    throw BGPError();
+  }
 
-	switch (errorCode) {
-	case BGP_NOTIFICATION_MSG_HEADER_ERROR: {
-			switch (subErrorCode) {
-			case UNSPECIFIC:
-				break;
-			case CONNECTION_NOT_SYNCHRONIZED:
-				break;
-			case BAD_MESSAGE_LENGTH: {
-//				if( getLength()-21>=2 ) // if at least 2 octets are available
-//				{
-//					uint16_t temp;
-//					/* data should store the length value - a 2 octet short value */
-//					memcpy(&temp, data.get(), sizeof(uint16_t));
-//					temp = ntohs(temp);
-//					memcpy(data.get(), &temp, sizeof(uint16_t));
-//				}
-				}
-				break;
-			case BAD_MESSAGE_TYPE: {
-					/* data field should store the bad type field - don't know how */
-					/* this is interpreted*/
-				}
-				break;
-			default:
-				LOG4CXX_ERROR( Logger,"unknown sub-error code ["<< (int)subErrorCode <<"] in BGP Notification" );
-				break;
-			}
-		}
-		break;
-	case BGP_NOTIFICATION_OPEN_MSG_ERROR: {
-			switch (subErrorCode) {
-			case UNSPECIFIC:
-				break;
-			case UNSUPPORTED_VERSION_NUMBER: {
-//				if( getLength()-21>=2 ) // if at least 2 octets are available
-//				{
-//					uint16_t temp;
-//					/* data should store the version number supported */
-//					memcpy(&temp, data.get(), sizeof(uint16_t));
-//					temp = ntohs(temp);
-//					memcpy(data.get(), &temp, sizeof(uint16_t));
-//				}
-				}
-				break;
-			case BAD_PEER_AS:
-				break;
-			case BAD_BGP_IDENTIFIER:
-				break;
-			case UNSUPPORTED_OPTIONAL_PARAMETER:
-				break;
-			case AUTHENTICATION_FAILURE:
-				break;
-			case UNACCEPTABLE_HOLD_TIME:
-				break;
-			default:
-				LOG4CXX_ERROR( Logger,"unknown sub-error code ["<< (int)subErrorCode <<"] in BGP Open" );
-				break;
-			}
-		}
-		break;
-	case BGP_NOTIFICATION_UPDATE_MSG_ERROR: {
-			switch (subErrorCode) {
-			case UNSPECIFIC:
-				break;
-			case MALFORMED_ATTRIBUTE_LIST:
-				break;
-			case UNRECOGNIZED_WELL_KNOWN_ATTRIBUTE:
-				break;
-			case MISSING_WELL_KNOWN_ATTRIBUTE:
-				break;
-			case ATTRIBUTE_FLAGS_ERROR:
-				break;
-			case ATTRIBUTE_LENGTH_ERROR:
-				break;
-			case INVALID_ORIGIN_ATTRIBUTE:
-				break;
-			case AS_ROUTING_LOOP:
-				break;
-			case INVALID_NEXT_HOP_ATTRIBUTE:
-				break;
-			case OPTIONAL_ATTRIBUTE_ERROR:
-				break;
-			case INVALID_NETWORK_FIELD:
-				break;
-			case MALFORMED_AS_PATH:
-				break;
-			default:
-				break;
-			}
-		}
-		break;
-	case BGP_NOTIFICATION_HOLD_TIMER_EXPIRED:
-		break;
-	case BGP_NOTIFICATION_FINITE_STATE_ERROR:
-		break;
-	case BGP_NOTIFICATION_CEASE:
-		break;
-	default:
-		LOG4CXX_ERROR( Logger,"unknown error code ["<< (int)errorCode <<"] in BGP Notification" );
-		break;
-	}
+  switch (errorCode) {
+  case BGP_NOTIFICATION_MSG_HEADER_ERROR: {
+    switch (subErrorCode) {
+    case UNSPECIFIC:
+      break;
+    case CONNECTION_NOT_SYNCHRONIZED:
+      break;
+    case BAD_MESSAGE_LENGTH: {
+      //				if( getLength()-21>=2 ) // if at least 2 octets are
+      //available
+      //				{
+      //					uint16_t temp;
+      //					/* data should store the length value - a 2 octet
+      //short value */
+      //					memcpy(&temp, data.get(), sizeof(uint16_t));
+      //					temp = ntohs(temp);
+      //					memcpy(data.get(), &temp, sizeof(uint16_t));
+      //				}
+    } break;
+    case BAD_MESSAGE_TYPE: {
+      /* data field should store the bad type field - don't know how */
+      /* this is interpreted*/
+    } break;
+    default:
+      LOG4CXX_ERROR(Logger, "unknown sub-error code [" << (int)subErrorCode
+                                                       << "] in BGP Notification");
+      break;
+    }
+  } break;
+  case BGP_NOTIFICATION_OPEN_MSG_ERROR: {
+    switch (subErrorCode) {
+    case UNSPECIFIC:
+      break;
+    case UNSUPPORTED_VERSION_NUMBER: {
+      //				if( getLength()-21>=2 ) // if at least 2 octets are
+      //available
+      //				{
+      //					uint16_t temp;
+      //					/* data should store the version number supported */
+      //					memcpy(&temp, data.get(), sizeof(uint16_t));
+      //					temp = ntohs(temp);
+      //					memcpy(data.get(), &temp, sizeof(uint16_t));
+      //				}
+    } break;
+    case BAD_PEER_AS:
+      break;
+    case BAD_BGP_IDENTIFIER:
+      break;
+    case UNSUPPORTED_OPTIONAL_PARAMETER:
+      break;
+    case AUTHENTICATION_FAILURE:
+      break;
+    case UNACCEPTABLE_HOLD_TIME:
+      break;
+    default:
+      LOG4CXX_ERROR(Logger, "unknown sub-error code [" << (int)subErrorCode << "] in BGP Open");
+      break;
+    }
+  } break;
+  case BGP_NOTIFICATION_UPDATE_MSG_ERROR: {
+    switch (subErrorCode) {
+    case UNSPECIFIC:
+      break;
+    case MALFORMED_ATTRIBUTE_LIST:
+      break;
+    case UNRECOGNIZED_WELL_KNOWN_ATTRIBUTE:
+      break;
+    case MISSING_WELL_KNOWN_ATTRIBUTE:
+      break;
+    case ATTRIBUTE_FLAGS_ERROR:
+      break;
+    case ATTRIBUTE_LENGTH_ERROR:
+      break;
+    case INVALID_ORIGIN_ATTRIBUTE:
+      break;
+    case AS_ROUTING_LOOP:
+      break;
+    case INVALID_NEXT_HOP_ATTRIBUTE:
+      break;
+    case OPTIONAL_ATTRIBUTE_ERROR:
+      break;
+    case INVALID_NETWORK_FIELD:
+      break;
+    case MALFORMED_AS_PATH:
+      break;
+    default:
+      break;
+    }
+  } break;
+  case BGP_NOTIFICATION_HOLD_TIMER_EXPIRED:
+    break;
+  case BGP_NOTIFICATION_FINITE_STATE_ERROR:
+    break;
+  case BGP_NOTIFICATION_CEASE:
+    break;
+  default:
+    LOG4CXX_ERROR(Logger, "unknown error code [" << (int)errorCode << "] in BGP Notification");
+    break;
+  }
 }
 
-BGPNotification::~BGPNotification(void) {
+BGPNotification::~BGPNotification(void)
+{
 }
 //
-//void BGPNotification::printMe() {
+// void BGPNotification::printMe() {
 //	/* nothing */
 //}
 //
-//void BGPNotification::printMeCompact() {
+// void BGPNotification::printMeCompact() {
 //	std::cout << errorCode << "|" << subErrorCode;
 //}

@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -39,135 +39,134 @@
 #include "AttributeTypeAS4Aggregator.h"
 
 using namespace std;
-namespace io=boost::iostreams;
+namespace io = boost::iostreams;
 
-log4cxx::LoggerPtr MRTTblDumpV2RibHeader::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibHeader" );
+log4cxx::LoggerPtr MRTTblDumpV2RibHeader::Logger =
+  log4cxx::Logger::getLogger("bgpparser.MRTTblDumpV2RibHeader");
 
-MRTTblDumpV2RibHeader::MRTTblDumpV2RibHeader( MRTTblDumpV2PeerIndexTblPtr &peer_tbl, MRTCommonHeader &header, istream &input )
-: MRTCommonHeader(header)
-, _peerIndexTbl( peer_tbl )
+MRTTblDumpV2RibHeader::MRTTblDumpV2RibHeader(MRTTblDumpV2PeerIndexTblPtr& peer_tbl,
+                                             MRTCommonHeader& header, istream& input)
+  : MRTCommonHeader(header)
+  , _peerIndexTbl(peer_tbl)
 {
-	bool error=false;
-	/* copy out the sequence number, increment the pointer, and convert to host order */
-	error|= sizeof(uint32_t)!=
-			io::read( input, reinterpret_cast<char*>(&sequenceNumber), sizeof(uint32_t) );
-	sequenceNumber = ntohl(sequenceNumber);
+  bool error = false;
+  /* copy out the sequence number, increment the pointer, and convert to host order */
+  error |=
+    sizeof(uint32_t) != io::read(input, reinterpret_cast<char*>(&sequenceNumber), sizeof(uint32_t));
+  sequenceNumber = ntohl(sequenceNumber);
 
-	if( error )
-	{
-		LOG4CXX_ERROR( Logger, "Parsing error" );
-		throw BGPError( );
-	}
+  if (error) {
+    LOG4CXX_ERROR(Logger, "Parsing error");
+    throw BGPError();
+  }
 
-	// child class constructors must:
-	// * set valid afi and safi
-	// * call 'init' method
+  // child class constructors must:
+  // * set valid afi and safi
+  // * call 'init' method
 }
 
-void MRTTblDumpV2RibHeader::init( istream &input )
+void
+MRTTblDumpV2RibHeader::init(istream& input)
 {
-	bool error=false;
+  bool error = false;
 
-	/* copy out the prefix length and increment the pointer */
-	error|= sizeof(uint8_t)!=
-			io::read( input, reinterpret_cast<char*>(&prefixLength), sizeof(uint8_t) );
-	NLRIReachable route( prefixLength, input );
-	prefix=route.getPrefix( );
+  /* copy out the prefix length and increment the pointer */
+  error |=
+    sizeof(uint8_t) != io::read(input, reinterpret_cast<char*>(&prefixLength), sizeof(uint8_t));
+  NLRIReachable route(prefixLength, input);
+  prefix = route.getPrefix();
 
-	/* copy out the entry count, increment the pointer, and convert to host order */
-	error|= sizeof(uint16_t)!=
-			io::read( input, reinterpret_cast<char*>(&entryCount), sizeof(uint16_t) );
-	entryCount = ntohs(entryCount);
+  /* copy out the entry count, increment the pointer, and convert to host order */
+  error |=
+    sizeof(uint16_t) != io::read(input, reinterpret_cast<char*>(&entryCount), sizeof(uint16_t));
+  entryCount = ntohs(entryCount);
 
-	if( error )
-	{
-		LOG4CXX_ERROR( Logger, "Parsing error" );
-		throw BGPError( );
-	}
+  if (error) {
+    LOG4CXX_ERROR(Logger, "Parsing error");
+    throw BGPError();
+  }
 
-	assert( _peerIndexTbl.get()!=NULL );
-	for( int i=0; i<entryCount; i++ )
-		ribs.push_back( TblDumpV2RibEntryPtr(new TblDumpV2RibEntry( _peerIndexTbl,input )) );
+  assert(_peerIndexTbl.get() != NULL);
+  for (int i = 0; i < entryCount; i++)
+    ribs.push_back(TblDumpV2RibEntryPtr(new TblDumpV2RibEntry(_peerIndexTbl, input)));
 }
 
-MRTTblDumpV2RibHeader::~MRTTblDumpV2RibHeader(void) {
+MRTTblDumpV2RibHeader::~MRTTblDumpV2RibHeader(void)
+{
 }
 
-/* static */void MRTTblDumpV2RibHeader::processAttributes(
-		list<BGPAttributePtr> &attributes, istream &input, int len, bool isAS4 )
+/* static */ void
+MRTTblDumpV2RibHeader::processAttributes(list<BGPAttributePtr>& attributes, istream& input, int len,
+                                         bool isAS4)
 {
 
-	LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibHeader::processAttributes(...)");
+  LOG4CXX_TRACE(Logger, "MRTTblDumpV2RibHeader::processAttributes(...)");
 
-	int left=len;
-	while( left>0 )
-	{
-		/**
-		 * http://tools.ietf.org/id/draft-ietf-grow-mrt-09.txt
-		 *
-		 * There is one exception to the encoding of BGP attributes for the BGP
-		 * MP_REACH_NLRI attribute (BGP Type Code 14) [RFC 4760].  Since the
-		 * AFI, SAFI, and NLRI information is already encoded in the
-		 * MULTIPROTOCOL header, only the Next Hop Address Length and Next Hop
-		 * Address fields are included.  The Reserved field is omitted.  The
-		 * attribute length is also adjusted to reflect only the length of the
-		 * Next Hop Address Length and Next Hop Address fields.
-		 *
-         */
-		boost::shared_ptr<BGPAttribute> attrib = boost::shared_ptr<BGPAttribute>( new BGPAttribute(input, isAS4) );
-		attributes.push_back( attrib );
-		left-=attrib->totalSize( );
-	}
+  int left = len;
+  while (left > 0) {
+    /**
+     * http://tools.ietf.org/id/draft-ietf-grow-mrt-09.txt
+     *
+     * There is one exception to the encoding of BGP attributes for the BGP
+     * MP_REACH_NLRI attribute (BGP Type Code 14) [RFC 4760].  Since the
+     * AFI, SAFI, and NLRI information is already encoded in the
+     * MULTIPROTOCOL header, only the Next Hop Address Length and Next Hop
+     * Address fields are included.  The Reserved field is omitted.  The
+     * attribute length is also adjusted to reflect only the length of the
+     * Next Hop Address Length and Next Hop Address fields.
+     *
+*/
+    boost::shared_ptr<BGPAttribute> attrib =
+      boost::shared_ptr<BGPAttribute>(new BGPAttribute(input, isAS4));
+    attributes.push_back(attrib);
+    left -= attrib->totalSize();
+  }
 
-	// Post processing
-	std::list<BGPAttributePtr>::iterator as_path=
-		find_if( attributes.begin(), attributes.end(), findByType(AttributeType::AS_PATH) );
+  // Post processing
+  std::list<BGPAttributePtr>::iterator as_path =
+    find_if(attributes.begin(), attributes.end(), findByType(AttributeType::AS_PATH));
 
-	std::list<BGPAttributePtr>::iterator as4_path=
-		find_if( attributes.begin(), attributes.end(), findByType(AttributeType::NEW_AS_PATH) );
+  std::list<BGPAttributePtr>::iterator as4_path =
+    find_if(attributes.begin(), attributes.end(), findByType(AttributeType::NEW_AS_PATH));
 
-	if( as_path!=attributes.end() && as4_path!=attributes.end() )
-	{
-		AttributeTypeASPathPtr  as=
-				boost::dynamic_pointer_cast<AttributeTypeASPath>( (*as_path)->getAttributeValueMutable() );
-		AttributeTypeAS4PathPtr as4=
-				boost::dynamic_pointer_cast<AttributeTypeAS4Path>( (*as4_path)->getAttributeValue() );
+  if (as_path != attributes.end() && as4_path != attributes.end()) {
+    AttributeTypeASPathPtr as =
+      boost::dynamic_pointer_cast<AttributeTypeASPath>((*as_path)->getAttributeValueMutable());
+    AttributeTypeAS4PathPtr as4 =
+      boost::dynamic_pointer_cast<AttributeTypeAS4Path>((*as4_path)->getAttributeValue());
 
-		as->genPathSegmentsComplete( *as4 );
-	}
-	else if( as_path!=attributes.end() )
-		boost::dynamic_pointer_cast<AttributeTypeASPath>( (*as_path)->getAttributeValueMutable() )
-			->genPathSegmentsComplete( );
+    as->genPathSegmentsComplete(*as4);
+  }
+  else if (as_path != attributes.end())
+    boost::dynamic_pointer_cast<AttributeTypeASPath>((*as_path)->getAttributeValueMutable())
+      ->genPathSegmentsComplete();
 
+  // 2. Merge AGGREGATOR and AS4_AGGREGATOR
+  std::list<BGPAttributePtr>::iterator agg2 =
+    find_if(attributes.begin(), attributes.end(), findByType(AttributeType::AGGREGATOR));
 
-	// 2. Merge AGGREGATOR and AS4_AGGREGATOR
-	std::list<BGPAttributePtr>::iterator agg2=
-			find_if( attributes.begin(), attributes.end(), findByType(AttributeType::AGGREGATOR) );
+  std::list<BGPAttributePtr>::iterator agg4 =
+    find_if(attributes.begin(), attributes.end(), findByType(AttributeType::NEW_AGGREGATOR));
 
-	std::list<BGPAttributePtr>::iterator agg4=
-			find_if( attributes.begin(), attributes.end(), findByType(AttributeType::NEW_AGGREGATOR) );
+  if (agg2 != attributes.end() && agg4 != attributes.end()) {
+    AttributeTypeAggregatorPtr agg_attr =
+      boost::dynamic_pointer_cast<AttributeTypeAggregator>((*agg2)->getAttributeValueMutable());
 
-	if( agg2!=attributes.end() && agg4!=attributes.end() )
-	{
-		AttributeTypeAggregatorPtr    agg_attr     =
-				boost::dynamic_pointer_cast<AttributeTypeAggregator>( (*agg2)->getAttributeValueMutable() );
+    AttributeTypeAS4AggregatorPtr as4_agg_attr =
+      boost::dynamic_pointer_cast<AttributeTypeAS4Aggregator>((*agg4)->getAttributeValueMutable());
 
-		AttributeTypeAS4AggregatorPtr as4_agg_attr =
-				boost::dynamic_pointer_cast<AttributeTypeAS4Aggregator>( (*agg4)->getAttributeValueMutable() );
+    agg_attr->setAggregatorLastASComplete(as4_agg_attr->getAggregatorLastAS());
+  }
+  else if (agg2 != attributes.end()) {
+    boost::dynamic_pointer_cast<AttributeTypeAggregator>((*agg2)->getAttributeValueMutable())
+      ->setAggregatorLastASComplete();
+  }
 
-		agg_attr->setAggregatorLastASComplete( as4_agg_attr->getAggregatorLastAS() );
-	}
-	else if( agg2!=attributes.end() )
-	{
-		boost::dynamic_pointer_cast<AttributeTypeAggregator>( (*agg2)->getAttributeValueMutable() )
-			->setAggregatorLastASComplete( );
-	}
-
-	LOG4CXX_TRACE(Logger,"END MRTTblDumpV2RibHeader::processAttributes(...)");
+  LOG4CXX_TRACE(Logger, "END MRTTblDumpV2RibHeader::processAttributes(...)");
 }
 //
 //
-//void MRTTblDumpV2RibHeader::printMe()
+// void MRTTblDumpV2RibHeader::printMe()
 //{
 //	cout << "PREFIX: ";
 //	if( afi==AFI_IPv4 )
@@ -182,7 +181,7 @@ MRTTblDumpV2RibHeader::~MRTTblDumpV2RibHeader(void) {
 //	cout << "SEQUENCE: " << sequenceNumber;
 //}
 //
-//void MRTTblDumpV2RibHeader::printMe( const MRTTblDumpV2PeerIndexTblPtr &peerIndexTbl )
+// void MRTTblDumpV2RibHeader::printMe( const MRTTblDumpV2PeerIndexTblPtr &peerIndexTbl )
 //{
 //	printMe();
 //	cout << endl;
@@ -208,13 +207,13 @@ MRTTblDumpV2RibHeader::~MRTTblDumpV2RibHeader(void) {
 //	}
 //}
 //
-//void MRTTblDumpV2RibHeader::printMeCompact() {
+// void MRTTblDumpV2RibHeader::printMeCompact() {
 //	PRINT_IP_ADDR(prefix.ipv4) ;
 //	cout << "/" << (int)(prefixLength & BITMASK_8);
 //	cout << "|" << sequenceNumber << "|";
 //}
 //
-//void MRTTblDumpV2RibHeader::printMeCompact( const MRTTblDumpV2PeerIndexTblPtr &peerIndexTbl )
+// void MRTTblDumpV2RibHeader::printMeCompact( const MRTTblDumpV2PeerIndexTblPtr &peerIndexTbl )
 //{
 //	list<TblDumpV2RibEntryPtr>::iterator iter;
 //

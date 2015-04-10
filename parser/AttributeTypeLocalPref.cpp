@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -34,32 +34,34 @@
 using namespace std;
 namespace io = boost::iostreams;
 
-log4cxx::LoggerPtr AttributeTypeLocalPref::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeLocalPref" );
+log4cxx::LoggerPtr AttributeTypeLocalPref::Logger =
+  log4cxx::Logger::getLogger("bgpparser.AttributeTypeLocalPref");
 
-AttributeTypeLocalPref::AttributeTypeLocalPref( AttributeType &header, std::istream &input )
-					   : AttributeType(header) {
-	LOG4CXX_DEBUG(Logger,"");
+AttributeTypeLocalPref::AttributeTypeLocalPref(AttributeType& header, std::istream& input)
+  : AttributeType(header)
+{
+  LOG4CXX_DEBUG(Logger, "");
 
-	bool error= sizeof(localPref)!=
-				io::read( input, reinterpret_cast<char*>(&localPref), sizeof(localPref) );
-	localPref = ntohl(localPref);
+  bool error =
+    sizeof(localPref) != io::read(input, reinterpret_cast<char*>(&localPref), sizeof(localPref));
+  localPref = ntohl(localPref);
 
-	if( error )
-	{
-		LOG4CXX_ERROR( Logger, "Parsing error" );
-		throw BGPError( );
-	}
+  if (error) {
+    LOG4CXX_ERROR(Logger, "Parsing error");
+    throw BGPError();
+  }
 }
 
-AttributeTypeLocalPref::~AttributeTypeLocalPref(void) {
-	/* nothing */
+AttributeTypeLocalPref::~AttributeTypeLocalPref(void)
+{
+  /* nothing */
 }
 //
-//void AttributeTypeLocalPref::printMeCompact() {
+// void AttributeTypeLocalPref::printMeCompact() {
 //	cout << "LOCAL_PREF: " << localPref;
 //}
 //
-//void AttributeTypeLocalPref::printMe() {
+// void AttributeTypeLocalPref::printMe() {
 //	cout << "LOCAL_PREF: " << localPref;
 //}
 //

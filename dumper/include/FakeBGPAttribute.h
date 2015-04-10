@@ -31,11 +31,9 @@
 
 #include "BGPAttribute.h"
 
-class FakeBGPAttribute : public BGPAttribute
-{
+class FakeBGPAttribute : public BGPAttribute {
 public:
-	FakeBGPAttribute( uint8_t flags, uint8_t code, const AttributeTypePtr &value );
-
+  FakeBGPAttribute(uint8_t flags, uint8_t code, const AttributeTypePtr& value);
 };
 
 #endif

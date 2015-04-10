@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -37,11 +37,12 @@
 
 /*
  *
-	The maximum message size is 4096 octets.  
-	The smallest message that may be sent consists of a BGP header without a data portion (19 octets).
-	All multi-octet fields are in network byte order.
-	
-	Each message has a fixed-size header.  There may or may not be a data
+        The maximum message size is 4096 octets.
+        The smallest message that may be sent consists of a BGP header without a data portion (19
+ octets).
+        All multi-octet fields are in network byte order.
+
+        Each message has a fixed-size header.  There may or may not be a data
    portion following the header, depending on the message type.  The
    layout of these fields is shown below:
 
@@ -91,9 +92,9 @@
  *
  */
 
-#define MESSAGE_HEADER_SIZE			19
-#define MAX_MESSAGE_SIZE 			4096
-#define MIN_MESSAGE_SIZE 			MESSAGE_HEADER_SIZE
+#define MESSAGE_HEADER_SIZE 19
+#define MAX_MESSAGE_SIZE 4096
+#define MIN_MESSAGE_SIZE MESSAGE_HEADER_SIZE
 
 /*
 #define OPEN 							1
@@ -103,10 +104,9 @@
 #define ROUTE-REFRESH 		5
 */
 
-
 /*
  *
-	OPEN Message Format
+        OPEN Message Format
 
    After a TCP connection is established, the first message sent by each
    side is an OPEN message.  If the OPEN message is acceptable, a
@@ -134,10 +134,9 @@
        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
  *
- */ 
+ */
 
-
-//typedef struct BGPMessage_t
+// typedef struct BGPMessage_t
 //{
 //	// NOTE: The first 4 fields come from MRT header
 //	long time;		// epoch time
@@ -147,68 +146,107 @@
 //	std::string* prefix;	// prefix being announced
 //	std::set<uint32_t>* sASes;	// all ASes present in AS path including AS_SET
 //	std::vector<std::string>* vASPath;	// ASPathe w/out prepending
-//	std::set<std::string>   * sLinks;			// set of links in AS path, in A {B, C}, assume A-B, A-C and B-C
+//	std::set<std::string>   * sLinks;			// set of links in AS path, in A {B, C},
+//assume A-B, A-C and B-C
 //	std::string* nexthopIP;				// next HOP IP
 //	std::set<uint32_t>* sOrigins;	// need a set here because of AS_SET
 //	uint32_t nexthopAS;
-//	std::string* line;							// contains the ENTIRE raw line
+//	std::string* line;							// contains the ENTIRE raw
+//line
 //} BGPMessage_t;
 
 class BGPCommonHeader;
 typedef BGPCommonHeader BGPMessage;
 typedef boost::shared_ptr<BGPMessage> BGPMessagePtr;
 
-class BGPCommonHeader /* AKA BGPMessage */ : public Node
-{
+class BGPCommonHeader /* AKA BGPMessage */ : public Node {
 public:
-	enum BGP_MESSAGE_TYPE
-	{
-		UNKNOWN, // Not a defined BGP message type
-		OPEN,
-		UPDATE,
-		NOTIFICATION,	
-		KEEPALIVE,
-		ROUTE_REFRESH
-	};
+  enum BGP_MESSAGE_TYPE {
+    UNKNOWN, // Not a defined BGP message type
+    OPEN,
+    UPDATE,
+    NOTIFICATION,
+    KEEPALIVE,
+    ROUTE_REFRESH
+  };
 
+  BGPCommonHeader(std::istream& input);
+  virtual ~BGPCommonHeader();
 
-	BGPCommonHeader( std::istream &input );
-	virtual ~BGPCommonHeader();
-	
-	virtual BGP_MESSAGE_TYPE Type()    { return UNKNOWN;   };
-	virtual std::string      TypeStr() { return "UNKNOWN"; };
-	
-//	// Getters and Setters
-	const uint8_t* getMarker() const { return marker; }
-	uint16_t getLength() const { return length; }
-	uint8_t  getType()   const { return type; }
+  virtual BGP_MESSAGE_TYPE
+  Type()
+  {
+    return UNKNOWN;
+  };
+  virtual std::string
+  TypeStr()
+  {
+    return "UNKNOWN";
+  };
 
-	const boost::shared_ptr<char> &getData() const { return data; }
-//	uint8_t hasError() { return error; }
-	
-//	BGPMessage_t& getBgpData() { return bgpData; }
-	
-	// Factory method for creating a BGP message instance.
-	static BGPMessagePtr newMessage( std::istream &input, bool isAS4 );
+  //	// Getters and Setters
+  const uint8_t*
+  getMarker() const
+  {
+    return marker;
+  }
+  uint16_t
+  getLength() const
+  {
+    return length;
+  }
+  uint8_t
+  getType() const
+  {
+    return type;
+  }
 
-	virtual void accept( Visitor &v ) 							{ v.visit( *this ); }
-	virtual void accept( GJVoidVisitor &v, boost::any param )   { v.visit( *this, param ); }
-	virtual boost::any accept( GJNoArguVisitor &v ) 		    { return v.visit( *this ); }
-	virtual boost::any accept( GJVisitor &v, boost::any param ) { return v.visit( *this, param ); }
+  const boost::shared_ptr<char>&
+  getData() const
+  {
+    return data;
+  }
+  //	uint8_t hasError() { return error; }
+
+  //	BGPMessage_t& getBgpData() { return bgpData; }
+
+  // Factory method for creating a BGP message instance.
+  static BGPMessagePtr
+  newMessage(std::istream& input, bool isAS4);
+
+  virtual void
+  accept(Visitor& v)
+  {
+    v.visit(*this);
+  }
+  virtual void
+  accept(GJVoidVisitor& v, boost::any param)
+  {
+    v.visit(*this, param);
+  }
+  virtual boost::any
+  accept(GJNoArguVisitor& v)
+  {
+    return v.visit(*this);
+  }
+  virtual boost::any
+  accept(GJVisitor& v, boost::any param)
+  {
+    return v.visit(*this, param);
+  }
 
 protected:
-	BGPCommonHeader( uint8_t type );
+  BGPCommonHeader(uint8_t type);
 
 protected:
-	// There is a 16-byte marker that is all 1s
-	uint8_t marker[16];
-	uint16_t length;
-	uint8_t type;
-	boost::shared_ptr<char> data;
+  // There is a 16-byte marker that is all 1s
+  uint8_t marker[16];
+  uint16_t length;
+  uint8_t type;
+  boost::shared_ptr<char> data;
 
 private:
-	static log4cxx::LoggerPtr Logger;
+  static log4cxx::LoggerPtr Logger;
 };
-
 
 #endif /* __BGPCOMMOMHEADER_H_ */

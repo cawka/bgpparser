@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -34,51 +34,49 @@
 using namespace std;
 namespace io = boost::iostreams;
 
-log4cxx::LoggerPtr AttributeTypeAS4Aggregator::Logger = log4cxx::Logger::getLogger( "bgpparser.AttributeTypeAS4Aggregator" );
+log4cxx::LoggerPtr AttributeTypeAS4Aggregator::Logger =
+  log4cxx::Logger::getLogger("bgpparser.AttributeTypeAS4Aggregator");
 
-AttributeTypeAS4Aggregator::AttributeTypeAS4Aggregator( AttributeType &header, std::istream &input )
-						: AttributeType( header )
+AttributeTypeAS4Aggregator::AttributeTypeAS4Aggregator(AttributeType& header, std::istream& input)
+  : AttributeType(header)
 {
-	LOG4CXX_TRACE(Logger,"");
+  LOG4CXX_TRACE(Logger, "");
 
-	bool error=false;
+  bool error = false;
 
-	if( length == 6 )
-	{
-		aggregatorLastAS = 0;
-		error|= sizeof(uint16_t)!=
-				io::read( input, reinterpret_cast<char*>(&aggregatorLastAS), sizeof(uint16_t) );
-		aggregatorLastAS = ntohs(aggregatorLastAS);
-	}
-	else
-	{
-		error|= sizeof(uint32_t)!=
-				io::read( input, reinterpret_cast<char*>(&aggregatorLastAS), sizeof(uint32_t) );
-		aggregatorLastAS = ntohl(aggregatorLastAS);
-	}
+  if (length == 6) {
+    aggregatorLastAS = 0;
+    error |= sizeof(uint16_t)
+             != io::read(input, reinterpret_cast<char*>(&aggregatorLastAS), sizeof(uint16_t));
+    aggregatorLastAS = ntohs(aggregatorLastAS);
+  }
+  else {
+    error |= sizeof(uint32_t)
+             != io::read(input, reinterpret_cast<char*>(&aggregatorLastAS), sizeof(uint32_t));
+    aggregatorLastAS = ntohl(aggregatorLastAS);
+  }
 
-	error|= sizeof(bgpSpeakerIPAddress.ipv4)!=
-			io::read( input, reinterpret_cast<char*>(&bgpSpeakerIPAddress), sizeof(bgpSpeakerIPAddress.ipv4) );
+  error |= sizeof(bgpSpeakerIPAddress.ipv4)
+           != io::read(input, reinterpret_cast<char*>(&bgpSpeakerIPAddress),
+                       sizeof(bgpSpeakerIPAddress.ipv4));
 
-	if( error )
-	{
-		LOG4CXX_ERROR( Logger, "Parsing error" );
-		throw BGPError( );
-	}
+  if (error) {
+    LOG4CXX_ERROR(Logger, "Parsing error");
+    throw BGPError();
+  }
 }
 
-AttributeTypeAS4Aggregator::~AttributeTypeAS4Aggregator( )
+AttributeTypeAS4Aggregator::~AttributeTypeAS4Aggregator()
 {
-
 }
 
 //
-//void AttributeTypeAS4Aggregator::printMe() {
+// void AttributeTypeAS4Aggregator::printMe() {
 //	cout << "AGGREGATOR: AS" << aggregatorLastAS << " ";
 //	PRINT_IP_ADDR(bgpSpeakerIPAddress.ipv4);
 //}
 //
-//void AttributeTypeAS4Aggregator::printMeCompact() {
+// void AttributeTypeAS4Aggregator::printMeCompact() {
 //	cout << "AS4_AGGREGATOR: ";
 //
 //	uint16_t t, b;

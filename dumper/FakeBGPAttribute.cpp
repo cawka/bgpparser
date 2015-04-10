@@ -30,8 +30,7 @@
 
 #include "FakeBGPAttribute.h"
 
-FakeBGPAttribute::FakeBGPAttribute( uint8_t flags, uint8_t code, const AttributeTypePtr& _value )
-: BGPAttribute(flags,code,_value->getLength(),_value )
+FakeBGPAttribute::FakeBGPAttribute(uint8_t flags, uint8_t code, const AttributeTypePtr& _value)
+  : BGPAttribute(flags, code, _value->getLength(), _value)
 {
 }
-

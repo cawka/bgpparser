@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -34,34 +34,37 @@
 #include "MRTTblDumpV2PeerIndexTbl.h"
 #include "MRTTblDumpV2RibHeader.h"
 
-#define _XFB_VERSION "0.2" 
+#define _XFB_VERSION "0.2"
 
 /* Common Dumper */
-class MRTTblDumpV2Dumper : public Dumper
-{
+class MRTTblDumpV2Dumper : public Dumper {
 public:
-	MRTTblDumpV2Dumper();
-	virtual ~MRTTblDumpV2Dumper();
-	
-	xmlNodePtr  genXml();
-	std::string genAscii();
+  MRTTblDumpV2Dumper();
+  virtual ~MRTTblDumpV2Dumper();
 
-    void setPeerIndexTbl(MRTTblDumpV2PeerIndexTblPtr peerIndexTbl)
-    {
-        this->peerIndexTbl = peerIndexTbl;
-    }
+  xmlNodePtr
+  genXml();
+  std::string
+  genAscii();
 
-    void setTblDumpMsg(MRTTblDumpV2RibHeaderPtr tblDumpMsg)
-    {
-        this->tblDumpMsg = tblDumpMsg;
-    }
+  void
+  setPeerIndexTbl(MRTTblDumpV2PeerIndexTblPtr peerIndexTbl)
+  {
+    this->peerIndexTbl = peerIndexTbl;
+  }
+
+  void
+  setTblDumpMsg(MRTTblDumpV2RibHeaderPtr tblDumpMsg)
+  {
+    this->tblDumpMsg = tblDumpMsg;
+  }
 
 protected:
-    /* PEER INDEX TABLE */
-    MRTTblDumpV2PeerIndexTblPtr peerIndexTbl;
+  /* PEER INDEX TABLE */
+  MRTTblDumpV2PeerIndexTblPtr peerIndexTbl;
 
-    /* RIB TABLE */
-	MRTTblDumpV2RibHeaderPtr    tblDumpMsg;
+  /* RIB TABLE */
+  MRTTblDumpV2RibHeaderPtr tblDumpMsg;
 };
 
 #endif /* __MRTTBLDUMPV2DUMPER_H_ */

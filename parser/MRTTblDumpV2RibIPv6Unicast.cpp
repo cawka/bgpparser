@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -32,22 +32,23 @@
 #include "MRTTblDumpV2RibIPv6Unicast.h"
 using namespace std;
 
-log4cxx::LoggerPtr MRTTblDumpV2RibIPv6Unicast::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2RibIPv6Unicast" );
+log4cxx::LoggerPtr MRTTblDumpV2RibIPv6Unicast::Logger =
+  log4cxx::Logger::getLogger("bgpparser.MRTTblDumpV2RibIPv6Unicast");
 
-
-MRTTblDumpV2RibIPv6Unicast::MRTTblDumpV2RibIPv6Unicast( MRTTblDumpV2PeerIndexTblPtr &peer_tbl, MRTCommonHeader &header, std::istream &input ) :
-MRTTblDumpV2RibHeader(peer_tbl, header, input)
+MRTTblDumpV2RibIPv6Unicast::MRTTblDumpV2RibIPv6Unicast(MRTTblDumpV2PeerIndexTblPtr& peer_tbl,
+                                                       MRTCommonHeader& header, std::istream& input)
+  : MRTTblDumpV2RibHeader(peer_tbl, header, input)
 {
-	LOG4CXX_TRACE( Logger, "" );
+  LOG4CXX_TRACE(Logger, "");
 
-	/* set AFI and SAFI */
-	afi  = AFI_IPv6;
-	safi = SAFI_UNICAST;
+  /* set AFI and SAFI */
+  afi = AFI_IPv6;
+  safi = SAFI_UNICAST;
 
-	init( input );
+  init(input);
 }
 
-
-MRTTblDumpV2RibIPv6Unicast::~MRTTblDumpV2RibIPv6Unicast(void) {
-	/* nothing */
+MRTTblDumpV2RibIPv6Unicast::~MRTTblDumpV2RibIPv6Unicast(void)
+{
+  /* nothing */
 }

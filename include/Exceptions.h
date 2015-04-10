@@ -31,40 +31,59 @@
 
 #include <exception>
 
-class BGPParserError : public std::exception
-{
+class BGPParserError : public std::exception {
 };
 
-class MRTException : public BGPParserError
-{
+class MRTException : public BGPParserError {
 private:
-	std::string _msg;
+  std::string _msg;
 
 public:
-	explicit MRTException( const std::string& __str ) throw() : _msg(__str) { }
-	virtual ~MRTException() throw() { }
-	virtual const char* what() const throw() { return _msg.c_str(); }
+  explicit
+  MRTException(const std::string& __str) throw()
+    : _msg(__str)
+  {
+  }
+  virtual ~MRTException() throw()
+  {
+  }
+  virtual const char*
+  what() const throw()
+  {
+    return _msg.c_str();
+  }
 };
 
-class BGPError : public BGPParserError
-{
+class BGPError : public BGPParserError {
 public:
-	virtual const char* what() const throw() { return "BGP packet format error"; }
+  virtual const char*
+  what() const throw()
+  {
+    return "BGP packet format error";
+  }
 };
 
-class BGPTextError : public BGPError
-{
+class BGPTextError : public BGPError {
 private:
-	std::string _msg;
+  std::string _msg;
 
 public:
-	explicit BGPTextError( const std::string& __str ) throw() : _msg(__str) { }
-	virtual ~BGPTextError() throw() { }
-	virtual const char* what() const throw() { return _msg.c_str(); }
+  explicit
+  BGPTextError(const std::string& __str) throw()
+    : _msg(__str)
+  {
+  }
+  virtual ~BGPTextError() throw()
+  {
+  }
+  virtual const char*
+  what() const throw()
+  {
+    return _msg.c_str();
+  }
 };
 
-class EOFException : public BGPParserError
-{
+class EOFException : public BGPParserError {
 };
 
 #endif

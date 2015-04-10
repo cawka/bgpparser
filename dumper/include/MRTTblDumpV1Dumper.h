@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -34,30 +34,33 @@
 #include "MRTTblDump.h"
 #include "BGPMessageDumper.h"
 
-#define _XFB_VERSION "0.2" 
+#define _XFB_VERSION "0.2"
 
 /* Common Dumper */
-class MRTTblDumpV1Dumper : public Dumper
-{
+class MRTTblDumpV1Dumper : public Dumper {
 public:
-	MRTTblDumpV1Dumper();
-	virtual ~MRTTblDumpV1Dumper();
-	
-	xmlNodePtr  genXml();
-	std::string genAscii();
+  MRTTblDumpV1Dumper();
+  virtual ~MRTTblDumpV1Dumper();
 
-    void setTblDumpMsg(MRTTblDumpPtr tblDumpMsg)
-    {
-        this->tblDumpMsg = tblDumpMsg;
-    }
+  xmlNodePtr
+  genXml();
+  std::string
+  genAscii();
+
+  void
+  setTblDumpMsg(MRTTblDumpPtr tblDumpMsg)
+  {
+    this->tblDumpMsg = tblDumpMsg;
+  }
 
 protected:
-    /* TABLE_DUMPV1 */
-	MRTTblDumpPtr    tblDumpMsg;
-    BGPMessageDumperPtr genMsgDumper();
+  /* TABLE_DUMPV1 */
+  MRTTblDumpPtr tblDumpMsg;
+  BGPMessageDumperPtr
+  genMsgDumper();
 
 private:
-    static log4cxx::LoggerPtr Logger;
+  static log4cxx::LoggerPtr Logger;
 };
 
 typedef boost::shared_ptr<MRTTblDumpV1Dumper> MRTTblDumpV1DumperPtr;

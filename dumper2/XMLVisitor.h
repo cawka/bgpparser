@@ -4,7 +4,7 @@
 
 #include <Visitor.h>
 
-//class XMLVisitor : public Visitor
+// class XMLVisitor : public Visitor
 //{
 ////	std::string visit( const BGPMessage &msg );
 ////

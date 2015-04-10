@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -50,193 +50,187 @@
 using namespace std;
 namespace io = boost::iostreams;
 
-log4cxx::LoggerPtr MRTCommonHeader::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTCommonHeader" );
+log4cxx::LoggerPtr MRTCommonHeader::Logger =
+  log4cxx::Logger::getLogger("bgpparser.MRTCommonHeader");
 
-MRTCommonHeader::MRTCommonHeader(void) {
-	/* nothing */
-	throw std::exception( );
-}
-
-MRTCommonHeader::MRTCommonHeader( istream &input )
+MRTCommonHeader::MRTCommonHeader(void)
 {
-	int len=io::read( input, reinterpret_cast<char*>(&pkt), sizeof(MRTCommonHeaderPacket) );
-	if( len<0 ) throw EOFException( );
-	if( len!=sizeof(MRTCommonHeaderPacket) ) throw MRTException( "MRT format error" );
-
-	timestamp = ntohl(pkt.timestamp);
-	type = ntohs(pkt.type);
-	subtype = ntohs(pkt.subtype);
-	length = ntohl(pkt.length);
-
-	if( length==0 ) return;
-
-	data=boost::shared_ptr<char>( new char[length] );
-	len=io::read( input, data.get(), length );
-	if( len!=length )
-	{
-		LOG4CXX_ERROR(Logger, "MRT length field = " << (int)length << ", but could read only " << (int)len << " bytes" );
-		throw MRTException( "MRT read error" );
-	}
+  /* nothing */
+  throw std::exception();
 }
 
-MRTCommonHeader::~MRTCommonHeader(void) {
-	/* nothing */
+MRTCommonHeader::MRTCommonHeader(istream& input)
+{
+  int len = io::read(input, reinterpret_cast<char*>(&pkt), sizeof(MRTCommonHeaderPacket));
+  if (len < 0)
+    throw EOFException();
+  if (len != sizeof(MRTCommonHeaderPacket))
+    throw MRTException("MRT format error");
+
+  timestamp = ntohl(pkt.timestamp);
+  type = ntohs(pkt.type);
+  subtype = ntohs(pkt.subtype);
+  length = ntohl(pkt.length);
+
+  if (length == 0)
+    return;
+
+  data = boost::shared_ptr<char>(new char[length]);
+  len = io::read(input, data.get(), length);
+  if (len != length) {
+    LOG4CXX_ERROR(Logger, "MRT length field = " << (int)length << ", but could read only "
+                                                << (int)len << " bytes");
+    throw MRTException("MRT read error");
+  }
 }
 
-/* 
+MRTCommonHeader::~MRTCommonHeader(void)
+{
+  /* nothing */
+}
+
+/*
  * Factory method for creating MRTMessages
- */ 
-MRTMessagePtr MRTCommonHeader::newMessage( istream &input, MRTTblDumpV2PeerIndexTblPtr &indexTbl )
+ */
+MRTMessagePtr
+MRTCommonHeader::newMessage(istream& input, MRTTblDumpV2PeerIndexTblPtr& indexTbl)
 {
-	LOG4CXX_TRACE( Logger, "==> MRTCommonHeader::newMessage( istream &input )" );
+  LOG4CXX_TRACE(Logger, "==> MRTCommonHeader::newMessage( istream &input )");
 
-	MRTMessagePtr msg;
-	MRTMessagePtr header( new MRTCommonHeader(input) );
-	msg=header;
-	
-	LOG4CXX_DEBUG( Logger, "Type:      " << (int)header->getType() );
-	LOG4CXX_DEBUG( Logger, "SubType:   " << (int)header->getSubType() );
-	LOG4CXX_DEBUG( Logger, "Length:    " << (int)header->getLength() );
+  MRTMessagePtr msg;
+  MRTMessagePtr header(new MRTCommonHeader(input));
+  msg = header;
 
-	io::stream<io::array_source> in( header->data.get(), header->length );
+  LOG4CXX_DEBUG(Logger, "Type:      " << (int)header->getType());
+  LOG4CXX_DEBUG(Logger, "SubType:   " << (int)header->getSubType());
+  LOG4CXX_DEBUG(Logger, "Length:    " << (int)header->getLength());
 
-	/* only accept BGP4MP message and TABLE_DUMP message types */
-	if ((header->getType() != BGP4MP) && /*(header.getType() != BGP4MP_ET) && */
-		(header->getType() != TABLE_DUMP) && (header->getType() != TABLE_DUMP_V2) )
-	{
-		LOG4CXX_INFO(Logger,"Nonsupported MRT type ["<<(int)header->getType()<<"]");
-//		return msg;
-	}
+  io::stream<io::array_source> in(header->data.get(), header->length);
 
-	try
-	{
-		if( header->getType( ) == BGP4MP )
-		{
-			switch( header->getSubType( ) )
-			{
-			case BGP4MP_STATE_CHANGE:
-				LOG4CXX_TRACE(Logger,"MRTBgp4MPStateChange");
-	
-				msg = MRTMessagePtr( new MRTBgp4MPStateChange(*header, in) );
-				break;
-			case BGP4MP_STATE_CHANGE_AS4:
-				LOG4CXX_TRACE(Logger,"MRTBgp4MPStateChange");
-	
-				msg = MRTMessagePtr( new MRTBgp4MPStateChangeAS4(*header, in) );
-				break;
-			case BGP4MP_MESSAGE:
-				LOG4CXX_TRACE(Logger,"MRTBgp4MPMessage");
-	
-				msg = MRTMessagePtr( new MRTBgp4MPMessage(*header, in) );
-				break;
-			case BGP4MP_MESSAGE_AS4:
-				LOG4CXX_TRACE(Logger,"MRTBgp4MPMessage");
-	
-				msg = MRTMessagePtr( new MRTBgp4MPMessageAS4(*header, in) );
-				break;
-	
-			case BGP4MP_ENTRY:
-				/* deprecated */
-				msg=header;
-				break;
-			case BGP4MP_SNAPSHOT:
-				/* deprecated */
-				msg=header;
-				break;
-			default:
-				LOG4CXX_ERROR( Logger, "unrecognized subtype ["<< (int)header->getSubType() <<"] for bgp4mp." );
-				msg=header;
-				break;
-			}
-		}
-		else if( (header->getType( ) == TABLE_DUMP) ||
-				 (header->getType( ) == TABLE_DUMP_V2) )
-		{
-			switch( header->getType( ) )
-			{
-			case TABLE_DUMP:
-				msg = MRTMessagePtr( new MRTTblDump(*header,in) );
-				LOG4CXX_TRACE(Logger,"MRTTblDump");
-	
-				break;
-			case TABLE_DUMP_V2:
-				switch( header->getSubType( ) )
-				{
-				case PEER_INDEX_TABLE:
-				{
-					LOG4CXX_TRACE(Logger,"MRTTblDumpV2PeerIndexTbl");
+  /* only accept BGP4MP message and TABLE_DUMP message types */
+  if ((header->getType() != BGP4MP) && /*(header.getType() != BGP4MP_ET) && */
+      (header->getType() != TABLE_DUMP) && (header->getType() != TABLE_DUMP_V2)) {
+    LOG4CXX_INFO(Logger, "Nonsupported MRT type [" << (int)header->getType() << "]");
+    //		return msg;
+  }
 
-					indexTbl = MRTTblDumpV2PeerIndexTblPtr( new MRTTblDumpV2PeerIndexTbl(*header, in) );
-					msg = MRTMessagePtr( indexTbl );
-					break;
-				}
-				case RIB_IPV4_UNICAST:
-				{
-					LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibIPv4Unicast");
-	
-					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv4Unicast(indexTbl, *header, in) );
-					break;
-				}
-				case RIB_IPV4_MULTICAST:
-				{
-					LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibIPv4Multicast");
-	
-					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv4Multicast(indexTbl, *header, in) );
-					break;
-				}
-				case RIB_IPV6_UNICAST:
-				{
-					LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibIPv6Unicast");
-	
-					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv6Unicast(indexTbl, *header, in) );
-					break;
-				}
-				case RIB_IPV6_MULTICAST:
-				{
-					LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibIPv6Multicast");
-	
-					msg = MRTMessagePtr( new MRTTblDumpV2RibIPv6Multicast(indexTbl, *header, in) );
-					break;
-				}
-				case RIB_GENERIC:
-				{
-					LOG4CXX_TRACE(Logger,"MRTTblDumpV2RibGeneric");
-	
-					msg = MRTMessagePtr( new MRTTblDumpV2RibGeneric(indexTbl, *header, in) );
-					break;
-				}
-				default:
-					LOG4CXX_ERROR( Logger, "unrecognized subtype ["<< (int)header->getSubType() <<"] for table-dump-v2." );
-	
-					break;
-				}
-				break;
-			default:
-				LOG4CXX_ERROR( Logger, "unrecognized type ["<< (int)header->getType() <<"] for table-dump-v2" );
-	
-				break;
-			}
-		}
-	}
-	catch( std::istream::failure &e )
-	{
-		LOG4CXX_ERROR( Logger, "Error parsing MRT message (stream error). Setting type to MRT_INVALID" );
-		header->type=MRT_INVALID;
-		msg=header;
-	}
-	catch( BGPTextError &e )
-	{
-		LOG4CXX_ERROR( Logger, "Error parsing MRT message ("<< e.what() <<"). Setting type to MRT_INVALID" );
-		header->type=MRT_INVALID;
-		msg=header;
-	}
-	catch( BGPError &e )
-	{
-		LOG4CXX_ERROR( Logger, "Error parsing MRT message (format error). Setting type to MRT_INVALID" );
-		header->type=MRT_INVALID;
-		msg=header;
-	}
+  try {
+    if (header->getType() == BGP4MP) {
+      switch (header->getSubType()) {
+      case BGP4MP_STATE_CHANGE:
+        LOG4CXX_TRACE(Logger, "MRTBgp4MPStateChange");
 
-	LOG4CXX_TRACE( Logger, "<== MRTCommonHeader::newMessage( istream &input )" );
-	return msg;
+        msg = MRTMessagePtr(new MRTBgp4MPStateChange(*header, in));
+        break;
+      case BGP4MP_STATE_CHANGE_AS4:
+        LOG4CXX_TRACE(Logger, "MRTBgp4MPStateChange");
+
+        msg = MRTMessagePtr(new MRTBgp4MPStateChangeAS4(*header, in));
+        break;
+      case BGP4MP_MESSAGE:
+        LOG4CXX_TRACE(Logger, "MRTBgp4MPMessage");
+
+        msg = MRTMessagePtr(new MRTBgp4MPMessage(*header, in));
+        break;
+      case BGP4MP_MESSAGE_AS4:
+        LOG4CXX_TRACE(Logger, "MRTBgp4MPMessage");
+
+        msg = MRTMessagePtr(new MRTBgp4MPMessageAS4(*header, in));
+        break;
+
+      case BGP4MP_ENTRY:
+        /* deprecated */
+        msg = header;
+        break;
+      case BGP4MP_SNAPSHOT:
+        /* deprecated */
+        msg = header;
+        break;
+      default:
+        LOG4CXX_ERROR(Logger, "unrecognized subtype [" << (int)header->getSubType()
+                                                       << "] for bgp4mp.");
+        msg = header;
+        break;
+      }
+    }
+    else if ((header->getType() == TABLE_DUMP) || (header->getType() == TABLE_DUMP_V2)) {
+      switch (header->getType()) {
+      case TABLE_DUMP:
+        msg = MRTMessagePtr(new MRTTblDump(*header, in));
+        LOG4CXX_TRACE(Logger, "MRTTblDump");
+
+        break;
+      case TABLE_DUMP_V2:
+        switch (header->getSubType()) {
+        case PEER_INDEX_TABLE: {
+          LOG4CXX_TRACE(Logger, "MRTTblDumpV2PeerIndexTbl");
+
+          indexTbl = MRTTblDumpV2PeerIndexTblPtr(new MRTTblDumpV2PeerIndexTbl(*header, in));
+          msg = MRTMessagePtr(indexTbl);
+          break;
+        }
+        case RIB_IPV4_UNICAST: {
+          LOG4CXX_TRACE(Logger, "MRTTblDumpV2RibIPv4Unicast");
+
+          msg = MRTMessagePtr(new MRTTblDumpV2RibIPv4Unicast(indexTbl, *header, in));
+          break;
+        }
+        case RIB_IPV4_MULTICAST: {
+          LOG4CXX_TRACE(Logger, "MRTTblDumpV2RibIPv4Multicast");
+
+          msg = MRTMessagePtr(new MRTTblDumpV2RibIPv4Multicast(indexTbl, *header, in));
+          break;
+        }
+        case RIB_IPV6_UNICAST: {
+          LOG4CXX_TRACE(Logger, "MRTTblDumpV2RibIPv6Unicast");
+
+          msg = MRTMessagePtr(new MRTTblDumpV2RibIPv6Unicast(indexTbl, *header, in));
+          break;
+        }
+        case RIB_IPV6_MULTICAST: {
+          LOG4CXX_TRACE(Logger, "MRTTblDumpV2RibIPv6Multicast");
+
+          msg = MRTMessagePtr(new MRTTblDumpV2RibIPv6Multicast(indexTbl, *header, in));
+          break;
+        }
+        case RIB_GENERIC: {
+          LOG4CXX_TRACE(Logger, "MRTTblDumpV2RibGeneric");
+
+          msg = MRTMessagePtr(new MRTTblDumpV2RibGeneric(indexTbl, *header, in));
+          break;
+        }
+        default:
+          LOG4CXX_ERROR(Logger, "unrecognized subtype [" << (int)header->getSubType()
+                                                         << "] for table-dump-v2.");
+
+          break;
+        }
+        break;
+      default:
+        LOG4CXX_ERROR(Logger, "unrecognized type [" << (int)header->getType()
+                                                    << "] for table-dump-v2");
+
+        break;
+      }
+    }
+  }
+  catch (std::istream::failure& e) {
+    LOG4CXX_ERROR(Logger, "Error parsing MRT message (stream error). Setting type to MRT_INVALID");
+    header->type = MRT_INVALID;
+    msg = header;
+  }
+  catch (BGPTextError& e) {
+    LOG4CXX_ERROR(Logger, "Error parsing MRT message (" << e.what()
+                                                        << "). Setting type to MRT_INVALID");
+    header->type = MRT_INVALID;
+    msg = header;
+  }
+  catch (BGPError& e) {
+    LOG4CXX_ERROR(Logger, "Error parsing MRT message (format error). Setting type to MRT_INVALID");
+    header->type = MRT_INVALID;
+    msg = header;
+  }
+
+  LOG4CXX_TRACE(Logger, "<== MRTCommonHeader::newMessage( istream &input )");
+  return msg;
 }

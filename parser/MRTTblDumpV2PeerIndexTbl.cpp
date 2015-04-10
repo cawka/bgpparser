@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -34,113 +34,110 @@
 using namespace std;
 namespace io = boost::iostreams;
 
+log4cxx::LoggerPtr MRTTblDumpV2PeerIndexTbl::Logger =
+  log4cxx::Logger::getLogger("bgpparser.MRTTblDumpV2PeerIndexTbl");
 
-log4cxx::LoggerPtr MRTTblDumpV2PeerIndexTbl::Logger = log4cxx::Logger::getLogger( "bgpparser.MRTTblDumpV2PeerIndexTbl" );
-
-MRTTblDumpV2PeerIndexTbl::MRTTblDumpV2PeerIndexTbl( MRTCommonHeader &header, std::istream &input )
-						 : MRTCommonHeader( header )
+MRTTblDumpV2PeerIndexTbl::MRTTblDumpV2PeerIndexTbl(MRTCommonHeader& header, std::istream& input)
+  : MRTCommonHeader(header)
 {
-	LOG4CXX_TRACE(Logger,"");
+  LOG4CXX_TRACE(Logger, "");
 
-	bool error=false;	
+  bool error = false;
 
-	/* copy out the collector BGP id, increment the pointer and convert to host order */
-	error|= sizeof(uint32_t)!=
-			io::read( input, reinterpret_cast<char*>(&collectorBGPId), sizeof(uint32_t) );
-	collectorBGPId = ntohl(collectorBGPId);
+  /* copy out the collector BGP id, increment the pointer and convert to host order */
+  error |=
+    sizeof(uint32_t) != io::read(input, reinterpret_cast<char*>(&collectorBGPId), sizeof(uint32_t));
+  collectorBGPId = ntohl(collectorBGPId);
 
-	/* copy out the view name length, increment the pointer and convert to host order */
-	error|= sizeof(uint16_t)!=
-			io::read( input, reinterpret_cast<char*>(&viewNameLength), sizeof(uint16_t) );
-	viewNameLength = ntohs(viewNameLength);
+  /* copy out the view name length, increment the pointer and convert to host order */
+  error |=
+    sizeof(uint16_t) != io::read(input, reinterpret_cast<char*>(&viewNameLength), sizeof(uint16_t));
+  viewNameLength = ntohs(viewNameLength);
 
-	ostringstream os;
-	for( int i=0; i<viewNameLength; i++ ) os << (char)input.get();
-	viewName=os.str( );
+  ostringstream os;
+  for (int i = 0; i < viewNameLength; i++)
+    os << (char)input.get();
+  viewName = os.str();
 
-	/* copy out the peer count, increment the pointer and convert to host order */
-	error|= sizeof(uint16_t)!=
-			io::read( input, reinterpret_cast<char*>(&peerCount), sizeof(uint16_t) );
-	peerCount = ntohs(peerCount);
-	
-	if( error )
-	{
-		LOG4CXX_ERROR( Logger, "Parsing error" );
-		throw BGPError( );
-	}
+  /* copy out the peer count, increment the pointer and convert to host order */
+  error |=
+    sizeof(uint16_t) != io::read(input, reinterpret_cast<char*>(&peerCount), sizeof(uint16_t));
+  peerCount = ntohs(peerCount);
 
-	/* parse out the peer entries */
-	for (int i = 0; i < peerCount; i++)
-	{
-		MRTTblDumpV2PeerIndexTblPeerEntryPtr entry( new MRTTblDumpV2PeerIndexTblPeerEntry() );
+  if (error) {
+    LOG4CXX_ERROR(Logger, "Parsing error");
+    throw BGPError();
+  }
 
-		uint8_t peerType;
-		error|= sizeof(uint8_t)!=
-				io::read( input, reinterpret_cast<char*>(&peerType), sizeof(uint8_t) );
+  /* parse out the peer entries */
+  for (int i = 0; i < peerCount; i++) {
+    MRTTblDumpV2PeerIndexTblPeerEntryPtr entry(new MRTTblDumpV2PeerIndexTblPeerEntry());
 
-		if ((peerType & 0x01) == 0)
-		{
-			/* IPv4 peer IP address */
-			entry->IPType = AFI_IPv4;
-		} else {
-			/* IPv6 peer IP address */
-			entry->IPType = AFI_IPv6;
-		}
-		if ((peerType & 0x02) == 0) {
-			/* IPv4 peer IP address */
-			entry->isAS4 = false;
-		} else {
-			/* IPv6 peer IP address */
-			entry->isAS4 = true;
-		}
+    uint8_t peerType;
+    error |=
+      sizeof(uint8_t) != io::read(input, reinterpret_cast<char*>(&peerType), sizeof(uint8_t));
 
-		/* copy the peer BGP id, convert to host order */
-		error|= sizeof(uint32_t)!=
-				io::read( input, reinterpret_cast<char*>(&entry->peerBGPId), sizeof(uint32_t) );
-		entry->peerBGPId = ntohl(entry->peerBGPId);
+    if ((peerType & 0x01) == 0) {
+      /* IPv4 peer IP address */
+      entry->IPType = AFI_IPv4;
+    }
+    else {
+      /* IPv6 peer IP address */
+      entry->IPType = AFI_IPv6;
+    }
+    if ((peerType & 0x02) == 0) {
+      /* IPv4 peer IP address */
+      entry->isAS4 = false;
+    }
+    else {
+      /* IPv6 peer IP address */
+      entry->isAS4 = true;
+    }
 
-		/* copy the peer IP address and increment the pointer */
-		if( entry->IPType == AFI_IPv4 )
-		{
-			error|= sizeof(entry->peerIP.ipv4)!=
-					io::read( input, reinterpret_cast<char*>(&entry->peerIP.ipv4), sizeof(entry->peerIP.ipv4) );
-		}
-		else
-		{
-			error|= sizeof(entry->peerIP.ipv6)!=
-					io::read( input, reinterpret_cast<char*>(&entry->peerIP.ipv6), sizeof(entry->peerIP.ipv6) );
-		}
+    /* copy the peer BGP id, convert to host order */
+    error |= sizeof(uint32_t)
+             != io::read(input, reinterpret_cast<char*>(&entry->peerBGPId), sizeof(uint32_t));
+    entry->peerBGPId = ntohl(entry->peerBGPId);
 
-		/* copy the peer AS and increment the pointer */
-		if( !entry->isAS4)
-		{
-			/* 16 bit peer AS */
-			uint16_t peerAS;
-			error|= sizeof(uint16_t)!=
-					io::read( input, reinterpret_cast<char*>(&peerAS), sizeof(uint16_t) );
-			entry->peerAS = ntohs(peerAS);
-		}
-		else {
-			/* 32 bit peer AS */
-			error|= sizeof(uint32_t)!=
-					io::read( input, reinterpret_cast<char*>(&entry->peerAS), sizeof(uint32_t) );
-			entry->peerAS = ntohl(entry->peerAS);
-		}
+    /* copy the peer IP address and increment the pointer */
+    if (entry->IPType == AFI_IPv4) {
+      error |=
+        sizeof(entry->peerIP.ipv4) != io::read(input, reinterpret_cast<char*>(&entry->peerIP.ipv4),
+                                               sizeof(entry->peerIP.ipv4));
+    }
+    else {
+      error |=
+        sizeof(entry->peerIP.ipv6) != io::read(input, reinterpret_cast<char*>(&entry->peerIP.ipv6),
+                                               sizeof(entry->peerIP.ipv6));
+    }
 
-		if( error )
-		{
-			LOG4CXX_ERROR( Logger, "Entry parsing error" );
-			throw BGPError( );
-		}
+    /* copy the peer AS and increment the pointer */
+    if (!entry->isAS4) {
+      /* 16 bit peer AS */
+      uint16_t peerAS;
+      error |=
+        sizeof(uint16_t) != io::read(input, reinterpret_cast<char*>(&peerAS), sizeof(uint16_t));
+      entry->peerAS = ntohs(peerAS);
+    }
+    else {
+      /* 32 bit peer AS */
+      error |= sizeof(uint32_t)
+               != io::read(input, reinterpret_cast<char*>(&entry->peerAS), sizeof(uint32_t));
+      entry->peerAS = ntohl(entry->peerAS);
+    }
 
-		/* add MRTTblDumpV2PeerIndexTblPeerEntry to list */
-		peerEntries.push_back( entry );
-	}
+    if (error) {
+      LOG4CXX_ERROR(Logger, "Entry parsing error");
+      throw BGPError();
+    }
 
-	LOG4CXX_TRACE(Logger,"entries = " << peerEntries.size() );
+    /* add MRTTblDumpV2PeerIndexTblPeerEntry to list */
+    peerEntries.push_back(entry);
+  }
+
+  LOG4CXX_TRACE(Logger, "entries = " << peerEntries.size());
 }
 
-
-MRTTblDumpV2PeerIndexTbl::~MRTTblDumpV2PeerIndexTbl(void) {
+MRTTblDumpV2PeerIndexTbl::~MRTTblDumpV2PeerIndexTbl(void)
+{
 }
-

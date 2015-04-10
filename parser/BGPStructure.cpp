@@ -35,36 +35,34 @@
 using namespace std;
 namespace io = boost::iostreams;
 
-log4cxx::LoggerPtr Route::Logger=log4cxx::Logger::getLogger( "bgpparser.Route" );
+log4cxx::LoggerPtr Route::Logger = log4cxx::Logger::getLogger("bgpparser.Route");
 
-Route::Route( uint8_t aLength, istream &input )
+Route::Route(uint8_t aLength, istream& input)
 {
-	LOG4CXX_TRACE(Logger,"");
+  LOG4CXX_TRACE(Logger, "");
 
-	length = aLength;
-	numOctets = aLength / 8 + ((aLength % 8) ? 1 : 0);
+  length = aLength;
+  numOctets = aLength / 8 + ((aLength % 8) ? 1 : 0);
 
-	LOG4CXX_TRACE(Logger,"length = "<< (int)length << ", numOctets = " << (int)numOctets);
+  LOG4CXX_TRACE(Logger, "length = " << (int)length << ", numOctets = " << (int)numOctets);
 
-	memset( &prefix, 0, sizeof(prefix) );
-	if( numOctets>0 )
-	{
-		int len=io::read( input, reinterpret_cast<char*>(&prefix), numOctets );
-		if( len!=numOctets )
-		{
-			LOG4CXX_ERROR(Logger,"message truncated! need to read ["<< (int)getNumOctets()
-					<<"], but only have ["<< len <<"] bytes.");
-			throw BGPError( );
-		}
-	}
+  memset(&prefix, 0, sizeof(prefix));
+  if (numOctets > 0) {
+    int len = io::read(input, reinterpret_cast<char*>(&prefix), numOctets);
+    if (len != numOctets) {
+      LOG4CXX_ERROR(Logger, "message truncated! need to read ["
+                              << (int)getNumOctets() << "], but only have [" << len << "] bytes.");
+      throw BGPError();
+    }
+  }
 }
 //
-//void Route::printMe( uint16_t afi )
+// void Route::printMe( uint16_t afi )
 //{
 //	cout << toString( afi );
 //}
 //
-//void Route::printMeCompact( uint16_t afi )
+// void Route::printMeCompact( uint16_t afi )
 //{
 //	printMe( afi );
 //}

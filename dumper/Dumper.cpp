@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2008,2009, University of California, Los Angeles All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *   * Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimer.
  *   * Redistributions in binary form must reproduce the above copyright
@@ -12,7 +12,7 @@
  *   * Neither the name of NLnetLabs nor the names of its
  *     contributors may be used to endorse or promote products derived from this
  *     software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -32,27 +32,30 @@ using namespace std;
 #include "Dumper.h"
 
 Dumper::Dumper()
-{}
+{
+}
 
 Dumper::~Dumper()
-{}
+{
+}
 
 int
 Dumper::printXmlNode(xmlNodePtr node, int format, int newline)
 {
-    xmlBufferPtr buff = xmlBufferCreate();
-    int len = xmlNodeDump(buff, NULL, node, 0, format);
-    printf("%s", (char *) buff->content);
-    if (newline > 0) printf("\n");
-    xmlBufferFree(buff);  /* free xml buffer       */
-    return len;
+  xmlBufferPtr buff = xmlBufferCreate();
+  int len = xmlNodeDump(buff, NULL, node, 0, format);
+  printf("%s", (char*)buff->content);
+  if (newline > 0)
+    printf("\n");
+  xmlBufferFree(buff); /* free xml buffer       */
+  return len;
 }
 
 int
 Dumper::printAsciiNode(string node, int format, int newline)
 {
-    printf("%s", (char *) node.c_str());
-    return node.length();
+  printf("%s", (char*)node.c_str());
+  return node.length();
 }
 
 // vim: sw=4 ts=4 sts=4 expandtab
